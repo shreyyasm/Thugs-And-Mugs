@@ -1,3 +1,4 @@
+﻿using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,6 +16,11 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
     public LayerMask interactableLayerMask;
     public Camera playerCamera;
 
+    [Header("Pickup Settings")]
+    public float pickupMoveSpeed = 10f;
+    public float hoverDistance = 2f;
+    public float throwForce = 500f;
+
     [Header("References")]
     public Animator axeAnimator;
     public GameObject Axe;
@@ -27,10 +33,14 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
     private bool inputJump;
     private bool inputRun;
     private bool inputInteract;
+    private bool inputFire;
 
     private PlayerControls inputActions;
+    private GameObject lastLookedObject;
 
-    private GameObject temp; // Stores the last interacted object
+    // Pickup variables
+    public GameObject heldObject;
+    private Rigidbody heldRB;
 
     private void Awake()
     {
@@ -39,101 +49,249 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
         inputActions.Player.Move.performed += ctx => inputMovement = ctx.ReadValue<Vector2>();
         inputActions.Player.Move.canceled += ctx => inputMovement = Vector2.zero;
 
-        inputActions.Player.Jump.performed += ctx => inputJump = true; // Only set when pressed
+        inputActions.Player.Jump.performed += ctx => inputJump = true;
 
         inputActions.Player.Run.performed += ctx => inputRun = true;
         inputActions.Player.Run.canceled += ctx => inputRun = false;
 
         inputActions.Player.Interact.performed += ctx => inputInteract = true;
+        inputActions.Player.Fire.performed += ctx => inputFire = true;
     }
 
     private void OnEnable() => inputActions.Enable();
     private void OnDisable() => inputActions.Disable();
 
-    void Start()
+    private void Start()
     {
         controller = GetComponent<CharacterController>();
         if (playerCamera == null)
             playerCamera = Camera.main;
     }
 
-    void Update()
+    private void Update()
     {
         HandleMovement();
-        PlayerInteract();
+        HandleInteraction();
+        HandlePickup();
     }
-
-    void HandleMovement()
+    
+    private void HandleMovement()
     {
         isGrounded = controller.isGrounded;
 
-        // Reset vertical velocity when grounded to avoid floating
         if (isGrounded && velocity.y < 0)
             velocity.y = -2f;
 
-        // Get movement input
         Vector3 move = transform.right * inputMovement.x + transform.forward * inputMovement.y;
         float currentSpeed = inputRun ? runSpeed : walkSpeed;
         controller.Move(move * currentSpeed * Time.deltaTime);
 
-        // Jumping logic (only allow jumping when grounded)
         if (isGrounded && inputJump)
         {
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
         }
-        inputJump = false; // Reset jump after applying
+        inputJump = false;
 
-        // Apply gravity
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
 
-    void PlayerInteract()
+    private void HandleInteraction()
     {
+        if(pickedItem)
+            return;
+
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         RaycastHit hit;
 
         if (Physics.Raycast(ray, out hit, interactRadius, interactableLayerMask))
         {
-            temp = hit.collider.gameObject;
-            Outline outline = hit.collider.GetComponent<Outline>();
-            if (outline != null) outline.enabled = true;
+            GameObject hitObject = hit.collider.gameObject;
 
-            if (hit.collider.TryGetComponent(out Interactable interactable))
+            if (hitObject != lastLookedObject)
             {
-                if (interactable.interactableType == Interactable.InteractableType.Tree)
-                    Axe.SetActive(true);
+                // Remove outline from last object
+                if (lastLookedObject != null && lastLookedObject.TryGetComponent(out Outline lastOutline))
+                    lastOutline.enabled = false;
 
+                lastLookedObject = hitObject;
+            }
+
+            if (hitObject.TryGetComponent(out Outline outline))
+                outline.enabled = true;
+
+            if (heldObject == null && hitObject.TryGetComponent(out Interactable interactable))
+            {
                 if (inputInteract)
                 {
+                    if (interactable.isPickable)
+                    {
+                        PickUpObject(hitObject);
+                    }
+                    else
+                    {
+                        interactable.Interact();
+                    }
+                }
+
+                if (inputFire && interactable.interactableType == Interactable.InteractableType.Tree)
+                {
+                    Axe.SetActive(true);
                     axeAnimator.SetBool("SwingAxe", true);
+
+                    interactable.Interact();
+
                     LeanTween.delayedCall(0.2f, () =>
                     {
                         axeAnimator.SetBool("SwingAxe", false);
                     });
-
-                    interactable.Interact();
                 }
             }
         }
         else
         {
-            // Remove outline effect
-            if (temp != null && temp.TryGetComponent(out Outline tempOutline))
-                tempOutline.enabled = false;
-
-            // Hide axe if looking away from a tree
-            if (temp != null && temp.TryGetComponent(out Interactable interactable))
+            if (lastLookedObject != null)
             {
-                if (interactable.interactableType == Interactable.InteractableType.Tree)
-                    Axe.SetActive(false);
+                if (lastLookedObject.TryGetComponent(out Outline lastOutline))
+                    lastOutline.enabled = false;
+
+                if (lastLookedObject.TryGetComponent(out Interactable interactable))
+                {
+                    if (interactable.interactableType == Interactable.InteractableType.Tree)
+                        Axe.SetActive(false);
+                }
+
+                lastLookedObject = null;
+            }
+        }
+    }
+
+    private bool pickedItem = false;
+    private bool justPickedUp = false; // NEW
+
+    void HandlePickup()
+    {
+        if (heldObject != null)
+        {
+            if (inputInteract && pickedItem && !justPickedUp)
+            {
+                DropObject();
+            }
+            else if (inputFire && pickedItem && !justPickedUp)
+            {
+                ThrowObject(10);
+            }
+            else
+            {
+                MoveHeldObject();
             }
         }
 
-        inputInteract = false; // Reset interaction input after one use
+        inputInteract = false;
+        inputFire = false;
+        justPickedUp = false; // reset after 1 frame
     }
 
-    void OnDrawGizmos()
+    void PickUpObject(GameObject obj)
+    {
+        heldObject = obj;
+        heldRB = heldObject.GetComponent<Rigidbody>();
+        if (heldRB != null)
+        {
+            Debug.Log("worked");
+            heldRB.useGravity = false;
+            heldRB.freezeRotation = true;
+            heldRB.isKinematic = true; // Set to kinematic when picked up
+
+            // Smooth out the movement by setting interpolation
+            heldRB.interpolation = RigidbodyInterpolation.Interpolate; // Ensure smooth movement when moved manually
+
+            Vector3 lookDirection = playerCamera.transform.forward;
+            lookDirection.y = 0f; // Optional: Only rotate on Y axis if you don't want it tilted up/down
+            heldObject.transform.rotation = Quaternion.LookRotation(lookDirection);
+        }
+        pickedItem = true;
+        justPickedUp = true; // Mark that we JUST picked up something
+    }
+
+    public GameObject virtualCamera;
+    void DropObject()
+    {
+        if (!pickedItem) return;
+
+        if (heldRB != null)
+        {
+            heldRB.useGravity = true;
+            heldRB.freezeRotation = false;
+            heldRB.isKinematic = false;
+        }
+
+        heldObject = null;
+        heldRB = null;
+        pickedItem = false;
+    }
+
+    void ThrowObject(float throwForce)
+    {
+        if (!pickedItem) return;
+
+        if (heldRB != null)
+        {
+            heldRB.useGravity = true;
+            heldRB.freezeRotation = false;
+            heldRB.isKinematic = false;
+
+            heldRB.linearVelocity = Vector3.zero; // 🛠️ Zero the velocity before throwing
+
+            heldRB.AddForce(playerCamera.transform.forward * throwForce, ForceMode.Impulse);
+        }
+
+        heldObject = null;
+        heldRB = null;
+        pickedItem = false;
+    }
+
+    void MoveHeldObject()
+    {
+        if (heldRB == null) return;
+
+        // Get flat forward direction (ignore vertical tilt)
+        Vector3 flatForward = playerCamera.transform.forward;
+        flatForward.y = 0;
+        flatForward.Normalize();
+
+        // Base target position in front of camera
+        Vector3 targetPos = playerCamera.transform.position + flatForward * hoverDistance;
+
+        // Get the pitch (X rotation) of the camera
+        float pitch = playerCamera.transform.localEulerAngles.x;
+
+        // Normalize pitch to a -90 to 90 range
+        if (pitch > 180f)
+            pitch -= 360f;
+
+        // Invert the pitch logic for height adjustment (when you look up, it goes up, when you look down, it goes down)
+        float heightAdjustment = Mathf.Clamp(-pitch / 10f, 1f, 10f);  // Inverted, so looking up increases the height
+
+        // Apply the height adjustment based on camera's pitch
+        targetPos.y += heightAdjustment;
+
+        // Move the object smoothly toward the target position
+        Vector3 direction = (targetPos - heldObject.transform.position);
+        heldRB.MovePosition(heldObject.transform.position + direction * pickupMoveSpeed * Time.deltaTime); // Use MovePosition for smooth movement
+
+        // Rotate object to always face the camera
+        Vector3 lookDirection = flatForward;
+        heldObject.transform.rotation = Quaternion.Slerp(
+            heldObject.transform.rotation,
+            Quaternion.LookRotation(lookDirection),
+            Time.deltaTime * 10f
+        );
+    }
+
+
+
+    private void OnDrawGizmos()
     {
         if (playerCamera != null)
         {

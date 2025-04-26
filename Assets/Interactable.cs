@@ -4,6 +4,7 @@ public class Interactable : MonoBehaviour
 {
     public enum InteractableType
     {
+        defaultItem,
         Tree,
         Broom,
         // Add more types here
@@ -11,6 +12,7 @@ public class Interactable : MonoBehaviour
 
     [Header("Interactable Settings")]
     public InteractableType interactableType;
+    public bool isPickable;
 
     private void Update()
     {
