@@ -1,7 +1,8 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
-public class FirstPersonMovement : MonoBehaviour
+public class FirstPersonMovementInputSystem : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
@@ -12,96 +13,126 @@ public class FirstPersonMovement : MonoBehaviour
     [Header("Interaction Settings")]
     public float interactRadius = 3f;
     public LayerMask interactableLayerMask;
-    public Camera playerCamera; // Reference to the camera
+    public Camera playerCamera;
+
+    [Header("References")]
+    public Animator axeAnimator;
+    public GameObject Axe;
 
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
 
-    public Animator axeAnimator;
+    private Vector2 inputMovement;
+    private bool inputJump;
+    private bool inputRun;
+    private bool inputInteract;
+
+    private PlayerControls inputActions;
+
+    private GameObject temp; // Stores the last interacted object
+
+    private void Awake()
+    {
+        inputActions = new PlayerControls();
+
+        inputActions.Player.Move.performed += ctx => inputMovement = ctx.ReadValue<Vector2>();
+        inputActions.Player.Move.canceled += ctx => inputMovement = Vector2.zero;
+
+        inputActions.Player.Jump.performed += ctx => inputJump = true; // Only set when pressed
+
+        inputActions.Player.Run.performed += ctx => inputRun = true;
+        inputActions.Player.Run.canceled += ctx => inputRun = false;
+
+        inputActions.Player.Interact.performed += ctx => inputInteract = true;
+    }
+
+    private void OnEnable() => inputActions.Enable();
+    private void OnDisable() => inputActions.Disable();
 
     void Start()
     {
         controller = GetComponent<CharacterController>();
-
         if (playerCamera == null)
-            playerCamera = Camera.main; // Fallback to main camera
+            playerCamera = Camera.main;
     }
 
     void Update()
     {
         HandleMovement();
         PlayerInteract();
-        
     }
 
     void HandleMovement()
     {
-        // Ground check
         isGrounded = controller.isGrounded;
+
+        // Reset vertical velocity when grounded to avoid floating
         if (isGrounded && velocity.y < 0)
             velocity.y = -2f;
 
-        // Movement input
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
-
-        bool isRunning = Input.GetKey(KeyCode.LeftShift);
-        float currentSpeed = isRunning ? runSpeed : walkSpeed;
-
-        Vector3 move = transform.right * x + transform.forward * z;
+        // Get movement input
+        Vector3 move = transform.right * inputMovement.x + transform.forward * inputMovement.y;
+        float currentSpeed = inputRun ? runSpeed : walkSpeed;
         controller.Move(move * currentSpeed * Time.deltaTime);
 
-        // Jumping
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        // Jumping logic (only allow jumping when grounded)
+        if (isGrounded && inputJump)
         {
             velocity.y = Mathf.Sqrt(jumpForce * -2f * gravity);
         }
+        inputJump = false; // Reset jump after applying
 
         // Apply gravity
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
     }
-    GameObject temp;
+
     void PlayerInteract()
     {
         Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
         RaycastHit hit;
 
-        
-
         if (Physics.Raycast(ray, out hit, interactRadius, interactableLayerMask))
         {
-            //Debug.Log("Interacted with: " + hit.collider.name);
             temp = hit.collider.gameObject;
-            hit.collider.GetComponent<Outline>().enabled = true;
-            //Optional: call a method on the object if it has a certain component
-            //Example:
-            if(Input.GetMouseButtonDown(0))
-            {
-                if (hit.collider.TryGetComponent(out Interactable interactable))
-                {
-                    interactable.Interact();
-                    if (interactable.interactableType == Interactable.InteractableType.Tree)
-                    {
-                        axeAnimator.SetBool("SwingAxe", true);
-                        LeanTween.delayedCall(0.2f, () =>
-                        {
-                            axeAnimator.SetBool("SwingAxe", false);
-                        });
+            Outline outline = hit.collider.GetComponent<Outline>();
+            if (outline != null) outline.enabled = true;
 
-                    }
+            if (hit.collider.TryGetComponent(out Interactable interactable))
+            {
+                if (interactable.interactableType == Interactable.InteractableType.Tree)
+                    Axe.SetActive(true);
+
+                if (inputInteract)
+                {
+                    axeAnimator.SetBool("SwingAxe", true);
+                    LeanTween.delayedCall(0.2f, () =>
+                    {
+                        axeAnimator.SetBool("SwingAxe", false);
+                    });
+
+                    interactable.Interact();
                 }
             }
-           
         }
         else
         {
-            if (temp != null)
-                temp.GetComponent<Outline>().enabled = false;
+            // Remove outline effect
+            if (temp != null && temp.TryGetComponent(out Outline tempOutline))
+                tempOutline.enabled = false;
+
+            // Hide axe if looking away from a tree
+            if (temp != null && temp.TryGetComponent(out Interactable interactable))
+            {
+                if (interactable.interactableType == Interactable.InteractableType.Tree)
+                    Axe.SetActive(false);
+            }
         }
 
+        inputInteract = false; // Reset interaction input after one use
     }
+
     void OnDrawGizmos()
     {
         if (playerCamera != null)

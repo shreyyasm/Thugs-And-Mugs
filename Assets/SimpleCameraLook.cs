@@ -1,9 +1,12 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class SimpleCameraLook : MonoBehaviour
+public class SimpleCameraLookInputSystem : MonoBehaviour
 {
     [Header("Mouse Look Settings")]
     public float mouseSensitivity = 100f;
+    public float controllerSensitivity = 300f; // This is usually higher
+
     public Transform playerBody;
 
     [Header("Camera Sway")]
@@ -13,6 +16,19 @@ public class SimpleCameraLook : MonoBehaviour
     private float xRotation = 0f;
     private float roll = 0f;
 
+    private Vector2 lookInput;
+    private PlayerControls inputActions;
+
+    void Awake()
+    {
+        inputActions = new PlayerControls();
+        inputActions.Player.Look.performed += ctx => lookInput = ctx.ReadValue<Vector2>();
+        inputActions.Player.Look.canceled += ctx => lookInput = Vector2.zero;
+    }
+
+    void OnEnable() => inputActions.Enable();
+    void OnDisable() => inputActions.Disable();
+
     void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -21,21 +37,22 @@ public class SimpleCameraLook : MonoBehaviour
 
     void Update()
     {
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        bool isGamepad = Gamepad.current != null && Gamepad.current.enabled && Gamepad.current.wasUpdatedThisFrame;
 
-        // Vertical look (pitch)
+        float currentSensitivity = isGamepad ? controllerSensitivity : mouseSensitivity;
+
+        float mouseX = lookInput.x * currentSensitivity * Time.deltaTime;
+        float mouseY = lookInput.y * currentSensitivity * Time.deltaTime;
+
         xRotation -= mouseY;
         xRotation = Mathf.Clamp(xRotation, -90f, 90f);
 
-        // Horizontal look (yaw) on player body
         playerBody.Rotate(Vector3.up * mouseX);
 
-        // Camera sway based on mouseX
         float targetRoll = -mouseX * swayAmount;
         roll = Mathf.Lerp(roll, targetRoll, Time.deltaTime * swaySmoothness);
 
-        // Apply pitch + roll to camera only
         transform.localRotation = Quaternion.Euler(xRotation, 0f, roll);
     }
+
 }

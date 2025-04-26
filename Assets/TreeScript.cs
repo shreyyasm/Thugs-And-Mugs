@@ -46,6 +46,12 @@ public class TreeScript : MonoBehaviour
     {
         // Smooth health bar update
         healthSlider.value = Mathf.Lerp(healthSlider.value, targetHealth, Time.deltaTime * smoothSpeed);
+
+        float distance = Vector3.Distance(cam.transform.position, healthUI.transform.position);
+        float scale = Mathf.Clamp(distance / 10f, 0.5f, 1.2f); // adjust 10f, 0.5f, and 1.2f to taste
+        healthUI.transform.localScale = Vector3.one * scale;
+
+
     }
 
     public void TakeDamage(float amount, Vector3 hitPosition)
