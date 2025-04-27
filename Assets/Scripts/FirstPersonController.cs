@@ -42,6 +42,10 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
     public GameObject heldObject;
     private Rigidbody heldRB;
 
+    public GameObject interactSign;
+
+    public bool playerBusy;
+
     private void Awake()
     {
         inputActions = new PlayerControls();
@@ -70,6 +74,8 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
 
     private void Update()
     {
+        if(playerBusy)
+            return;
         HandleMovement();
         HandleInteraction();
         HandlePickup();
@@ -120,6 +126,13 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
             if (hitObject.TryGetComponent(out Outline outline))
                 outline.enabled = true;
 
+            if(!pickedItem && hitObject.GetComponent<Interactable>().isPickable)
+                interactSign.SetActive(true);
+
+            Vector3 lookDirection = playerCamera.transform.forward;
+            lookDirection.y = 0f; // Only rotate around the Y-axis if you don't want it to tilt up/down
+            lookDirection.Normalize();
+
             if (heldObject == null && hitObject.TryGetComponent(out Interactable interactable))
             {
                 if (inputInteract)
@@ -127,10 +140,12 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
                     if (interactable.isPickable)
                     {
                         PickUpObject(hitObject);
+                        interactSign.SetActive(false);
                     }
                     else
                     {
                         interactable.Interact();
+                        interactSign.SetActive(false);
                     }
                 }
 
@@ -150,6 +165,7 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
         }
         else
         {
+            interactSign.SetActive(false);
             if (lastLookedObject != null)
             {
                 if (lastLookedObject.TryGetComponent(out Outline lastOutline))

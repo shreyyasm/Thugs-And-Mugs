@@ -1,3 +1,4 @@
+using StarterAssets;
 using UnityEngine;
 
 public class Interactable : MonoBehaviour
@@ -7,6 +8,7 @@ public class Interactable : MonoBehaviour
         defaultItem,
         Tree,
         Broom,
+        WoodCuttingMachine,
         // Add more types here
     }
 
@@ -14,6 +16,8 @@ public class Interactable : MonoBehaviour
     public InteractableType interactableType;
     public bool isPickable;
 
+    public GameObject CuttingMachineCamera;
+    public FirstPersonMovementInputSystem firstPersonController;
     private void Update()
     {
        
@@ -29,6 +33,10 @@ public class Interactable : MonoBehaviour
 
             case InteractableType.Broom:
                 InteractWithBroom();
+                break;
+
+            case InteractableType.WoodCuttingMachine:
+                InteractWithCuttingMachine();
                 break;
 
             // Add more cases for new types
@@ -53,4 +61,10 @@ public class Interactable : MonoBehaviour
         Debug.Log("You picked up the broom.");
         // Add broom-specific logic here
     }
+    public void InteractWithCuttingMachine()
+    {
+        firstPersonController.playerBusy = true;
+        CuttingMachineCamera.SetActive(true);
+    }
+   
 }

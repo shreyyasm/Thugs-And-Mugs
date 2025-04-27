@@ -8,6 +8,7 @@ TagManager:
   - Ground
   - Tile
   - Tree
+  - LogBundle
   layers:
   - Default
   - TransparentFX
@@ -16,8 +17,8 @@ TagManager:
   - Water
   - UI
   - Interactable
-  - 
-  - 
+  - Logs
+  - LogSnapPosition
   - 
   - 
   - 

@@ -18,6 +18,7 @@ public class SimpleCameraLookInputSystem : MonoBehaviour
 
     private Vector2 lookInput;
     private PlayerControls inputActions;
+    public FirstPersonMovementInputSystem FirstPersonMovementInputSystem;
 
     void Awake()
     {
@@ -31,12 +32,15 @@ public class SimpleCameraLookInputSystem : MonoBehaviour
 
     void Start()
     {
-        Cursor.lockState = CursorLockMode.Locked;
-        Cursor.visible = false;
+        //Cursor.lockState = CursorLockMode.Locked;
+        //Cursor.visible = false;
     }
 
     void Update()
     {
+        if(FirstPersonMovementInputSystem.playerBusy)
+            return;
+
         bool isGamepad = Gamepad.current != null && Gamepad.current.enabled && Gamepad.current.wasUpdatedThisFrame;
 
         float currentSensitivity = isGamepad ? controllerSensitivity : mouseSensitivity;
