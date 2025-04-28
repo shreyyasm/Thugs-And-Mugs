@@ -17,6 +17,7 @@ public class Interactable : MonoBehaviour
     public bool isPickable;
 
     public GameObject CuttingMachineCamera;
+    public Camera CameraMain;
     public FirstPersonMovementInputSystem firstPersonController;
     private void Update()
     {
@@ -65,6 +66,9 @@ public class Interactable : MonoBehaviour
     {
         firstPersonController.playerBusy = true;
         CuttingMachineCamera.SetActive(true);
+        Cursor.lockState = CursorLockMode.Confined;
+        Cursor.visible = true;
+        //CameraMain.orthographic = true;
     }
    
 }

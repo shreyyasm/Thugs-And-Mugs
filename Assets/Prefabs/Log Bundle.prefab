@@ -118,6 +118,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   interactableType: 0
   isPickable: 1
+  CuttingMachineCamera: {fileID: 0}
+  firstPersonController: {fileID: 0}
 --- !u!1 &3365728545436916573
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,6 +235,7 @@ GameObject:
   - component: {fileID: 1708858721938202358}
   - component: {fileID: 5210341036476020466}
   - component: {fileID: 3642714688860080651}
+  - component: {fileID: 3812554719765661149}
   m_Layer: 7
   m_Name: Cube (1)
   m_TagString: Untagged
@@ -347,6 +350,21 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &3812554719765661149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3420866266367405855}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b17e40b8082dc9b4c85cf01da82eb3c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isCut: 0
+  logHalfPrefab: {fileID: 6311282936201025687, guid: 7239e3640af832b47a497c2c6d9cb017,
+    type: 3}
 --- !u!1 &6106564677864860882
 GameObject:
   m_ObjectHideFlags: 0
@@ -360,6 +378,7 @@ GameObject:
   - component: {fileID: 8770556346402315069}
   - component: {fileID: 571087252110813152}
   - component: {fileID: 6985856583026429485}
+  - component: {fileID: 1513573791920191146}
   m_Layer: 7
   m_Name: Cube
   m_TagString: Untagged
@@ -475,6 +494,21 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &1513573791920191146
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6106564677864860882}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b17e40b8082dc9b4c85cf01da82eb3c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isCut: 0
+  logHalfPrefab: {fileID: 6311282936201025687, guid: 7239e3640af832b47a497c2c6d9cb017,
+    type: 3}
 --- !u!1 &6218769308416796269
 GameObject:
   m_ObjectHideFlags: 0
@@ -488,6 +522,7 @@ GameObject:
   - component: {fileID: 1735159343694375837}
   - component: {fileID: 8019956088140642029}
   - component: {fileID: 5936183748643311596}
+  - component: {fileID: 4727617171584445306}
   m_Layer: 7
   m_Name: Cube (2)
   m_TagString: Untagged
@@ -602,6 +637,21 @@ MonoBehaviour:
   precomputeOutline: 0
   bakeKeys: []
   bakeValues: []
+--- !u!114 &4727617171584445306
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6218769308416796269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b17e40b8082dc9b4c85cf01da82eb3c2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isCut: 0
+  logHalfPrefab: {fileID: 6311282936201025687, guid: 7239e3640af832b47a497c2c6d9cb017,
+    type: 3}
 --- !u!1 &8559072098657467984
 GameObject:
   m_ObjectHideFlags: 0

@@ -71,10 +71,18 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
         if (playerCamera == null)
             playerCamera = Camera.main;
     }
-
+    public GameObject WoodCutCamera;
     private void Update()
     {
-        if(playerBusy)
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            playerBusy = false;
+            WoodCutCamera.SetActive(false);
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
+            //playerCamera.orthographic = false;
+        }
+        if (playerBusy)
             return;
         HandleMovement();
         HandleInteraction();
@@ -230,7 +238,7 @@ public class FirstPersonMovementInputSystem : MonoBehaviour
         justPickedUp = true; // Mark that we JUST picked up something
     }
 
-    public GameObject virtualCamera;
+    
     void DropObject()
     {
         if (!pickedItem) return;
