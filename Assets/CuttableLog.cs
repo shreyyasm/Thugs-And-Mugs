@@ -19,6 +19,7 @@ public class LogCutter : MonoBehaviour
         if (other.CompareTag("Saw") && isInsideSaw && !isCut)
         {
             SplitLog();
+           
         }
     }
 

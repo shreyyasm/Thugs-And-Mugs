@@ -15,14 +15,19 @@ public class WoodCuttingManager : MonoBehaviour
     private GameObject hoveredLog;
     private GameObject hoveredHalfLog;
     private GameObject grabbedLog;
+    private GameObject snappedLog;
     private Transform nearestSnapPoint;
     private bool isDragging = false;
+
+    public BoxCollider SawCollider;
 
     private void Update()
     {
         if (!isDragging)
         {
-            HandleHoverFullLog();
+            if (snappedLog == null)
+                HandleHoverFullLog();
+
             HandleHoverHalfLog();
         }
 
@@ -47,7 +52,6 @@ public class WoodCuttingManager : MonoBehaviour
         }
         else
         {
-            // If we are no longer hovering over a full log, clear the hover
             if (hoveredLog != null)
             {
                 EnableOutline(hoveredLog, false);
@@ -59,7 +63,7 @@ public class WoodCuttingManager : MonoBehaviour
     void HandleHoverHalfLog()
     {
         if (grabbedLog != null) return;
-        if (hoveredLog != null) return; // Only look for half-logs if not hovering full logs
+        if (hoveredLog != null) return;
 
         Ray ray = topDownCamera.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out RaycastHit hit, 100f, halfLogLayerMask))
@@ -74,7 +78,6 @@ public class WoodCuttingManager : MonoBehaviour
         }
         else
         {
-            // If we are no longer hovering over a half log, clear the hover
             if (hoveredHalfLog != null)
             {
                 EnableOutline(hoveredHalfLog, false);
@@ -91,14 +94,17 @@ public class WoodCuttingManager : MonoBehaviour
             {
                 grabbedLog = hoveredLog;
                 ClearHover();
-                isDragging = true;
+                isDragging = true; 
+                SawCollider.isTrigger = false;
             }
             else if (hoveredHalfLog != null)
             {
                 grabbedLog = hoveredHalfLog;
                 ClearHover();
                 isDragging = true;
+                SawCollider.isTrigger = false;
             }
+            SawCollider.isTrigger = false;
         }
 
         if (grabbedLog != null && isDragging)
@@ -122,37 +128,36 @@ public class WoodCuttingManager : MonoBehaviour
                     rb.angularVelocity = Vector3.zero;
                 }
 
+                snappedLog = grabbedLog;
+                grabbedLog = null;
                 isDragging = false;
-                EnableOutline(grabbedLog, true);
+                EnableOutline(snappedLog, true);
             }
             else
             {
                 grabbedLog = null;
                 isDragging = false;
             }
-
+            SawCollider.isTrigger = true;
             nearestSnapPoint = null;
+            SawCollider.isTrigger = true;
         }
     }
 
     void MoveSnappedLog()
     {
-        if (grabbedLog == null) return;
+        if (snappedLog == null) return;
 
         float moveInput = 0f;
         if (Input.GetKey(KeyCode.W))
         {
             moveInput = 1f;
         }
-        else if (Input.GetKey(KeyCode.S))
-        {
-            moveInput = -1f;
-        }
 
         if (moveInput != 0f)
         {
-            Vector3 moveDirection = grabbedLog.transform.forward;
-            grabbedLog.transform.position += moveDirection * moveInput * moveSpeed * Time.deltaTime;
+            Vector3 moveDirection = snappedLog.transform.forward;
+            snappedLog.transform.position += moveDirection * moveInput * moveSpeed * Time.deltaTime;
         }
     }
 
@@ -174,6 +179,7 @@ public class WoodCuttingManager : MonoBehaviour
                 {
                     grabbedLog.transform.position = nearestSnapPoint.position;
                     grabbedLog.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
+                    //SawCollider.isTrigger = true;
                 }
             }
         }
@@ -206,6 +212,7 @@ public class WoodCuttingManager : MonoBehaviour
             EnableOutline(hoveredLog, false);
             hoveredLog = null;
         }
+
         if (hoveredHalfLog != null)
         {
             EnableOutline(hoveredHalfLog, false);

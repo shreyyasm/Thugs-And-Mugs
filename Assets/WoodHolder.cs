@@ -19,6 +19,7 @@ public class WoodHolder : MonoBehaviour
 
                 // Unparent the log
                 log.SetParent(null);
+                
 
                 // Add Rigidbody if not already there
                 if (!log.TryGetComponent<Rigidbody>(out Rigidbody rb))
