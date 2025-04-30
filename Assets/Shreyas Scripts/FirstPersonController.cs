@@ -114,20 +114,17 @@ namespace Shreyas
 
         private void HandleInteraction()
         {
-            if (pickedItem)
-                return;
+            if (pickedItem) return;
 
             Ray ray = new Ray(playerCamera.transform.position, playerCamera.transform.forward);
-            RaycastHit hit;
 
-            if (Physics.Raycast(ray, out hit, interactRadius, interactableLayerMask))
+            if (Physics.Raycast(ray, out RaycastHit hit, interactRadius, interactableLayerMask))
             {
                 GameObject hitObject = hit.collider.gameObject;
 
                 if (hitObject != lastLookedObject)
                 {
-                    // Remove outline from last object
-                    if (lastLookedObject != null && lastLookedObject.TryGetComponent(out Outline lastOutline))
+                    if (lastLookedObject && lastLookedObject.TryGetComponent(out Outline lastOutline))
                         lastOutline.enabled = false;
 
                     lastLookedObject = hitObject;
@@ -136,62 +133,60 @@ namespace Shreyas
                 if (hitObject.TryGetComponent(out Outline outline) && !outline.enabled)
                     outline.enabled = true;
 
-
-                if (!pickedItem && hitObject.GetComponent<Interactable>().isPickable)
-                    interactSign.SetActive(true);
-
-                //Vector3 lookDirection = playerCamera.transform.forward;
-                //lookDirection.y = 0f; // Only rotate around the Y-axis if you don't want it to tilt up/down
-                //lookDirection.Normalize();
-
-                if (heldObject == null && hitObject.TryGetComponent(out Interactable interactable))
+                if (!pickedItem && hitObject.TryGetComponent(out Interactable interactable))
                 {
-                    if (inputInteract)
+                    bool isTree = interactable.interactableType == Interactable.InteractableType.Tree;
+
+                    if (!isTree)
+                        interactSign.SetActive(true);
+
+                    if (heldObject == null)
                     {
-                        if (interactable.isPickable)
+                        if (inputInteract)
                         {
-                            PickUpObject(hitObject);
+                            if (interactable.isPickable)
+                                PickUpObject(hitObject);
+                            else
+                                interactable.Interact();
+
                             interactSign.SetActive(false);
                         }
-                        else
+
+                        if (inputFire && isTree)
                         {
+                            Axe.SetActive(true);
+                            axeAnimator.SetBool("SwingAxe", true);
+
                             interactable.Interact();
-                            interactSign.SetActive(false);
+
+                            LeanTween.delayedCall(0.2f, () =>
+                            {
+                                axeAnimator.SetBool("SwingAxe", false);
+                            });
                         }
-                    }
-
-                    if (inputFire && interactable.interactableType == Interactable.InteractableType.Tree)
-                    {
-                        Axe.SetActive(true);
-                        axeAnimator.SetBool("SwingAxe", true);
-
-                        interactable.Interact();
-
-                        LeanTween.delayedCall(0.2f, () =>
-                        {
-                            axeAnimator.SetBool("SwingAxe", false);
-                        });
                     }
                 }
             }
             else
             {
                 interactSign.SetActive(false);
-                if (lastLookedObject != null)
+
+                if (lastLookedObject)
                 {
                     if (lastLookedObject.TryGetComponent(out Outline lastOutline))
                         lastOutline.enabled = false;
 
-                    if (lastLookedObject.TryGetComponent(out Interactable interactable))
+                    if (lastLookedObject.TryGetComponent(out Interactable interactable) &&
+                        interactable.interactableType == Interactable.InteractableType.Tree)
                     {
-                        if (interactable.interactableType == Interactable.InteractableType.Tree)
-                            Axe.SetActive(false);
+                        Axe.SetActive(false);
                     }
 
                     lastLookedObject = null;
                 }
             }
         }
+
 
         private bool pickedItem = false;
         private bool justPickedUp = false; // NEW
@@ -309,11 +304,15 @@ namespace Shreyas
 
             // Rotate object to always face the camera
             Vector3 lookDirection = flatForward;
-            heldObject.transform.rotation = Quaternion.Slerp(
-                heldObject.transform.rotation,
-                Quaternion.LookRotation(lookDirection),
-                Time.deltaTime * 10f
-            );
+            if(lookDirection != Vector3.zero)
+            {
+                heldObject.transform.rotation = Quaternion.Slerp(
+               heldObject.transform.rotation,
+               Quaternion.LookRotation(lookDirection),
+               Time.deltaTime * 10f
+           );
+            }
+           
         }
     }
 

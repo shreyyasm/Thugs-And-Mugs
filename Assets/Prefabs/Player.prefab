@@ -212,7 +212,6 @@ GameObject:
   - component: {fileID: 3299860247826927347}
   - component: {fileID: 5857680481771551205}
   - component: {fileID: 1561967071737864982}
-  - component: {fileID: 3012556008783515447}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -291,22 +290,8 @@ MonoBehaviour:
   Axe: {fileID: 5663894370122613284}
   heldObject: {fileID: 0}
   interactSign: {fileID: 2998201133178322370}
-  virtualCamera: {fileID: 0}
---- !u!114 &3012556008783515447
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2599046793963229449}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2dd7b48e98b6fbf4db7b2ecf7b0eb485, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  wood: 100
-  brick: 50
-  metal: 25
+  playerBusy: 0
+  WoodCutCamera: {fileID: 0}
 --- !u!1 &2998201133178322370
 GameObject:
   m_ObjectHideFlags: 0
@@ -536,6 +521,7 @@ MonoBehaviour:
   playerBody: {fileID: 3299860247826927347}
   swayAmount: 2
   swaySmoothness: 4
+  FirstPersonMovementInputSystem: {fileID: 1561967071737864982}
 --- !u!1 &3828127561583762844
 GameObject:
   m_ObjectHideFlags: 0
