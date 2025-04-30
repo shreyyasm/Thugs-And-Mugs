@@ -611,6 +611,7 @@ MonoBehaviour:
   snapDistance: 1
   moveSpeed: 1
   SawCollider: {fileID: 215828801}
+  FirstPersonMovementInputSystem: {fileID: 1659309914}
 --- !u!1 &215828799
 GameObject:
   m_ObjectHideFlags: 0
@@ -777,6 +778,9 @@ MonoBehaviour:
   groundMaterial: 0
   wallMaterial: 0
   gridSize: 1
+  currentPreview: {fileID: 0}
+  previewScript: {fileID: 0}
+  currentMode: 0
 --- !u!1 &227186323
 GameObject:
   m_ObjectHideFlags: 0
