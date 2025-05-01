@@ -81,17 +81,8 @@ namespace Dhiraj
         public void EnableMarket(bool isEnable)
         {
             float targetAlpha = isEnable ? 1f : 0f;
-            float duration = 0.5f; // Adjust transition duration as needed
-            LeanTween.alphaCanvas(marketPlace, targetAlpha, duration);
-
-            /*if (isEnable)
-            {
-                // Use lean tween and control smooth transition from current alpha value to 1 and apply it to marketPlace canvas group alpha !!
-            }
-            else
-            {
-                // Use lean tween and control smooth transition from current alpha value to 1 and apply it to marketPlace canvas group alpha !!
-            }*/
+            float duration = 0.1f; // Adjust transition duration as needed
+            LeanTween.alphaCanvas(marketPlace, targetAlpha, duration);           
         }
 
     }
