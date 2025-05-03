@@ -10,6 +10,9 @@ TagManager:
   - Tree
   - LogBundle
   - Saw
+  - Axe
+  - Broom
+  - Lighter
   layers:
   - Default
   - TransparentFX

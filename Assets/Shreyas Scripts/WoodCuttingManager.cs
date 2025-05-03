@@ -14,8 +14,8 @@ namespace Shreyas
         public float moveSpeed = 1f;
 
         private GameObject hoveredLog;
-        private GameObject hoveredHalfLog;
-        private GameObject grabbedLog;
+        public GameObject hoveredHalfLog;
+        public GameObject grabbedLog;
         private GameObject snappedLog;
         private Transform nearestSnapPoint;
         private bool isDragging = false;
@@ -119,7 +119,7 @@ namespace Shreyas
 
             if (Input.GetMouseButtonUp(0))
             {
-                if (nearestSnapPoint != null)
+                if (nearestSnapPoint != null && grabbedLog.layer != 10)
                 {
                     grabbedLog.transform.position = new Vector3(nearestSnapPoint.position.x, grabbedLog.transform.position.y, nearestSnapPoint.position.z);
                     grabbedLog.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
@@ -180,11 +180,12 @@ namespace Shreyas
                 if (nearestSnapPoint != null)
                 {
                     float distance = Vector3.Distance(grabbedLog.transform.position, nearestSnapPoint.position);
-                    if (distance <= snapDistance)
+                    if (distance <= snapDistance && grabbedLog.layer != 10)
                     {
                         grabbedLog.transform.position = nearestSnapPoint.position;
                         grabbedLog.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
                         //SawCollider.isTrigger = true;
+           
                     }
                 }
             }
