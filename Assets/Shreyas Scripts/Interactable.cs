@@ -67,8 +67,8 @@ namespace Shreyas
         {
             firstPersonController.playerBusy = true;
             CuttingMachineCamera.SetActive(true);
-            Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = true;
+            /*Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;*/
             //CameraMain.orthographic = true;
         }
 

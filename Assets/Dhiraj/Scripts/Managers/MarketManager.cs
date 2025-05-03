@@ -15,19 +15,28 @@ namespace Dhiraj
         public float AmountIHave;
         /// </summary>
 
-
+        [Space(5)]
         public Item marketItem;
         public Item cartItem;
 
+        [Space(5)]
         public CanvasGroup marketPlace;
         public Transform marketContent;
         public Transform cartContent;
+        public SJManager SmallJerry;
+        public WaypointBank waypointBank;
 
+        [Space(5)]
         public TextMeshProUGUI TotalAmount;
 
+        [Space(5)]
         public List<ItemData> ItemList = new List<ItemData>();
         public List<ItemData> CartItem = new List<ItemData>();
 
+        private void Start()
+        {
+            EnableMarket(true);
+        }
 
         public void PopulateStore()
         {
@@ -83,6 +92,15 @@ namespace Dhiraj
             float targetAlpha = isEnable ? 1f : 0f;
             float duration = 0.1f; // Adjust transition duration as needed
             LeanTween.alphaCanvas(marketPlace, targetAlpha, duration);           
+        }
+
+        public void PlaceOrder()
+        {
+            SJManager sJManager = Instantiate(SmallJerry.gameObject).GetComponent<SJManager>();
+            sJManager.transform.position = waypointBank.path[0].position;
+            sJManager.waypointBank = waypointBank;
+            sJManager.agent.enabled = true;
+            sJManager.gameObject.SetActive(true);
         }
 
     }
