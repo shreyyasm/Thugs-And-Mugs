@@ -7,41 +7,48 @@ namespace Shreyas
         public enum InteractableType
         {
             defaultItem,
-            Tree,
-            Broom,
-            WoodCuttingMachine,
+            TreeInteraction,
+            BroomInteraction,
+            WoodCuttingMachineInteraction,
             // Add more types here
         }
 
         [Header("Interactable Settings")]
         public InteractableType interactableType;
-        public bool isPickable;
 
         public GameObject CuttingMachineCamera;
         public Camera CameraMain;
         public FirstPersonMovementInputSystem firstPersonController;
+        public bool CanBeInteracted;
+        public string requiredItemTag;
+
         private void Update()
         {
 
         }
 
-        public void Interact()
+        public void Interact(ItemData selectedItem = null)
         {
             switch (interactableType)
             {
-                case InteractableType.Tree:
-                    InteractWithTree();
+                case InteractableType.TreeInteraction:
+                    if (selectedItem != null && selectedItem.itemTag == "Axe")
+                        InteractWithTree();
+                    else
+                        Debug.Log("You need an Axe to interact with this tree.");
                     break;
 
-                case InteractableType.Broom:
-                    InteractWithBroom();
+                case InteractableType.BroomInteraction:
+                    if (selectedItem != null && selectedItem.itemTag == "Broom")
+                        InteractWithBroom();
+                    else
+                        Debug.Log("You need a Broom to interact with this.");
                     break;
 
-                case InteractableType.WoodCuttingMachine:
+                case InteractableType.WoodCuttingMachineInteraction:
                     InteractWithCuttingMachine();
                     break;
 
-                // Add more cases for new types
                 default:
                     Debug.LogWarning("No interaction defined for this type.");
                     break;

@@ -44,7 +44,7 @@ namespace Shreyas
         public GameObject heldObject;
         private Rigidbody heldRB;
 
-        public GameObject interactSign;
+
 
         public bool playerBusy;
 
@@ -87,8 +87,8 @@ namespace Shreyas
             if (playerBusy)
                 return;
             HandleMovement();
-            HandleInteraction();
-            HandlePickup();
+            //HandleInteraction();
+            //HandlePickup();
         }
 
         private void HandleMovement()
@@ -135,21 +135,17 @@ namespace Shreyas
 
                 if (!pickedItem && hitObject.TryGetComponent(out Interactable interactable))
                 {
-                    bool isTree = interactable.interactableType == Interactable.InteractableType.Tree;
+                    bool isTree = interactable.interactableType == Interactable.InteractableType.TreeInteraction;
 
-                    if (!isTree)
-                        interactSign.SetActive(true);
+                  
 
                     if (heldObject == null)
                     {
                         if (inputInteract)
                         {
-                            if (interactable.isPickable)
-                                PickUpObject(hitObject);
-                            else
-                                interactable.Interact();
-
-                            interactSign.SetActive(false);
+                            
+                           
+                           
                         }
 
                         if (inputFire && isTree)
@@ -169,15 +165,14 @@ namespace Shreyas
             }
             else
             {
-                interactSign.SetActive(false);
-
+   
                 if (lastLookedObject)
                 {
                     if (lastLookedObject.TryGetComponent(out Outline lastOutline))
                         lastOutline.enabled = false;
 
                     if (lastLookedObject.TryGetComponent(out Interactable interactable) &&
-                        interactable.interactableType == Interactable.InteractableType.Tree)
+                        interactable.interactableType == Interactable.InteractableType.TreeInteraction)
                     {
                         Axe.SetActive(false);
                     }

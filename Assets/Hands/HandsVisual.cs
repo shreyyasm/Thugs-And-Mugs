@@ -63,14 +63,11 @@ public class HandsVisual : MonoBehaviour
                 animator.SetBool("IsUsingBroom",false);
                 animator.SetBool("IsPunching",true);
             }   
-        }else if( Input.GetKey(KeyCode.LeftShift)){
-            animator.SetBool("IsBlocking",true);
-        }else{
-            animator.SetBool("IsUsingAxe",false);
-            animator.SetBool("IsUsingBroom",false);
-            animator.SetBool("IsPunching",false);
-            animator.SetBool("IsBlocking",false);
         }
+        else if( Input.GetKey(KeyCode.LeftShift)){
+            animator.SetBool("IsBlocking",true);
+        }
+   
 
 
 
