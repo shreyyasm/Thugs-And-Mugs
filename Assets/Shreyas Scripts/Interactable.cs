@@ -20,6 +20,7 @@ namespace Shreyas
         public Camera CameraMain;
         public FirstPersonMovementInputSystem firstPersonController;
         public bool CanBeInteracted;
+        public bool isPickable;
         public string requiredItemTag;
 
         private void Update()
@@ -50,7 +51,7 @@ namespace Shreyas
                     break;
 
                 default:
-                    Debug.LogWarning("No interaction defined for this type.");
+                    //Debug.LogWarning("No interaction defined for this type.");
                     break;
             }
         }

@@ -48,16 +48,34 @@
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
-                    "initialStateCheck": false
+                    "initialStateCheck": true
                 },
                 {
-                    "name": "Fire",
+                    "name": "DropItem",
                     "type": "Button",
-                    "id": "b25ae863-2e3b-41c9-b464-8fe4215c8594",
+                    "id": "2e1862db-8c53-442c-9324-6cbb5f778d18",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Punch",
+                    "type": "Button",
+                    "id": "d30c3c63-8073-409d-bcdc-3b09e0b8a911",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Defence",
+                    "type": "Value",
+                    "id": "ac9e8c79-2d2b-4512-90ae-548a7e39d396",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "Hold",
+                    "initialStateCheck": true
                 }
             ],
             "bindings": [
@@ -111,7 +129,7 @@
                     "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";Keyboard and Mouse",
                     "action": "Interact",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -272,23 +290,34 @@
                 },
                 {
                     "name": "",
-                    "id": "811cba1e-fbbb-4f9d-8068-0c26cf49baec",
-                    "path": "<Mouse>/leftButton",
+                    "id": "e5f703e1-2bd2-4e1e-a47a-ec1be858fc6c",
+                    "path": "<Keyboard>/g",
                     "interactions": "",
                     "processors": "",
                     "groups": ";Keyboard and Mouse",
-                    "action": "Fire",
+                    "action": "DropItem",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
                 {
                     "name": "",
-                    "id": "eac5c261-6e21-434c-93fd-a812ad8264f4",
-                    "path": "<Gamepad>/rightTrigger",
+                    "id": "2eb2d156-ee33-4b26-be16-59f6bb5cd8fd",
+                    "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
-                    "action": "Fire",
+                    "groups": ";Keyboard and Mouse",
+                    "action": "Punch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "428b1e67-7ea5-49e3-a761-1697667c5123",
+                    "path": "<Keyboard>/leftCtrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Defence",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
