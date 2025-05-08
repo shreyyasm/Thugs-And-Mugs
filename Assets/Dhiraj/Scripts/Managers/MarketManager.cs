@@ -35,7 +35,7 @@ namespace Dhiraj
 
         private void Start()
         {
-            EnableMarket(true);
+            //EnableMarket(true);
         }
 
         public void PopulateStore()
@@ -101,6 +101,7 @@ namespace Dhiraj
             sJManager.waypointBank = waypointBank;
             sJManager.agent.enabled = true;
             sJManager.gameObject.SetActive(true);
+            sJManager.isWalkingWithBarrel = true;
         }
 
     }

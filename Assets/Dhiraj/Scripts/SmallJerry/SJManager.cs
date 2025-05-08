@@ -15,6 +15,11 @@ namespace Dhiraj
         public string CurrentState;
         public WaypointBank waypointBank;
         public NavMeshAgent agent;
+        public Animator anim;
+        public GameObject barrel;
+
+        public bool isWalkingWithBarrel = false;
+        public bool GoReturn = false;
         private void Start()
         {
             InitializeStates();
@@ -25,8 +30,7 @@ namespace Dhiraj
             Locomotion = new SJLocomotion(this);
             Action = new SJAction(this);
             currentState = Idle;
-            currentState.StartState();
-            CurrentState = currentState.ToString();
+            currentState.StartState();            
         }
 
         public void ChangeState(SJBase newState)
