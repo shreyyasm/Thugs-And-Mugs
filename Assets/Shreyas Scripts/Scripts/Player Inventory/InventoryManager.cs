@@ -10,7 +10,7 @@ namespace Shreyas
     public class InventoryManager : MonoBehaviour
     {
         public static InventoryManager instance;
-
+        public bool isInteracting;
         [System.Serializable]
         public class InventoryItem
         {
@@ -119,7 +119,7 @@ namespace Shreyas
                     {
 
                         ShowInteractSign("E - Interact");
-
+                        isInteracting = true;
                         OutlineObject(hitObject);
                         return;
                     }
@@ -129,12 +129,13 @@ namespace Shreyas
                 {
                     ShowInteractSign("E - Pick");
                     OutlineObject(hitObject);
-
+                    isInteracting = true;
                     if (inputInteract)
                     {
 
                         handModels[currentIndex].SetActive(false);
                         animator.SetBool("Interact", true);
+                        pickup.gameObject.transform.SetParent(null);
                         pickup.gameObject.transform.position = new Vector3(0, -0.3f, 1.5f);
                         PickupItem(pickup.itemData, pickup.gameObject);
 
@@ -149,6 +150,7 @@ namespace Shreyas
             }
             else
             {
+                isInteracting = false;
                 HideInteractSign();
                 ClearLastOutlined();
             }
@@ -201,11 +203,11 @@ namespace Shreyas
             {
                 ItemData selectedItem = InventoryManager.instance.GetCurrentSelectedItem();
                 Ray ray = playerCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
-                if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactLayerMask))
+                if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactLayerMask) && isInteracting)
                 {
                     InventoryItem currentItem = inventory[currentIndex];
                     Interactable interactable = hit.collider.GetComponent<Interactable>();
-                    if (interactable && interactable.CanBeInteracted)
+                    if (interactable && interactable.CanBeInteracted    )
                     {
                         if (interactable.interactableType == Interactable.InteractableType.TreeInteraction)
                             LeanTween.delayedCall(0.25f, () => { interactable.Interact(selectedItem); });
@@ -333,21 +335,30 @@ namespace Shreyas
             if (currentItem == null || currentItem.itemObject == null)
                 return;
 
-            // Detach item from the holder
             GameObject droppedItem = currentItem.itemObject;
-            droppedItem.transform.SetParent(null);
+
+            // Cache world position/rotation/scale
+            Vector3 worldPos = droppedItem.transform.position;
+            Quaternion worldRot = droppedItem.transform.rotation;
+            Vector3 worldScale = droppedItem.transform.lossyScale;
+
+            // Unparent and restore transform manually
+            droppedItem.transform.SetParent(null, false);
+            droppedItem.transform.position = worldPos;
+            droppedItem.transform.rotation = worldRot;
+            droppedItem.transform.localScale = worldScale; // Apply world scale directly
 
             // Position it in front of the player
-            Vector3 dropPosition = playerCamera.transform.position + playerCamera.transform.forward * 2f;
-            droppedItem.transform.position = dropPosition;
+            droppedItem.transform.position = playerCamera.transform.position + playerCamera.transform.forward * 2f;
             droppedItem.transform.rotation = Quaternion.identity;
             droppedItem.SetActive(true);
 
-            // Enable physics if applicable
+            // Enable physics
             Rigidbody rb = droppedItem.GetComponent<Rigidbody>();
             if (rb != null)
             {
                 rb.isKinematic = false;
+                rb.useGravity = true;
                 rb.AddForce(playerCamera.transform.forward * 2f, ForceMode.Impulse);
             }
 
@@ -361,6 +372,8 @@ namespace Shreyas
             UpdateHands();
             UpdateHighlight();
         }
+
+
         public void ClearInventorySlot()
         {
             // Clear the slot

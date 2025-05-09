@@ -1,7 +1,11 @@
 using UnityEngine;
-
-public class PickupTrigger : MonoBehaviour
+namespace Shreyas
 {
-    public ItemData itemData;
-    public bool isPickable;
+    public class PickupTrigger : MonoBehaviour
+    {
+        public ItemData itemData;
+        public bool isPickable;
+    }
+
 }
+

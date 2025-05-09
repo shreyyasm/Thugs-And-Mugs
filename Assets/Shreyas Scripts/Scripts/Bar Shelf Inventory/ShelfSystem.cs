@@ -6,7 +6,7 @@ namespace Shreyas
 {
     public class ShelfSystem : MonoBehaviour
     {
-        public enum ShelfItemType { None, Wine, Vodka, Book, Food }
+        public enum ShelfItemType { None, StraightShot, WidowKiss, SnakeBite}
 
         [Header("Shelf Setup")]
         public Transform[] itemPositions = new Transform[8];
@@ -69,18 +69,19 @@ namespace Shreyas
                     currentItems.Add(bottle.gameObject);
 
                     Transform target = itemPositions[shelfIndex];
+                    Quaternion lookRotation = Quaternion.LookRotation(transform.right, Vector3.up);
 
                     bottle.DOMove(target.position, 0.4f).SetEase(Ease.InOutSine);
-                    bottle.DORotateQuaternion(target.rotation, 0.4f).SetEase(Ease.InOutSine).OnComplete(() =>
+                    bottle.DORotateQuaternion(lookRotation, 0.4f).SetEase(Ease.InOutSine).OnComplete(() =>
                     {
                         bottle.SetParent(this.transform, worldPositionStays: true);
 
-                        Vector3 parentScale = this.transform.lossyScale;
-                        bottle.localScale = new Vector3(
-                            worldScale.x / parentScale.x,
-                            worldScale.y / parentScale.y,
-                            worldScale.z / parentScale.z
-                        );
+                        //Vector3 parentScale = this.transform.lossyScale;
+                        //bottle.localScale = new Vector3(
+                        //    worldScale.x / parentScale.x,
+                        //    worldScale.y / parentScale.y,
+                        //    worldScale.z / parentScale.z
+                        //);
                     });
 
                     yield return new WaitForSeconds(0.4f);
