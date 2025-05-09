@@ -891,8 +891,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1601695621816179985}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0, y: -0.282, z: 1.002}
+  m_LocalRotation: {x: -0, y: 1, z: -0, w: 0}
+  m_LocalPosition: {x: 0, y: -0.28200004, z: 1.002}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1882,7 +1882,6 @@ GameObject:
   m_Component:
   - component: {fileID: 7344523085498459539}
   - component: {fileID: 6928261573848253115}
-  - component: {fileID: 2755790365731473365}
   - component: {fileID: 8187778691721458371}
   - component: {fileID: 3582892117615895656}
   m_Layer: 0
@@ -1936,22 +1935,6 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &2755790365731473365
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3157869458220487605}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a5cd96e9f6653e42a1c8e429ed3943b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  animator: {fileID: 5675932210502100185}
-  axe: {fileID: 6778998797861182421}
-  broom: {fileID: 7154544951992707184}
-  lighter: {fileID: 4352020521815616365}
 --- !u!114 &8187778691721458371
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1969,7 +1952,12 @@ MonoBehaviour:
   jumpForce: 2
   gravity: -13
   playerBusy: 0
+  isBlocking: 0
+  isPunching: 0
   WoodCutCamera: {fileID: 0}
+  animator: {fileID: 5675932210502100185}
+  inventoryManager: {fileID: 0}
+  punchCooldown: 0.5
 --- !u!114 &3582892117615895656
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3395,9 +3383,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2249764929229233564}
   - {fileID: 501381527786767025}
   - {fileID: 1592682716330183464}
+  - {fileID: 2249764929229233564}
   m_Father: {fileID: 7344523085498459539}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5426615674763843808

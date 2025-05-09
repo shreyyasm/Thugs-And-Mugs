@@ -156,7 +156,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": ""Defence"",
-                    ""type"": ""Value"",
+                    ""type"": ""Button"",
                     ""id"": ""ac9e8c79-2d2b-4512-90ae-548a7e39d396"",
                     ""expectedControlType"": """",
                     ""processors"": """",
@@ -399,7 +399,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""428b1e67-7ea5-49e3-a761-1697667c5123"",
-                    ""path"": ""<Keyboard>/leftCtrl"",
+                    ""path"": ""<Mouse>/rightButton"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

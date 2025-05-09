@@ -13,6 +13,11 @@ TagManager:
   - Axe
   - Broom
   - Lighter
+  - Barrel
+  - BarShelf
+  - Wine
+  - Ligher
+  - Vodka
   layers:
   - Default
   - TransparentFX
