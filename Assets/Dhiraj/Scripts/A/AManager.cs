@@ -1,6 +1,7 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.UI;
 
 namespace Dhiraj
 {
@@ -19,8 +20,11 @@ namespace Dhiraj
         public WaypointBank waypointBank;
         public NavMeshAgent agent;
         public Animator anim;
+        public Seat seat;
 
         public GameObject mug;
+        public Image fillImage;
+
 
         public bool GoReturn = false;
         public bool isLookAround = false;

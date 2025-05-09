@@ -15,6 +15,7 @@ namespace Dhiraj
         {
             base.StartState();
             _aManager.ChangeState(_aManager.aLocomotion);
+            ChangeAnimationState(CurrentState.Idle);
         }
 
         public override void UpdateState()

@@ -14,9 +14,10 @@ namespace Dhiraj
         {
             base.StartState();
             _seatManager = GameManager.Instance._SeatManager;
+            ChangeAnimationState(CurrentState.LookingAround);
             LeanTween.delayedCall(2, () => { 
-                Seat seat = _seatManager.GetEmptySeat();
-                MoveToWaypoint(seat.sitingPosition.position);
+                _aManager.seat = _seatManager.GetEmptySeat();
+                MoveToWaypoint(_aManager.seat.sitingPosition.position);
                 _aManager.isLookAround = true;
                 _aManager.ChangeState(_aManager.aLocomotion);
             });

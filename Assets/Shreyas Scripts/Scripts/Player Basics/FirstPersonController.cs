@@ -67,7 +67,7 @@ namespace Shreyas
             if (Input.GetKeyDown(KeyCode.Escape))
             {
                 playerBusy = false;
-                WoodCutCamera.SetActive(false);
+                if(WoodCutCamera) WoodCutCamera.SetActive(false);
                 Cursor.lockState = CursorLockMode.Locked;
                 Cursor.visible = false;
                 //playerCamera.orthographic = false;

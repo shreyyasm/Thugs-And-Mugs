@@ -7,8 +7,11 @@ namespace Dhiraj
     {
         public class AnimHash
         {
-            public const string NormalWalk = "Normal Walk";
-            public const string WalkWithBarrel = "Walk With Barrel";
+            public const string Idle = "Idle";
+            public const string LookingAround = "Looking Around";
+            public const string SitAndDrinking = "Sit and Drinking";
+            public const string SittingWaiting = "Sitting Waiting";
+            public const string Walking = "Walking";
         }
         public ABase(AManager aManager)
         {
@@ -16,14 +19,14 @@ namespace Dhiraj
         }
         public enum CurrentState
         {
-            Walking,
-            Sitting,
-            Drinking,
-            Leaving
+            Idle = 0,
+            Walking = 1,
+            LookingAround = 2,
+            Waiting = 3,            
+            Drinking = 4            
         }
-        
-        public AManager _aManager;
 
+        protected AManager _aManager;        
         public virtual void StartState()
         {
 
@@ -44,10 +47,16 @@ namespace Dhiraj
             switch (currentState)
             {
                 case CurrentState.Walking:
-                    _aManager.anim.Play(AnimHash.NormalWalk);                   ;
+                    _aManager.anim.Play(AnimHash.Walking);                 ;
                     break;
-                case CurrentState.Sitting:
-                    _aManager.anim.Play(AnimHash.WalkWithBarrel);                    
+                case CurrentState.Waiting:
+                    _aManager.anim.Play(AnimHash.SittingWaiting);                    
+                    break;
+                case CurrentState.LookingAround:
+                    _aManager.anim.Play(AnimHash.LookingAround);
+                    break;
+                case CurrentState.Drinking:
+                    _aManager.anim.Play(AnimHash.SitAndDrinking);
                     break;
 
             }
@@ -57,11 +66,13 @@ namespace Dhiraj
         {
             Transform target = _aManager.waypointBank.path[currentWaypointIndex];
             _aManager.agent.SetDestination(target.position);
+            ChangeAnimationState(CurrentState.Walking);
         }
 
         public void MoveToWaypoint(Vector3 pos)
         {
             _aManager.agent.SetDestination(pos);
+            ChangeAnimationState(CurrentState.Walking);
         }
     }
 }
