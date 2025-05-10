@@ -1,3 +1,4 @@
+using Dhiraj;
 using StarterAssets;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace Shreyas
             BroomInteraction,
             WoodCuttingMachineInteraction,
             BarrelInteraction,
+            CustomerInteraction,
             // Add more types here
         }
 
@@ -21,10 +23,16 @@ namespace Shreyas
         public GameObject CuttingMachineCamera;
         public Camera CameraMain;
         public FirstPersonMovementInputSystem firstPersonController;
+        public InventoryManager inventoryManager;
         public bool CanBeInteracted;
         public bool isPickable;
         public string requiredItemTag;
 
+        private void Awake()
+        {
+            firstPersonController = FindAnyObjectByType<FirstPersonMovementInputSystem>();
+            inventoryManager = FindAnyObjectByType<InventoryManager>();
+        }
         private void Update()
         {
 
@@ -57,6 +65,10 @@ namespace Shreyas
                         InteractWithBarShelf(item);
                     break;
 
+                case InteractableType.CustomerInteraction:
+                        InteractWithCustomer();
+                    break;
+
                 default:
                     //Debug.LogWarning("No interaction defined for this type.");
                     break;
@@ -82,8 +94,8 @@ namespace Shreyas
         {
             firstPersonController.playerBusy = true;
             CuttingMachineCamera.SetActive(true);
-            /*Cursor.lockState = CursorLockMode.Confined;
-            Cursor.visible = true;*/
+            GameManager.Instance.EnableMouseCursor();
+            inventoryManager.SetInventoryCanvas(false);
             //CameraMain.orthographic = true;
         }
         public void InteractWithBarShelf(GameObject barrel)
@@ -95,8 +107,13 @@ namespace Shreyas
                 //Vector3 playerPosition = Camera.main.transform.position; // assuming single player cam
                 shelf.FillShelf(barrel);
             }
-        }
 
+        }
+        public void InteractWithCustomer()
+        {
+            gameObject.GetComponent<CustomerOrder>().GiveOrder();
+            firstPersonController.playerBusy = true;
+        }
     }
 
 }

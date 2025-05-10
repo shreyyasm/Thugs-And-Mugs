@@ -1,3 +1,5 @@
+using Shreyas;
+using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -7,9 +9,44 @@ namespace Dhiraj
     {
         public GameObject _PlayerObject;
         public SeatManager _SeatManager;
+
+        public InteractCanvas[] AllInteractCanvas;
+
+        private FirstPersonMovementInputSystem FirstPersonMovementInputSystem;
+        private void Awake()
+        {
+           AllInteractCanvas = Resources.FindObjectsOfTypeAll<InteractCanvas>();
+            FirstPersonMovementInputSystem = FindAnyObjectByType<FirstPersonMovementInputSystem>();
+        }
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Escape))
+            {
+                foreach (InteractCanvas i in AllInteractCanvas)
+                {
+                    if (i != null && i.gameObject != null)
+                    {
+                        i.gameObject.SetActive(false);
+                    }
+                }
+                FirstPersonMovementInputSystem.playerBusy = false;
+                GameManager.Instance.DisableMouseCursor();
+                FirstPersonMovementInputSystem.inventoryManager.SetInventoryCanvas(true);
+            }
+        }
         public void CutSceneStatus(bool isTrue)
         {
 
+        }
+        public void EnableMouseCursor()
+        {
+            Cursor.lockState = CursorLockMode.Confined;
+            Cursor.visible = true;
+        }
+        public void DisableMouseCursor()
+        {
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.visible = false;
         }
     }
 

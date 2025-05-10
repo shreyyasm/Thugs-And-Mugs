@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Dhiraj;
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -64,14 +65,10 @@ namespace Shreyas
         public InventoryManager inventoryManager;
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
-            {
-                playerBusy = false;
-                WoodCutCamera.SetActive(false);
-                Cursor.lockState = CursorLockMode.Locked;
-                Cursor.visible = false;
-                //playerCamera.orthographic = false;
-            }
+            
+
+            if (playerBusy)
+                return;
 
             HandleMovement();
             
@@ -99,8 +96,6 @@ namespace Shreyas
 
         private void HandleMovement()
         {
-            if (playerBusy)
-                return;
 
             isGrounded = controller.isGrounded;
 
@@ -126,6 +121,9 @@ namespace Shreyas
 
         public void Punch()
         {
+            if (playerBusy)
+                return;
+
             if (!canPunch) return; // Block if in cooldown
             animator.SetBool("IsPunching",true);
 

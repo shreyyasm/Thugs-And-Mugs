@@ -132,8 +132,8 @@ namespace Shreyas
                     isInteracting = true;
                     if (inputInteract)
                     {
-
-                        handModels[currentIndex].SetActive(false);
+                        if(handModels[currentIndex] != null)
+                            handModels[currentIndex].SetActive(false);
                         animator.SetBool("Interact", true);
                         pickup.gameObject.transform.SetParent(null);
                         pickup.gameObject.transform.position = new Vector3(0, -0.3f, 1.5f);
@@ -144,7 +144,7 @@ namespace Shreyas
 
                     return;
                 }
-
+                isInteracting = false;
                 HideInteractSign();
                 ClearLastOutlined();
             }
@@ -160,13 +160,13 @@ namespace Shreyas
 
         private void ShowInteractSign(string message)
         {
-            if (!isSignVisible)
-            {
-                InteractSign.enabled = true;
-                isSignVisible = true;
-            }
+            //if (!isSignVisible)
+            //{
+            //    InteractSign.enabled = true;
+            //    isSignVisible = true;
+            //}
 
-            InteractSign.text = message;
+            //InteractSign.text = message;
         }
 
         public void HideInteractSign()
@@ -399,7 +399,8 @@ namespace Shreyas
             // Always start by disabling all hand models
             for (int i = 0; i < handModels.Length; i++)
             {
-                handModels[i].SetActive(false);
+                if (handModels[i] != null)
+                    handModels[i].SetActive(false);
             }
 
             // If there's no item in the selected slot, skip everything else
@@ -414,34 +415,38 @@ namespace Shreyas
             string tag = inventory[currentIndex].data.itemTag;
             for (int i = 0; i < handModels.Length; i++)
             {
-                if (handModels[i].CompareTag(tag))
+                if (handModels[i] != null)
                 {
-                    handModels[i].SetActive(true);
-                    switch (tag)
+                    if (handModels[i].CompareTag(tag))
                     {
-                        case "Broom":
-                            animator.SetBool("CanUseAxe", false);
-                            animator.SetBool("CanUseBroom", true);
-                            animator.SetBool("CanUseLighter", false);
-                            break;
+                        handModels[i].SetActive(true);
+                        switch (tag)
+                        {
+                            case "Broom":
+                                animator.SetBool("CanUseAxe", false);
+                                animator.SetBool("CanUseBroom", true);
+                                animator.SetBool("CanUseLighter", false);
+                                break;
 
-                        case "Axe":
-                            animator.SetBool("CanUseAxe", true);
-                            animator.SetBool("CanUseBroom", false);
-                            animator.SetBool("CanUseLighter", false);
-                            break;
+                            case "Axe":
+                                animator.SetBool("CanUseAxe", true);
+                                animator.SetBool("CanUseBroom", false);
+                                animator.SetBool("CanUseLighter", false);
+                                break;
 
-                        case "Lighter":
-                            animator.SetBool("CanUseAxe", false);
-                            animator.SetBool("CanUseBroom", false);
-                            animator.SetBool("CanUseLighter", true);
-                            break;
+                            case "Lighter":
+                                animator.SetBool("CanUseAxe", false);
+                                animator.SetBool("CanUseBroom", false);
+                                animator.SetBool("CanUseLighter", true);
+                                break;
 
-                        default:
-                            Debug.LogWarning("No interaction defined for this type.");
-                            break;
+                            default:
+                                Debug.LogWarning("No interaction defined for this type.");
+                                break;
+                        }
                     }
                 }
+                    
             }
         }
 
@@ -518,6 +523,7 @@ namespace Shreyas
                 heldRB.useGravity = true;
                 heldRB.freezeRotation = false;
                 heldRB.isKinematic = false;
+                heldRB.linearVelocity = Vector3.zero; // 🛠️ Zero the velocity before throwing
             }
 
             heldObject = null;
@@ -584,6 +590,7 @@ namespace Shreyas
             }
 
         }
+        
         public void SetInventoryEnabled(bool enabled)
         {
             inventoryEnabled = enabled;
@@ -593,7 +600,8 @@ namespace Shreyas
                 // Hide all hands when inventory is disabled
                 for (int i = 0; i < handModels.Length; i++)
                 {
-                    handModels[i].SetActive(false);
+                    if(handModels[i] != null)
+                        handModels[i].SetActive(false);
                 }
 
                 // Optional: disable animator states
@@ -606,6 +614,14 @@ namespace Shreyas
                 // Reactivate correct hand if inventory was re-enabled
                 UpdateHands();
             }
+        }
+        public GameObject inventoryCanvas;
+        public GameObject PlayerModelVisual;
+        public void SetInventoryCanvas( bool enabled)
+        {
+            inventoryCanvas.SetActive(enabled);
+            PlayerModelVisual.SetActive(enabled);
+            SetInventoryEnabled(enabled);
         }
 
     }
