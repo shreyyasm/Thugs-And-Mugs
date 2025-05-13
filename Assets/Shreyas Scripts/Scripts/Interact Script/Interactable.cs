@@ -100,10 +100,11 @@ namespace Shreyas
         }
         public void InteractWithBarShelf(GameObject barrel)
         {
+           
             ShelfSystem shelf = GetComponent<ShelfSystem>();
             if (shelf != null)
             {
-             
+               
                 //Vector3 playerPosition = Camera.main.transform.position; // assuming single player cam
                 shelf.FillShelf(barrel);
             }

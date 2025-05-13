@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Unity.VisualScripting;
 using TMPro;
 using UnityEngine.InputSystem;
+using System.Collections;
 
 namespace Shreyas
 {
@@ -53,14 +54,15 @@ namespace Shreyas
 
             inputActions = new PlayerControls();
             inputActions.Player.Interact.performed += ctx => inputInteract = true;
-            inputActions.Player.Interact.canceled += ctx => inputInteract = false;
-            inputActions.Player.DropItem.performed += ctx => inputDrop = true;
-            inputActions.Player.DropItem.canceled += ctx => inputDrop = false;
             inputActions.Player.Interact.canceled += ctx =>
             {
                 inputInteract = false;
                 wasKeyJustReleased = true; // Set flag when the key is released
             };
+
+            inputActions.Player.DropItem.performed += ctx => inputDrop = true;
+            inputActions.Player.DropItem.canceled += ctx => inputDrop = false;
+            
         }
 
         private void Start()
@@ -79,6 +81,7 @@ namespace Shreyas
             if (inputDrop)
             {
                 DropCurrentItem();
+                inputDrop = false; // Reset after use to prevent repeat calls
             }
 
             if (FirstPersonMovementInput.isBlocking)
@@ -207,7 +210,7 @@ namespace Shreyas
                 {
                     InventoryItem currentItem = inventory[currentIndex];
                     Interactable interactable = hit.collider.GetComponent<Interactable>();
-                    if (interactable && interactable.CanBeInteracted    )
+                    if (interactable && interactable.CanBeInteracted )
                     {
                         if (interactable.interactableType == Interactable.InteractableType.TreeInteraction)
                             LeanTween.delayedCall(0.25f, () => { interactable.Interact(selectedItem); });
@@ -217,6 +220,8 @@ namespace Shreyas
 
                         else
                             interactable.Interact(selectedItem);
+
+                       
 
                         if (heldObject == null && interactable.isPickable)
                         {
@@ -238,7 +243,10 @@ namespace Shreyas
                     switch (selectedItem.itemTag)
                     {
                         case ("Broom"):
-                            animator.SetBool("IsUsingBroom", true);
+                            animator.SetBool("CanUseAxe", false);
+                            animator.SetBool("CanUseBroom", true);
+                            animator.SetBool("CanUseLighter", false);
+                            animator.SetBool("UseDrink", false);
                             break;
 
                         case "Axe":
@@ -253,6 +261,47 @@ namespace Shreyas
                             animator.SetBool("CanUseAxe", false);
                             animator.SetBool("CanUseBroom", false);
                             animator.SetBool("CanUseLighter", true);
+                            animator.SetBool("UseDrink", false);
+                            break;
+
+                        case ("Black Blaze"):
+                            SetDrinkBlend(1f);
+                            break;
+
+                        case ("Cactus Bomb"):
+                            SetDrinkBlend(2f);
+                            break;
+
+                        case ("Desert Draught"):
+                            SetDrinkBlend(3f);
+                            break;
+
+                        case ("Fire Out"):
+                            SetDrinkBlend(4f);
+                            break;
+
+                        case ("Frothy Mug"):
+                            SetDrinkBlend(5f);
+                            break;
+
+                        case ("Shiner's Sip"):
+                            SetDrinkBlend(6f);
+                            break;
+
+                        case ("Snake Bite"):
+                            SetDrinkBlend(7f);
+                            break;
+
+                        case ("Straight Shot"):
+                            SetDrinkBlend(8f);
+                            break;
+
+                        case ("Widow Kiss"):
+                            SetDrinkBlend(9f);
+                            break;
+
+                        case ("Mug"):
+                            SetDrinkBlend(10f);
                             break;
 
                         // Add more cases for new types
@@ -279,6 +328,36 @@ namespace Shreyas
             }
 
 
+        }
+        public void SetDrinkBlend(float value)
+        {
+            animator.SetBool("UseDrink", true);
+            animator.SetBool("IsUsingBroom", false);
+            animator.SetBool("CanUseAxe", false);
+            animator.ResetTrigger("AxeAnim1");
+            animator.ResetTrigger("AxeAnim2");
+            animator.SetBool("CanUseLighter", false);
+            animator.SetBool("CanUseBroom", false);
+            if (drinkLerpCoroutine != null)
+                StopCoroutine(drinkLerpCoroutine);
+
+            drinkLerpCoroutine = StartCoroutine(SmoothSetDrinkValue(value));
+        }
+        private Coroutine drinkLerpCoroutine;
+        [SerializeField] private float drinksChangeSpeed = 3f;
+        private IEnumerator SmoothSetDrinkValue(float target)
+        {
+            float current = animator.GetFloat("Drinks");
+
+            while (Mathf.Abs(current - target) > 0.01f)
+            {
+                current = Mathf.MoveTowards(current, target, drinksChangeSpeed * Time.deltaTime);
+                animator.SetFloat("Drinks", current);
+                yield return null;
+            }
+
+            animator.SetFloat("Drinks", target); // Ensure it lands exactly
+            drinkLerpCoroutine = null;
         }
         private void EnableOutline(GameObject obj)
         {
@@ -343,7 +422,7 @@ namespace Shreyas
             Vector3 worldScale = droppedItem.transform.lossyScale;
 
             // Unparent and restore transform manually
-            droppedItem.transform.SetParent(null, false);
+            droppedItem.transform.SetParent(null);
             droppedItem.transform.position = worldPos;
             droppedItem.transform.rotation = worldRot;
             droppedItem.transform.localScale = worldScale; // Apply world scale directly
@@ -371,6 +450,7 @@ namespace Shreyas
             UpdateUI();
             UpdateHands();
             UpdateHighlight();
+            Debug.Log("Drop");
         }
 
 
@@ -409,6 +489,8 @@ namespace Shreyas
                 animator.SetBool("CanUseAxe", false);
                 animator.SetBool("CanUseBroom", false);
                 animator.SetBool("CanUseLighter", false);
+                animator.SetBool("UseDrink", false);
+
                 return;
             }
 
@@ -426,22 +508,68 @@ namespace Shreyas
                                 animator.SetBool("CanUseAxe", false);
                                 animator.SetBool("CanUseBroom", true);
                                 animator.SetBool("CanUseLighter", false);
+                                animator.SetBool("UseDrink", false);
                                 break;
 
                             case "Axe":
                                 animator.SetBool("CanUseAxe", true);
                                 animator.SetBool("CanUseBroom", false);
                                 animator.SetBool("CanUseLighter", false);
+                                animator.SetBool("UseDrink", false);
                                 break;
+                         
 
-                            case "Lighter":
+                            case ("Lighter"):
                                 animator.SetBool("CanUseAxe", false);
                                 animator.SetBool("CanUseBroom", false);
                                 animator.SetBool("CanUseLighter", true);
+                                animator.SetBool("UseDrink", false);
                                 break;
 
+                            case ("Black Blaze"):
+                                SetDrinkBlend(1f);
+                                break;
+
+                            case ("Cactus Bomb"):
+                                SetDrinkBlend(2f);
+                                break;
+
+                            case ("Desert Draught"):
+                                SetDrinkBlend(3f);
+                                break;
+
+                            case ("Fire Out"):
+                                SetDrinkBlend(4f);
+                                break;
+
+                            case ("Frothy Mug"):
+                                SetDrinkBlend(5f);
+                                break;
+
+                            case ("Shiner's Sip"):
+                                SetDrinkBlend(6f);
+                                break;
+
+                            case ("Snake Bite"):
+                                SetDrinkBlend(7f);
+                                break;
+
+                            case ("Straight Shot"):
+                                SetDrinkBlend(8f);
+                                break;
+
+                            case ("Widow Kiss"):
+                                SetDrinkBlend(9f);
+                                break;
+
+                            case ("Mug"):
+                                SetDrinkBlend(10f);
+                                break;
+
+                            // Add more cases for new types
                             default:
-                                Debug.LogWarning("No interaction defined for this type.");
+                                animator.SetBool("IsUsingAxe", false);
+                                //animator.SetBool("IsUsingBroom", false);
                                 break;
                         }
                     }

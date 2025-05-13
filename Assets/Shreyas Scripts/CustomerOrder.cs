@@ -6,6 +6,9 @@ namespace Shreyas
 {
     public class CustomerOrder : MonoBehaviour
     {
+        public string CustomerName;
+        
+
         public GameObject CustomerOrderCamera;
         public GameObject OrderCanvas;
         public GameObject InteractSign;
@@ -27,6 +30,15 @@ namespace Shreyas
         {
 
         }
+
+
+        public void SearchMenu()
+        {
+            //Menu Code will go here
+
+        }
+
+
         public void GiveOrder()
         {
             CustomerOrderCamera.SetActive(true);
@@ -44,6 +56,8 @@ namespace Shreyas
             GameManager.Instance.DisableMouseCursor();
             GetComponent<Interactable>().firstPersonController.playerBusy = false;
             GetComponent<Interactable>().inventoryManager.SetInventoryCanvas(true);
+
+            TaskManager.instance.AssignTask(CustomerName + " orderd 1x russian chicks, 2x asian chicks", 15);
         }
         public void CancelOrder()
         {

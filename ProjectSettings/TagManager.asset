@@ -18,11 +18,17 @@ TagManager:
   - Wine
   - Ligher
   - Vodka
-  - Straight Bite - Bottle
-  - SnakeBite
-  - WidowKiss
-  - StraightShot
   - Customer
+  - Mug
+  - StraightShot
+  - WidowKiss
+  - SnakeBite
+  - BlackBlaze
+  - CactusBomb
+  - DesertDraught
+  - FireOut
+  - FrothyMug
+  - ShinerSip
   layers:
   - Default
   - TransparentFX

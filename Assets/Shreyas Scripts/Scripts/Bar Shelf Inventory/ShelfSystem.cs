@@ -6,7 +6,7 @@ namespace Shreyas
 {
     public class ShelfSystem : MonoBehaviour
     {
-        public enum ShelfItemType { None, StraightShot, WidowKiss, SnakeBite}
+        public enum ShelfItemType { None, StraightShot, WidowKiss, SnakeBite, BlackBlaze, CactusBomb, DesertDraught, FireOut, FrothyMug, ShinerSip }
 
         [Header("Shelf Setup")]
         public Transform[] itemPositions = new Transform[8];
@@ -22,21 +22,21 @@ namespace Shreyas
         {
             if (isFillingShelf || currentItems.Count >= itemPositions.Length) return;
             if (barrel == null) return;
-
+           
             StartCoroutine(PlaceOneItemToShelf(barrel));
         }
 
         IEnumerator PlaceOneItemToShelf(GameObject barrel)
         {
             isFillingShelf = true;
-
             Barrel barrelScript = barrel.GetComponent<Barrel>();
             if (barrelScript == null)
             {
+               
                 isFillingShelf = false;
                 yield break;
+               
             }
-
             bool bottlePlaced = false;
 
             // Try to find a matching bottle
@@ -50,10 +50,12 @@ namespace Shreyas
                 {
                     shelfType = barrelScript.itemType;
                     requiredItemTag = bottleTag;
+                   
                 }
-
+               
                 if (bottleTag == requiredItemTag)
                 {
+                    
                     // Cache world transform
                     Vector3 worldPos = bottle.position;
                     Quaternion worldRot = bottle.rotation;
@@ -70,11 +72,14 @@ namespace Shreyas
 
                     Transform target = itemPositions[shelfIndex];
                     Quaternion lookRotation = Quaternion.LookRotation(transform.right, Vector3.up);
-
+                   
                     bottle.DOMove(target.position, 0.4f).SetEase(Ease.InOutSine);
                     bottle.DORotateQuaternion(lookRotation, 0.4f).SetEase(Ease.InOutSine).OnComplete(() =>
                     {
                         bottle.SetParent(this.transform, worldPositionStays: true);
+                        bottle.GetComponent<BoxCollider>().isTrigger = false;
+                        bottle.GetComponent<Rigidbody>().isKinematic = false;
+                        bottle.GetComponent<Rigidbody>().useGravity = true;
 
                         //Vector3 parentScale = this.transform.lossyScale;
                         //bottle.localScale = new Vector3(
@@ -82,6 +87,7 @@ namespace Shreyas
                         //    worldScale.y / parentScale.y,
                         //    worldScale.z / parentScale.z
                         //);
+
                     });
 
                     yield return new WaitForSeconds(0.4f);
@@ -92,8 +98,9 @@ namespace Shreyas
 
             isFillingShelf = false;
 
-            // Destroy barrel if empty
-            if (barrel.transform.childCount == 0)
+         
+            //// Destroy barrel if empty
+            if (barrel.transform.childCount < 3)
             {
                 Destroy(barrel);
                 InventoryManager.instance.ClearInventorySlot();
