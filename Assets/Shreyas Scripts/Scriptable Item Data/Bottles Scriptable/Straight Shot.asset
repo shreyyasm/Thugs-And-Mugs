@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: Straight Shot
   m_EditorClassIdentifier: 
   itemName: Straight Shot Drink
-  itemIcon: {fileID: 21300000, guid: 26cc23fd52e2bf745aef76ac61046a5c, type: 3}
-  itemTag: Straight Shot
+  itemIcon: {fileID: 21300000, guid: 4e937b787128ea24ebdf0050c30978cd, type: 3}
+  itemTag: StraightShot

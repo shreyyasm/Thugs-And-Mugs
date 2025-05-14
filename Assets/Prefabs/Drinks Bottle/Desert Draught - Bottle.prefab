@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 6201452544880307911}
   m_Layer: 6
   m_Name: Desert Draught - Bottle
-  m_TagString: Desert Draught
+  m_TagString: DesertDraught
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -238,7 +238,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1736b24c9c371e43b1c726a1b4bc39a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemData: {fileID: 0}
+  itemData: {fileID: 11400000, guid: 6e8942114b5e94844b0df08869ed0bc9, type: 2}
   isPickable: 1
 --- !u!114 &6201452544880307911
 MonoBehaviour:

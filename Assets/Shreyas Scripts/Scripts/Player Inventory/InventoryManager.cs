@@ -21,6 +21,7 @@ namespace Shreyas
 
         public Transform itemHolder;
         public GameObject[] handModels; // Match index to tag e.g., index 0 = "broom"
+        public GameObject[] BarrelsModels; // Match index to tag e.g., index 0 = "broom"
         public List<InventorySlot> uiSlots;
 
         private InventoryItem[] inventory = new InventoryItem[8];
@@ -68,6 +69,7 @@ namespace Shreyas
         private void Start()
         {
             UpdateUI();
+            UpdateHands();
         }
 
         void Update()
@@ -75,8 +77,6 @@ namespace Shreyas
             if (FirstPersonMovementInput.playerBusy)
                 return;
             HandleScroll();
-            UpdateHands();
-
 
             if (inputDrop)
             {
@@ -137,6 +137,9 @@ namespace Shreyas
                     {
                         if(handModels[currentIndex] != null)
                             handModels[currentIndex].SetActive(false);
+                        DisableBarrel();
+                        EnableBarrel();
+                        LeanTween.delayedCall(0.05f, () => { UpdateHands(); });
                         animator.SetBool("Interact", true);
                         pickup.gameObject.transform.SetParent(null);
                         pickup.gameObject.transform.position = new Vector3(0, -0.3f, 1.5f);
@@ -199,7 +202,7 @@ namespace Shreyas
 
 
         private bool axeAnimToggle = false;
-
+    
         public void InteractByInventoryItems()
         {
             if (inputInteract)
@@ -216,7 +219,12 @@ namespace Shreyas
                             LeanTween.delayedCall(0.25f, () => { interactable.Interact(selectedItem); });
 
                         else if (interactable.interactableType == Interactable.InteractableType.BarrelInteraction)
+                        {
                             interactable.Interact(selectedItem, currentItem.itemObject);
+                            BarrelsModels[currentIndex].GetComponent<Animator>().SetBool("OpenBarrel", true);
+                           
+                        }
+                           
 
                         else
                             interactable.Interact(selectedItem);
@@ -247,6 +255,7 @@ namespace Shreyas
                             animator.SetBool("CanUseBroom", true);
                             animator.SetBool("CanUseLighter", false);
                             animator.SetBool("UseDrink", false);
+                            animator.SetBool("UseBarrel", false);
                             break;
 
                         case "Axe":
@@ -262,41 +271,42 @@ namespace Shreyas
                             animator.SetBool("CanUseBroom", false);
                             animator.SetBool("CanUseLighter", true);
                             animator.SetBool("UseDrink", false);
+                            animator.SetBool("UseBarrel", false);
                             break;
 
-                        case ("Black Blaze"):
+                        case ("BlackBlaze"):
                             SetDrinkBlend(1f);
                             break;
 
-                        case ("Cactus Bomb"):
+                        case ("CactusBomb"):
                             SetDrinkBlend(2f);
                             break;
 
-                        case ("Desert Draught"):
+                        case ("DesertDraught"):
                             SetDrinkBlend(3f);
                             break;
 
-                        case ("Fire Out"):
+                        case ("FireOut"):
                             SetDrinkBlend(4f);
                             break;
 
-                        case ("Frothy Mug"):
+                        case ("FrothyMug"):
                             SetDrinkBlend(5f);
                             break;
 
-                        case ("Shiner's Sip"):
+                        case ("ShinerSip"):
                             SetDrinkBlend(6f);
                             break;
 
-                        case ("Snake Bite"):
+                        case ("SnakeBite"):
                             SetDrinkBlend(7f);
                             break;
 
-                        case ("Straight Shot"):
+                        case ("StraightShot"):
                             SetDrinkBlend(8f);
                             break;
 
-                        case ("Widow Kiss"):
+                        case ("WidowKiss"):
                             SetDrinkBlend(9f);
                             break;
 
@@ -304,9 +314,19 @@ namespace Shreyas
                             SetDrinkBlend(10f);
                             break;
 
+                        case ("Barrel"):
+                            animator.SetBool("CanUseAxe", false);
+                            animator.SetBool("CanUseBroom", false);
+                            animator.SetBool("CanUseLighter", false);
+                            animator.SetBool("UseDrink", false);
+                            EnableBarrel();
+                            animator.SetBool("UseBarrel", true);
+                            break;
+
                         // Add more cases for new types
                         default:
                             animator.SetBool("IsUsingAxe", false);
+                          
                             //animator.SetBool("IsUsingBroom", false);
                             break;
                     }
@@ -338,6 +358,8 @@ namespace Shreyas
             animator.ResetTrigger("AxeAnim2");
             animator.SetBool("CanUseLighter", false);
             animator.SetBool("CanUseBroom", false);
+            animator.SetBool("UseBarrel", false);
+          
             if (drinkLerpCoroutine != null)
                 StopCoroutine(drinkLerpCoroutine);
 
@@ -398,6 +420,7 @@ namespace Shreyas
             inventory[index] = new InventoryItem { data = itemData, itemObject = storedItem };
             Destroy(itemInWorld);
             UpdateUI();
+
         }
 
         private int GetFirstEmptySlot()
@@ -466,11 +489,23 @@ namespace Shreyas
         {
             if (!inventoryEnabled) return;
 
-            float scroll = Input.GetAxis("Mouse ScrollWheel");
-            if (scroll > 0f) currentIndex = (currentIndex + 1) % inventory.Length;
-            else if (scroll < 0f) currentIndex = (currentIndex - 1 + inventory.Length) % inventory.Length;
-        }
+            int previousIndex = currentIndex;
 
+            float scroll = Input.GetAxis("Mouse ScrollWheel");
+            if (scroll > 0f)
+            {
+                currentIndex = (currentIndex + 1) % inventory.Length;
+            }
+            else if (scroll < 0f)
+            {
+                currentIndex = (currentIndex - 1 + inventory.Length) % inventory.Length;
+            }
+
+            if (currentIndex != previousIndex)
+            {
+                UpdateHands();  // Only call when index actually changes
+            }
+        }
         [SerializeField] Animator animator;
         public void UpdateHands()
         {
@@ -490,6 +525,7 @@ namespace Shreyas
                 animator.SetBool("CanUseBroom", false);
                 animator.SetBool("CanUseLighter", false);
                 animator.SetBool("UseDrink", false);
+                animator.SetBool("UseBarrel", false);
 
                 return;
             }
@@ -501,7 +537,9 @@ namespace Shreyas
                 {
                     if (handModels[i].CompareTag(tag))
                     {
+                        
                         handModels[i].SetActive(true);
+                       
                         switch (tag)
                         {
                             case "Broom":
@@ -509,6 +547,8 @@ namespace Shreyas
                                 animator.SetBool("CanUseBroom", true);
                                 animator.SetBool("CanUseLighter", false);
                                 animator.SetBool("UseDrink", false);
+                                animator.SetBool("UseBarrel", false);
+                             
                                 break;
 
                             case "Axe":
@@ -516,6 +556,8 @@ namespace Shreyas
                                 animator.SetBool("CanUseBroom", false);
                                 animator.SetBool("CanUseLighter", false);
                                 animator.SetBool("UseDrink", false);
+                                animator.SetBool("UseBarrel", false);
+                               
                                 break;
                          
 
@@ -524,46 +566,62 @@ namespace Shreyas
                                 animator.SetBool("CanUseBroom", false);
                                 animator.SetBool("CanUseLighter", true);
                                 animator.SetBool("UseDrink", false);
+                                animator.SetBool("UseBarrel", false);
+                              
                                 break;
 
-                            case ("Black Blaze"):
+                            case ("BlackBlaze"):
                                 SetDrinkBlend(1f);
                                 break;
 
-                            case ("Cactus Bomb"):
+                            case ("CactusBomb"):
                                 SetDrinkBlend(2f);
                                 break;
 
-                            case ("Desert Draught"):
+                            case ("DesertDraught"):
                                 SetDrinkBlend(3f);
                                 break;
 
-                            case ("Fire Out"):
+                            case ("FireOut"):
                                 SetDrinkBlend(4f);
                                 break;
 
-                            case ("Frothy Mug"):
+                            case ("FrothyMug"):
                                 SetDrinkBlend(5f);
                                 break;
 
-                            case ("Shiner's Sip"):
+                            case ("ShinerSip"):
                                 SetDrinkBlend(6f);
                                 break;
 
-                            case ("Snake Bite"):
+                            case ("SnakeBite"):
                                 SetDrinkBlend(7f);
                                 break;
 
-                            case ("Straight Shot"):
+                            case ("StraightShot"):
                                 SetDrinkBlend(8f);
                                 break;
 
-                            case ("Widow Kiss"):
+                            case ("WidowKiss"):
                                 SetDrinkBlend(9f);
                                 break;
 
                             case ("Mug"):
                                 SetDrinkBlend(10f);
+                                break;
+
+                            case ("Barrel"):
+                                animator.SetBool("UseBarrel", true);
+                                EnableBarrel();
+                                  
+                                
+
+                                animator.SetBool("CanUseAxe", false);
+                                animator.SetBool("CanUseBroom", false);
+                                animator.SetBool("CanUseLighter", false);
+                                animator.SetBool("UseDrink", false);
+
+                              
                                 break;
 
                             // Add more cases for new types
@@ -736,6 +794,8 @@ namespace Shreyas
                 animator.SetBool("CanUseAxe", false);
                 animator.SetBool("CanUseBroom", false);
                 animator.SetBool("CanUseLighter", false);
+                animator.SetBool("UseBarrel", false);
+                animator.SetBool("UseDrink", false);
             }
             else
             {
@@ -750,6 +810,45 @@ namespace Shreyas
             inventoryCanvas.SetActive(enabled);
             PlayerModelVisual.SetActive(enabled);
             SetInventoryEnabled(enabled);
+        }
+
+        public void EnableBarrel()
+        {
+          
+            LeanTween.delayedCall(0.5f, () =>
+            {
+
+                if (currentIndex < 0 || currentIndex >= inventory.Length) return;
+
+                InventoryItem currentItem = inventory[currentIndex];
+                if (currentItem == null || currentItem.itemObject == null) return;
+
+                Barrel barrelComponent = currentItem.itemObject.GetComponent<Barrel>();
+                if (barrelComponent == null) return;
+
+                string targetTag = barrelComponent.itemType.ToString();
+
+                for (int i = 0; i < BarrelsModels.Length; i++) // Fixed: use BarrelsModels.Length, not handModels.Length
+                {
+                    BarrelsModels[i].SetActive(false);
+
+
+                    if (BarrelsModels[i].CompareTag(targetTag))
+                    {
+                        BarrelsModels[i].SetActive(true);
+                    }
+
+                }
+
+            });
+
+
+        }
+
+        public void DisableBarrel()
+        {
+            foreach(GameObject i in BarrelsModels)
+                i.SetActive(false);        
         }
 
     }

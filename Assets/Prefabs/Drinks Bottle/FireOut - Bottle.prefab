@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5865748004345840457}
   m_Layer: 6
   m_Name: FireOut - Bottle
-  m_TagString: Fire Out
+  m_TagString: FireOut
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -150,7 +150,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f1736b24c9c371e43b1c726a1b4bc39a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  itemData: {fileID: 0}
+  itemData: {fileID: 11400000, guid: 29848a6a767392e4499f61388efae1f2, type: 2}
   isPickable: 1
 --- !u!114 &5865748004345840457
 MonoBehaviour:

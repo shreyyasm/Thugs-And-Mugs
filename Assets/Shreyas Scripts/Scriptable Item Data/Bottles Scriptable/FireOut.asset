@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3bb7d09fd53502e4a9d1b2aee69e8d80, type: 3}
-  m_Name: Snake Bite
+  m_Name: FireOut
   m_EditorClassIdentifier: 
-  itemName: Snake Bite Drink
-  itemIcon: {fileID: 21300000, guid: 2b15cacef171fa34f8c635be32e00aac, type: 3}
-  itemTag: SnakeBite
+  itemName: FireOut Drink
+  itemIcon: {fileID: 21300000, guid: 6cdd59c7190298c4198eef47e2d83173, type: 3}
+  itemTag: FireOut
