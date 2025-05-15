@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using DG.Tweening;
 using UnityEngine;
 namespace Shreyas
@@ -18,6 +19,7 @@ namespace Shreyas
         private List<GameObject> currentItems = new List<GameObject>();
         private bool isFillingShelf = false;
 
+        public GameObject shelf;
         public void FillShelf(GameObject barrel)
         {
             if (isFillingShelf || currentItems.Count >= itemPositions.Length) return;
@@ -28,6 +30,7 @@ namespace Shreyas
 
         IEnumerator PlaceOneItemToShelf(GameObject barrel)
         {
+            CancelResetAnimatorBool();
             isFillingShelf = true;
             Barrel barrelScript = barrel.GetComponent<Barrel>();
             if (barrelScript == null)
@@ -77,11 +80,12 @@ namespace Shreyas
                     bottle.DOMove(target.position, 0.4f).SetEase(Ease.InOutSine);
                     bottle.DORotateQuaternion(lookRotation, 0.4f).SetEase(Ease.InOutSine).OnComplete(() =>
                     {
-                        bottle.SetParent(this.transform, worldPositionStays: true);
+                        bottle.SetParent(shelf.transform, true);
                         bottle.GetComponent<BoxCollider>().isTrigger = false;
                         bottle.GetComponent<Rigidbody>().isKinematic = false;
                         bottle.GetComponent<Rigidbody>().useGravity = true;
-
+                       
+                        
                         //Vector3 parentScale = this.transform.lossyScale;
                         //bottle.localScale = new Vector3(
                         //    worldScale.x / parentScale.x,
@@ -92,6 +96,11 @@ namespace Shreyas
                     });
 
                     yield return new WaitForSeconds(0.4f);
+                    // Stop any existing coroutine first
+                    if (resetBoolCoroutine != null)
+                        StopCoroutine(resetBoolCoroutine);
+
+                    resetBoolCoroutine = StartCoroutine(ResetAnimatorBoolAfterDelay(barrel));
                     bottlePlaced = true;
                     break;
                 }
@@ -106,8 +115,31 @@ namespace Shreyas
                 Destroy(barrel);
                 InventoryManager.instance.ClearInventorySlot();
             }
+            StopCoroutine("PlaceOneItemToShelf");
+        }
+
+        private Coroutine resetBoolCoroutine;
+        // Call this to cancel the coroutine before it sets the bool
+        public void CancelResetAnimatorBool()
+        {
+            if (resetBoolCoroutine != null)
+            {
+                StopCoroutine(resetBoolCoroutine);
+                resetBoolCoroutine = null;
+            }
+        }
+
+        IEnumerator ResetAnimatorBoolAfterDelay(GameObject barrel)
+        {
+          
+            yield return new WaitForSeconds(2f);
+            if(barrel != null) 
+                barrel.GetComponent<Animator>().SetBool("OpenBarrel", false);
+
+            resetBoolCoroutine = null; // Clear reference after done
         }
     }
+    
 
 }
 
