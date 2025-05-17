@@ -26,10 +26,14 @@ namespace Dhiraj
         public override void UpdateState()
         {
             //base.UpdateState();
+            if (!_aManager.enemyTarget)
+            {
+                _aManager.ChangeState(_aManager.aIdle);
+                return;
+            }
+
             distanceFromTarget = Vector3.Distance(_aManager.transform.position, _aManager.enemyTarget.position);
-            Vector3 dir = (_aManager.enemyTarget.position - _aManager.transform.position).normalized;
-            Quaternion lookRot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z));
-            _aManager.transform.rotation = Quaternion.Slerp(_aManager.transform.rotation, lookRot, Time.deltaTime * 5f);
+            RotatePlayer();
 
             if (distanceFromTarget < 1.1f && !isAttacked)
             {                

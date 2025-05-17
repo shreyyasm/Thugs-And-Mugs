@@ -13,7 +13,7 @@ namespace Dhiraj
         public override void StartState()
         {
             base.StartState();
-            ChangeAnimationState(CurrentState.Stun);
+            ChangeAnimationState(CurrentState.Stun);            
         }
 
         public override void UpdateState()

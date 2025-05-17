@@ -16,6 +16,7 @@ namespace Dhiraj
             base.StartState();
             if(_aManager.waypointBank)_aManager.ChangeState(_aManager.aLocomotion);
             ChangeAnimationState(CurrentState.Idle);
+            _aManager.agent.enabled = true;
         }
 
         public override void UpdateState()

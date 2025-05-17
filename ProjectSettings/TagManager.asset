@@ -24,6 +24,7 @@ TagManager:
   - StraightShot
   - NPCHitBox
   - NPC
+  - FxTemporaire
   layers:
   - Default
   - TransparentFX
@@ -37,7 +38,7 @@ TagManager:
   - Table
   - HalfLog
   - Weapon
-  - 
+  - NPC
   - 
   - 
   - 

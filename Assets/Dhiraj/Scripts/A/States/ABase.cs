@@ -61,6 +61,10 @@ namespace Dhiraj
                 _aManager.ChangeState(_aManager.aCombatStance);
                 return;
             }
+            else
+            {
+                _aManager.ChangeState(_aManager.aIdle);
+            }
         }
 
         public virtual void EndState()
@@ -87,6 +91,7 @@ namespace Dhiraj
                     break;
                 case CurrentState.Stun:
                     _aManager.anim.Play(AnimHash.Stuned);
+                    _aManager.anim.SetBool(AnimHash.Stuned, true);
                     break;
 
             }
@@ -156,6 +161,13 @@ namespace Dhiraj
         public void OnStunned(bool isTrue)
         {
             isStunned = isTrue;
+        }
+
+        public void RotatePlayer()
+        {
+            Vector3 dir = (_aManager.enemyTarget.position - _aManager.transform.position).normalized;
+            Quaternion lookRot = Quaternion.LookRotation(new Vector3(dir.x, 0, dir.z));
+            _aManager.transform.rotation = Quaternion.Slerp(_aManager.transform.rotation, lookRot, Time.deltaTime * 5f);
         }
     }
 }
