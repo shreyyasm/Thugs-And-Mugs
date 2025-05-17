@@ -56,15 +56,15 @@ namespace Shreyas
 
             inputActions = new PlayerControls();
             inputActions.Player.Interact.performed += ctx => inputInteract = true;
+
+            inputActions.Player.DropItem.performed += ctx => inputDrop = true;
+            inputActions.Player.DropItem.canceled += ctx => inputDrop = false;
             inputActions.Player.Interact.canceled += ctx =>
             {
                 inputInteract = false;
                 wasKeyJustReleased = true; // Set flag when the key is released
             };
 
-            inputActions.Player.DropItem.performed += ctx => inputDrop = true;
-            inputActions.Player.DropItem.canceled += ctx => inputDrop = false;
-            
         }
 
         private void Start()
@@ -138,10 +138,12 @@ namespace Shreyas
                     {
                         if(handModels[currentIndex] != null)
                             handModels[currentIndex].SetActive(false);
-                        //DisableBarrel();
+                        DisableBarrels();
                         
                        
                         animator.SetBool("Interact", true);
+                        animator.SetBool("CanUseBroom", false);
+                        animator.SetBool("CanUseAxe", false);
                         pickup.gameObject.transform.SetParent(null);
                         pickup.gameObject.transform.position = new Vector3(0, -0.3f, 1.5f);
                         PickupItem(pickup.itemData, pickup.gameObject);
@@ -212,22 +214,30 @@ namespace Shreyas
                 ItemData selectedItem = InventoryManager.instance.GetCurrentSelectedItem();
                 if (selectedItem != null && inventoryEnabled)
                 {
+
                     switch (selectedItem.itemTag)
                     {
                         case ("Broom"):
+                            if(animator.GetBool("CanUseBroom"))
+                                animator.SetTrigger("IsUsingBroom");
                             animator.SetBool("CanUseAxe", false);
                             animator.SetBool("CanUseBroom", true);
                             animator.SetBool("CanUseLighter", false);
                             animator.SetBool("UseDrink", false);
                             animator.SetBool("UseBarrel", false);
+                            
                             break;
 
                         case "Axe":
-                            if (axeAnimToggle)
-                                animator.SetTrigger("AxeAnim2");  // Trigger 2nd animation
-                            else
-                                animator.SetTrigger("AxeAnim1");  // Trigger 1st animation
-                            axeAnimToggle = !axeAnimToggle;      // Flip toggle
+                            if (animator.GetBool("CanUseAxe"))
+                            {
+                                if (axeAnimToggle)
+                                    animator.SetTrigger("AxeAnim2");  // Trigger 2nd animation
+                                else
+                                    animator.SetTrigger("AxeAnim1");  // Trigger 1st animation
+                                axeAnimToggle = !axeAnimToggle;      // Flip toggle
+                            }
+                                
                             break;
 
                         case ("Lighter"):
@@ -277,9 +287,6 @@ namespace Shreyas
                         case ("Mug"):
                             SetDrinkBlend(10f);
                             break;
-
-                       
-
                         // Add more cases for new types
                         default:
                             animator.SetBool("IsUsingAxe", false);
@@ -297,11 +304,14 @@ namespace Shreyas
                 }
                 if (wasKeyJustReleased)
                 {
-                    animator.ResetTrigger("AxeAnim1");
-                    animator.ResetTrigger("AxeAnim2");
-                    animator.SetBool("IsUsingBroom", false);
+                    //animator.ResetTrigger("AxeAnim1");
+                    //animator.ResetTrigger("AxeAnim2");
+                    //animator.ResetTrigger("IsUsingBroom");
                     wasKeyJustReleased = false; // Reset flag after handling
                 }
+
+              
+
                 Ray ray = playerCamera.ScreenPointToRay(new Vector3(Screen.width / 2f, Screen.height / 2f));
                 if (Physics.Raycast(ray, out RaycastHit hit, interactDistance, interactLayerMask) && isInteracting)
                 {
@@ -315,7 +325,19 @@ namespace Shreyas
                         else if (interactable.interactableType == Interactable.InteractableType.BarrelInteraction)
                         {
                             interactable.Interact(selectedItem, currentItem.itemObject);
-                            BarrelsModels[currentIndex].GetComponent<Animator>().SetBool("OpenBarrel",true);
+                            
+                            for (int i = 0; i < BarrelsModels.Count; i++) // Fixed: use BarrelsModels.Length, not handModels.Length
+                            {
+                                BarrelsModels[i].GetComponent<Animator>().SetBool("OpenBarrel", false);
+                                string var = BarrelsModels[i].GetComponent<Barrel>().Name;
+                                string var2 = currentItem.itemObject.GetComponent<Barrel>().Name;
+                               
+                                if (var == var2)
+                                {
+                                    BarrelsModels[i].GetComponent<Animator>().SetBool("OpenBarrel", true);
+                                }
+
+                            }
 
                         }
                            
@@ -341,44 +363,23 @@ namespace Shreyas
                 }
 
                 
-
             }
-           
-
-
         }
         public void SetDrinkBlend(float value)
         {
             animator.SetBool("UseDrink", true);
-            animator.SetBool("IsUsingBroom", false);
+            animator.ResetTrigger("IsUsingBroom");
             animator.SetBool("CanUseAxe", false);
             animator.ResetTrigger("AxeAnim1");
             animator.ResetTrigger("AxeAnim2");
             animator.SetBool("CanUseLighter", false);
             animator.SetBool("CanUseBroom", false);
             animator.SetBool("UseBarrel", false);
-          
-            if (drinkLerpCoroutine != null)
-                StopCoroutine(drinkLerpCoroutine);
-
-            drinkLerpCoroutine = StartCoroutine(SmoothSetDrinkValue(value));
+  
+            animator.SetFloat("Drinks", value);
+         
         }
-        private Coroutine drinkLerpCoroutine;
-        [SerializeField] private float drinksChangeSpeed = 3f;
-        private IEnumerator SmoothSetDrinkValue(float target)
-        {
-            float current = animator.GetFloat("Drinks");
-
-            while (Mathf.Abs(current - target) > 0.01f)
-            {
-                current = Mathf.MoveTowards(current, target, drinksChangeSpeed * Time.deltaTime);
-                animator.SetFloat("Drinks", current);
-                yield return null;
-            }
-
-            animator.SetFloat("Drinks", target); // Ensure it lands exactly
-            drinkLerpCoroutine = null;
-        }
+       
         private void EnableOutline(GameObject obj)
         {
             if (obj == null) return;
@@ -424,8 +425,7 @@ namespace Shreyas
                 storedItem.SetActive(false);
                 storedItem.GetComponent<Outline>().enabled = false;
                 storedItem.GetComponent<BoxCollider>().enabled = false;
-                BarrelsModels.Add(storedItem);
-                EnableBarrel();
+                BarrelsModels.Add(storedItem);  
             }
             else
             {
@@ -439,7 +439,32 @@ namespace Shreyas
             UpdateUI();
 
         }
+        public void PickupBarrel()
+        {
+            InventoryItem currentItem = inventory[currentIndex];
+            if (currentItem != null && currentItem.itemObject != null)
+            {
+                Barrel barrelComponent = currentItem.itemObject.GetComponent<Barrel>();
 
+
+                if (barrelComponent != null)
+                {
+                    string targetTag = barrelComponent.itemType.ToString();
+                    for (int i = 0; i < BarrelsModels.Count; i++)
+                    {
+                        BarrelsModels[i].SetActive(false);
+                        string var = BarrelsModels[i].GetComponent<Barrel>().Name;
+                        string var2 = barrelComponent.Name;
+                        if (var == var2)
+                        {
+
+                            BarrelsModels[i].SetActive(true);
+                        }
+                    }
+                }
+
+            }
+        }
         private int GetFirstEmptySlot()
         {
             for (int i = 0; i < inventory.Length; i++)
@@ -508,7 +533,7 @@ namespace Shreyas
         private void HandleScroll()
         {
             if (!inventoryEnabled) return;
-
+           
             int previousIndex = currentIndex;
 
             float scroll = Input.GetAxis("Mouse ScrollWheel");
@@ -525,17 +550,19 @@ namespace Shreyas
             {
                 UpdateHands();  // Only call when index actually changes
             }
+          
         }
         [SerializeField] Animator animator;
         public void UpdateHands()
         {
             if (!inventoryEnabled) return;
-
+           
             // Always start by disabling all hand models
             for (int i = 0; i < handModels.Length; i++)
             {
                 if (handModels[i] != null)
                     handModels[i].SetActive(false);
+              
             }
 
             // If there's no item in the selected slot, skip everything else
@@ -549,7 +576,7 @@ namespace Shreyas
 
                 return;
             }
-
+           
             string tag = inventory[currentIndex].data.itemTag;
             for (int i = 0; i < handModels.Length; i++)
             {
@@ -562,6 +589,26 @@ namespace Shreyas
                        
                         switch (tag)
                         {
+                            case ("Barrel"):
+                                
+                                if(animator.GetBool("UseBarrel"))
+                                {
+                                    animator.SetBool("UseBarrel", false);
+                                    LeanTween.delayedCall(0.1f, () => { animator.SetBool("UseBarrel", true); });
+                                }
+                                else
+                                    animator.SetBool("UseBarrel", true);
+
+
+
+                                animator.SetBool("CanUseAxe", false);
+                                animator.SetBool("CanUseBroom", false);
+                                animator.SetBool("CanUseLighter", false);
+                                animator.SetBool("UseDrink", false);
+
+
+                                break;
+
                             case "Broom":
                                 animator.SetBool("CanUseAxe", false);
                                 animator.SetBool("CanUseBroom", true);
@@ -579,7 +626,6 @@ namespace Shreyas
                                 animator.SetBool("UseBarrel", false);
                                
                                 break;
-                         
 
                             case ("Lighter"):
                                 animator.SetBool("CanUseAxe", false);
@@ -629,25 +675,10 @@ namespace Shreyas
                             case ("Mug"):
                                 SetDrinkBlend(10f);
                                 break;
-
-                            case ("Barrel"):
-                                animator.SetBool("UseBarrel", true);
-                                EnableBarrel();
-                                  
-                                
-
-                                animator.SetBool("CanUseAxe", false);
-                                animator.SetBool("CanUseBroom", false);
-                                animator.SetBool("CanUseLighter", false);
-                                animator.SetBool("UseDrink", false);
-
-                              
-                                break;
-
                             // Add more cases for new types
                             default:
                                 animator.SetBool("IsUsingAxe", false);
-                                //animator.SetBool("IsUsingBroom", false);
+                               
                                 break;
                         }
                     }
@@ -831,47 +862,19 @@ namespace Shreyas
             PlayerModelVisual.SetActive(enabled);
             SetInventoryEnabled(enabled);
         }
-
-        public void EnableBarrel()
+    
+        public void DisableBarrels()
         {
-          
-            LeanTween.delayedCall(0.5f, () =>
+            if (BarrelsModels.Count != 0)
             {
-
-               
-                InventoryItem currentItem = inventory[currentIndex];
-                if (currentItem == null || currentItem.itemObject == null) return;
-
-                Barrel barrelComponent = currentItem.itemObject.GetComponent<Barrel>();
-                if (barrelComponent == null) return;
-
-                string targetTag = barrelComponent.itemType.ToString();
-               
-
-                for (int i = 0; i < BarrelsModels.Count; i++) // Fixed: use BarrelsModels.Length, not handModels.Length
+                foreach (GameObject i in BarrelsModels)
                 {
-                    BarrelsModels[i].SetActive(false);
-
-                   
-                    
-                    string var = BarrelsModels[i].GetComponent<Barrel>().Name;
-                    string var2 = barrelComponent.Name;
-                    Debug.Log($"{var} || {var2}");
-                    //Debug.Log($"{BarrelsModels[i].CompareTag(barrelComponent.Name)}, {var == var2}");
-                    if (var == var2)
-                    {
-                       
-                        BarrelsModels[i].SetActive(true);
-                    }
-
+                    i.SetActive(false);
                 }
-
-            });
-
+            }
 
         }
 
-      
 
     }
 

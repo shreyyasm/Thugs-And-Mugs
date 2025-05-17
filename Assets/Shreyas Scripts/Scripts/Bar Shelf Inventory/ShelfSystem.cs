@@ -76,24 +76,30 @@ namespace Shreyas
 
                     Transform target = itemPositions[shelfIndex];
                     Quaternion lookRotation = Quaternion.LookRotation(transform.right, Vector3.up);
-                   
-                    bottle.DOMove(target.position, 0.4f).SetEase(Ease.InOutSine);
-                    bottle.DORotateQuaternion(lookRotation, 0.4f).SetEase(Ease.InOutSine).OnComplete(() =>
+
+                    Sequence moveSequence = DOTween.Sequence();
+
+                    Vector3 liftPosition = bottle.position + Vector3.up * 0.5f; // Adjust lift height
+                    Vector3 finalPosition = target.position;
+                    
+                    // Move up first
+                    moveSequence.Append(bottle.DOMove(liftPosition, 0.2f).SetEase(Ease.OutSine));
+
+                    // Move to target position
+                    moveSequence.Append(bottle.DOMove(finalPosition, 0.3f).SetEase(Ease.InOutSine));
+
+                    // Rotate during the second move
+                    bottle.DORotateQuaternion(lookRotation, 0.5f).SetEase(Ease.InOutSine);
+
+                    // On complete, do your setup
+                    moveSequence.OnComplete(() =>
                     {
                         bottle.SetParent(shelf.transform, true);
                         bottle.GetComponent<BoxCollider>().isTrigger = false;
                         bottle.GetComponent<Rigidbody>().isKinematic = false;
                         bottle.GetComponent<Rigidbody>().useGravity = true;
-                       
-                        
-                        //Vector3 parentScale = this.transform.lossyScale;
-                        //bottle.localScale = new Vector3(
-                        //    worldScale.x / parentScale.x,
-                        //    worldScale.y / parentScale.y,
-                        //    worldScale.z / parentScale.z
-                        //);
-
                     });
+
 
                     yield return new WaitForSeconds(0.4f);
                     // Stop any existing coroutine first
@@ -113,6 +119,7 @@ namespace Shreyas
             if (barrel.transform.childCount < 3)
             {
                 Destroy(barrel);
+                InventoryManager.instance.BarrelsModels.Remove(barrel);
                 InventoryManager.instance.ClearInventorySlot();
             }
             StopCoroutine("PlaceOneItemToShelf");

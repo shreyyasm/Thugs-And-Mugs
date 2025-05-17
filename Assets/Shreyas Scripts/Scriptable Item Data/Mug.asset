@@ -10,8 +10,8 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3bb7d09fd53502e4a9d1b2aee69e8d80, type: 3}
-  m_Name: Axe
+  m_Name: Mug
   m_EditorClassIdentifier: 
-  itemName: Axe
-  itemIcon: {fileID: 21300000, guid: 7223c43fde0be7f49b3d5660916bc6c3, type: 3}
-  itemTag: Axe
+  itemName: Mug
+  itemIcon: {fileID: 21300000, guid: caf250d18ba6c414ab57da6dd5fa8083, type: 3}
+  itemTag: Mug
