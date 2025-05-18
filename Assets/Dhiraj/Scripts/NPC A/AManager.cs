@@ -1,11 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
-using UnityEditor.Rendering;
 using UnityEngine;
 using UnityEngine.AI;
-using UnityEngine.InputSystem.XR;
 using UnityEngine.UI;
 
 namespace Dhiraj
@@ -26,77 +23,87 @@ namespace Dhiraj
         public AEnd aEnd;
         #endregion
 
-        public string CurrentState;
+        #region Components
+        [Header("Components")]
         public AController aController;
         public WaypointBank waypointBank;
+        public NPCSpawnManager npcSpawnManager;
         public NavMeshAgent agent;
         public Collider[] thisCollider;
         public Animator anim;
         public Seat seat;
-
         public GameObject mug;
         public Image fillImage;
         public CanvasGroup sliderGroup;
+        public ParticleSystem bloodParticalSystem;
+        public ParticleSystem stunnParticalSystem;
+        public Transform impactPosition;
+        #endregion
 
+        #region State Flags
+        [Header("State Flags")]
+        public bool canStartFight = false;
+    
+        [Space(5)]
         public bool isLog = false;
-
         public bool GoReturn = false;
         public bool isLookAround = false;
         public bool isPushBack = false;
         public bool isAttack = false;
         public bool isDead = false;
         public bool isActiveInCombat = false;
-        public bool IsAlive() => !isDead;
-
-        //Attack settings
-        [Header("Attack Settings")]
-        public Vector2 forceRange = new Vector2(1f, 3f);
-
-        public float forceDuration;
-        private float pushCooldownTimer = 0f;
-        private const float pushCooldownDuration = 0.5f; // half a second cooldown
-
-        // Enemy & HP System
-        public List<AManager> enemyTargets = new List<AManager>();
-        public Transform enemyTarget
-        {
-            get
-            {
-                enemyTargets.RemoveAll(e => e == null || e.Equals(null) || !e.IsAlive());
-                return enemyTargets.Count > 0 ? enemyTargets[0].transform : null;
-            }
-        }
-
-        public ParticleSystem bloodParticalSystem;
-        public ParticleSystem stunnParticalSystem;
-        public Transform impactPosition;
-
         public bool isPlayer = false;
+
+        [Space(5)]
+        public bool isServed = false;
+        public bool playerInteracting = false;
+
+        public bool IsAlive() => !isDead;
+        #endregion
+
+        #region Health & Combat
+        [Header("Health & Combat")]
         public int maxHP = 100;
         public int currentHP = 100;
         public int dealDamageAmount = 5;
+        public List<AManager> enemyTargets = new List<AManager>();
+        public Transform enemyTarget => enemyTargets
+            .Where(e => e != null && e.IsAlive())
+            .Select(e => e.transform)
+            .FirstOrDefault();
+        #endregion
 
-
-        private void Start()
-        {
-            Initiaized();           
-        }
-
+        #region Attack Settings
+        [Header("Attack Settings")]
+        public Vector2 forceRange = new Vector2(1f, 3f);
+        public float forceDuration;
+        private float pushCooldownTimer = 0f;
+        private const float pushCooldownDuration = 0.5f;
+        #endregion
 
         private Vector3 lastPosition;
         private Vector3 movementDirection;
+        public string CurrentState;
+
+        private void Start() => Initiaized();
+
         private void Update()
         {
             currentState.UpdateState();
             CurrentState = currentState.ToString();
+
             CheckAndAssignNewTarget();
+            if (!isActiveInCombat)
+                return;
 
             if (pushCooldownTimer > 0f)
                 pushCooldownTimer -= Time.deltaTime;
 
+            
             movementDirection = (transform.position - lastPosition).normalized;
             lastPosition = transform.position;
         }
+
         public void Initiaized()
         {
             aIdle = new AIdle(this);
@@ -104,17 +111,16 @@ namespace Dhiraj
             aActions = new AActions(this);
             aDrinking = new ADrinking(this);
             aLookAround = new ALookAround(this);
-
             aCombatStance = new ACombatStance(this);
             aAttack = new AAttack(this);
             aStunn = new AStunn(this);
             aChase = new AChase(this);
-
             aEnd = new AEnd(this);
 
             currentState = aIdle;
             currentState.StartState();
         }
+
         public void ChangeState(ABase newState)
         {
             currentState.EndState();
@@ -134,45 +140,43 @@ namespace Dhiraj
                 SortEnemyTargets();
             }
 
-            // Clean up dead enemies
             enemyTargets.RemoveAll(e => e == null || e.currentHP <= 0);
 
             if (currentHP <= 0)
             {
                 ChangeState(aStunn);
                 Die();
-                //Destroy(this.gameObject);
             }
-        }
-
-        public void SortEnemyTargets()
-        {
-            enemyTargets = enemyTargets.OrderBy(e => e.currentHP).ToList();
         }
 
         public void Die()
         {
-            //Is dead now
+            if (!isDead)
+            {
+                Destroy(this.gameObject, 5);
+                isDead = true;
+            }
             anim.Play("Stun");
-            isDead = true;
 
             CrowdControlManager.Instance.Unregister(this);
-            
             aController.Disable();
 
-            foreach (var target in thisCollider)
-            {
-                target.enabled = false;
-            }
-            stunnParticalSystem.Play();
-            Debug.Log(this.name + " NPC is dead");
-            //Destroy(this);
+            foreach (var col in thisCollider)
+                col.enabled = false;
 
+            stunnParticalSystem.Play();
+
+            Debug.Log($"{name} NPC is dead");
         }
-        public bool IsFighting(AManager other)
+        public void Death()
         {
-            return enemyTargets.Contains(other);
+            DestroyImmediate(this.gameObject);
         }
+        public void SortEnemyTargets() =>
+            enemyTargets = enemyTargets.OrderBy(e => e.currentHP).ToList();
+
+        public bool IsFighting(AManager other) => enemyTargets.Contains(other);
+
         public void CheckAndAssignNewTarget()
         {
             if (!isActiveInCombat) return;
@@ -182,20 +186,14 @@ namespace Dhiraj
             if (enemyTargets.Count == 0)
             {
                 AManager newEnemy = CrowdControlManager.Instance.GetNewEnemyFor(this);
-
                 if (newEnemy != null)
-                {
                     enemyTargets.Add(newEnemy);
-                    //Debug.Log($"{name} assigned new enemy: {newEnemy.name}");
-                }
             }
         }
-        public void HitAnimation()
-        {            
-            // We allow interrupting walking or idle with a Hit animation
-            anim.SetTrigger("Hit");
 
-            // Lock movement temporarily
+        public void HitAnimation()
+        {
+            anim.SetTrigger("Hit");
             StartCoroutine(ReenableControlAfterHit(0.3f));
         }
 
@@ -203,15 +201,12 @@ namespace Dhiraj
         {
             aController.Disable();
             yield return new WaitForSeconds(delay);
-            aController.Enable(); // Assuming this method exists
+            aController.Enable();
         }
 
         public void ApplyPushback(Vector3 direction, float force, float duration)
         {
-            if (!gameObject.activeInHierarchy || isPushBack || pushCooldownTimer > 0f)
-            {
-                return;
-            }
+            if (!gameObject.activeInHierarchy || isPushBack || pushCooldownTimer > 0f) return;
 
             pushCooldownTimer = pushCooldownDuration;
             StartCoroutine(HandlePushback(direction, force, duration));
@@ -220,76 +215,67 @@ namespace Dhiraj
 
         private IEnumerator HandlePushback(Vector3 direction, float force, float duration)
         {
-            // Stop movement & disable controller temporarily
             agent.enabled = false;
-            aController.Disable(); // Disable state update
+            aController.Disable();
 
             float timer = 0f;
-            Vector3 startPosition = transform.position;
-            Vector3 targetPosition = startPosition + direction.normalized * force;
-
-            float pushRadius = 0.5f; // How wide the push detection should be
-            LayerMask npcLayer = LayerMask.GetMask("NPC"); // Ensure your NPCs are in this layer
+            Vector3 startPos = transform.position;
+            Vector3 targetPos = startPos + direction.normalized * force;
+            float pushRadius = 0.5f;
+            LayerMask npcLayer = LayerMask.GetMask("NPC");
 
             while (timer < duration)
             {
-                transform.position = Vector3.Lerp(startPosition, targetPosition, timer / duration);
+                transform.position = Vector3.Lerp(startPos, targetPos, timer / duration);
                 timer += Time.deltaTime;
 
-                // Detect other NPCs in the path
                 Collider[] hits = Physics.OverlapSphere(transform.position, pushRadius, npcLayer);
                 foreach (var hit in hits)
                 {
-                    if (hit.transform == this.transform) continue;
+                    if (hit.transform == transform) continue;
 
-                    AManager otherManager = hit.GetComponentInParent<AManager>();
-                    if (otherManager != null && !otherManager.isPushBack)
-                    {                       
-                        otherManager.isPushBack = true;
-                        // Start pushback on collided NPC with reduced force
-                        otherManager.StartCoroutine(otherManager.HandlePushback(-direction, force * 0.7f, duration * 0.9f));
+                    AManager other = hit.GetComponentInParent<AManager>();
+                    if (other != null && !other.isPushBack)
+                    {
+                        other.isPushBack = true;
+                        other.StartCoroutine(other.HandlePushback(-direction, force * 0.7f, duration * 0.9f));
                     }
                 }
 
                 yield return null;
             }
 
-            transform.position = targetPosition;
-
-            yield return new WaitForSeconds(0.1f); // brief delay
+            transform.position = targetPos;
+            yield return new WaitForSeconds(0.1f);
 
             aController.Enable();
             isPushBack = false;
         }
-
-
 
         private void OnTriggerEnter(Collider other)
         {
             if (other.CompareTag("NPCHitBox"))
             {
                 AManager otherManager = other.GetComponentInParent<AManager>();
-
-                //Debug.Log($"I'm {this.name} || Hitbox : {otherManager.name}");
                 bloodParticalSystem.Play();
+
                 if (otherManager != null && otherManager != this)
                 {
                     CrowdControlManager.Instance.TryRegister(this);
                     CrowdControlManager.Instance.TryRegister(otherManager);
 
-                    this.isActiveInCombat = true;
+                    isActiveInCombat = true;
                     otherManager.isActiveInCombat = true;
 
                     if (!enemyTargets.Contains(otherManager))
                     {
                         enemyTargets.Add(otherManager);
                         SortEnemyTargets();
-
                     }
+
                     ReceiveDamage(dealDamageAmount, otherManager);
                     HitAnimation();
                 }
-               
             }
 
             if (other.CompareTag("NPC"))
@@ -301,30 +287,33 @@ namespace Dhiraj
                     CrowdControlManager.Instance.TryRegister(this);
                     CrowdControlManager.Instance.TryRegister(otherManager);
 
-                    this.isActiveInCombat = true;
+                    isActiveInCombat = true;
                     otherManager.isActiveInCombat = true;
 
                     if (!enemyTargets.Contains(otherManager))
                     {
                         enemyTargets.Add(otherManager);
                         SortEnemyTargets();
-                        //Debug.Log($"{name} added enemy: {otherManager.name}");
                     }
+
+                    Vector3 pushDir = movementDirection.sqrMagnitude > 0.001f ? movementDirection : transform.forward;
+                    float pushForce = Random.Range(forceRange.x, forceRange.y);
+
+                    otherManager.ApplyPushback(pushDir, pushForce, forceDuration);
                 }
+            }
+        }        
 
-
-                //Vector3 pushDir = (enemyTarget.position - transform.position).normalized;
-                Vector3 pushDir = movementDirection.sqrMagnitude > 0.001f ? movementDirection : transform.forward;
-                //Vector3 pushDir = transform.forward.normalized;
-                float pushForce = Random.Range(forceRange.x, forceRange.y);
-                float pushDuration = forceDuration;
-
-                otherManager.ApplyPushback(pushDir, pushForce, pushDuration);
-                //Debug.Log($"{otherManager.gameObject.name} => {otherManager.currentHP}");
-                return;
+        public void CombatStart()
+        {
+            foreach (var target in thisCollider)
+            {
+                target.isTrigger = true;
+            }
+            foreach (var item in aController.weaponColliders)
+            {
+                item.isTrigger = true;
             }
         }
     }
-    
-
 }

@@ -7,6 +7,7 @@ namespace Dhiraj
     {
         public GameObject _PlayerObject;
         public SeatManager _SeatManager;    
+        public bool isFightStarted = false;
         
 
         

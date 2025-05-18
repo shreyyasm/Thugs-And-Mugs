@@ -13,7 +13,8 @@ namespace Dhiraj
         public override void StartState()
         {
             base.StartState();
-            Debug.Log("Stopped");            
+            Debug.Log("Stopped");
+            _aManager.Death();
         }
 
         public override void UpdateState()

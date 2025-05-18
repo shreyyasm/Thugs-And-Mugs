@@ -41,7 +41,20 @@ namespace Dhiraj
 
                 MoveToTarget(_aManager.enemyTarget);
 
-            }         
+            }
+
+
+            if (!_aManager.enemyTarget)
+            {
+                if (!_aManager.seat)
+                {
+                    _aManager.ChangeState(_aManager.aLookAround);
+                }
+                else
+                {
+                    _aManager.ChangeState(_aManager.aLocomotion);
+                }
+            }
         }
 
         public override void EndState()

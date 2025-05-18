@@ -33,8 +33,11 @@ namespace Dhiraj
         public override void UpdateState()
         {
             base.UpdateState();
-            if (!_aManager.isLookAround &&  !_aManager.GoReturn) 
+            if (!_aManager.isLookAround &&  !_aManager.GoReturn)
+            {
                 WaypointFollow();
+                return;
+            }
             else if (_aManager.isLookAround && !_aManager.GoReturn)
             {
                 bool isAgentStopped = !_aManager.agent.pathPending &&
@@ -64,7 +67,6 @@ namespace Dhiraj
                 int direction = _aManager.GoReturn ? -1 : 1;
                 currentWaypointIndex += direction;
 
-                // Clamp the index to valid range
                 if (!_aManager.GoReturn)
                 {
                     if (currentWaypointIndex >= _aManager.waypointBank.path.Count)
@@ -79,19 +81,16 @@ namespace Dhiraj
                     {
                         Debug.Log("Process Over");
                         _aManager.GoReturn = false;
-                        _aManager.isLookAround = false;// optional
+                        _aManager.isLookAround = false;
                         _aManager.ChangeState(_aManager.aEnd);
                         return;
                     }
                 }
 
-                // Now it's safe to move to the next waypoint
                 MoveToNextWaypoint(currentWaypointIndex);
-                Debug.Log($"Current Waypoint Index => {currentWaypointIndex}");
             }
-
-
         }
+
 
         public override void EndState()
         {

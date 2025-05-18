@@ -224,7 +224,7 @@ GameObject:
   - component: {fileID: 3918728581629786759}
   - component: {fileID: -3380718738886887873}
   m_Layer: 5
-  m_Name: Cart Iteam
+  m_Name: Cart Item
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

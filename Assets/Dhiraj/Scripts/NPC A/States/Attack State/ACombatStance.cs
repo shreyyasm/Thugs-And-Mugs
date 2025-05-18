@@ -15,7 +15,8 @@ namespace Dhiraj
             //base.StartState();
             _aManager.agent.enabled = false;
             _aManager.anim.SetBool("CombatStance", true);
-            attackTimer = 0;            
+            attackTimer = 0;
+            GameManager.Instance.isFightStarted = true;
         }
 
         public override void UpdateState()

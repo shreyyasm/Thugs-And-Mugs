@@ -7,7 +7,6 @@ namespace Dhiraj
     public class AController : MonoBehaviour
     {
         public List<Collider> weaponColliders = new List<Collider>();
-
         public void Enable()
         {
             foreach (var collider in weaponColliders)
@@ -23,7 +22,5 @@ namespace Dhiraj
                 collider.enabled = false;
             }
         }
-
-        
     }
 }
