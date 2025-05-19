@@ -6,5 +6,6 @@ namespace Dhiraj
     {
         public Transform sitingPosition;
         public bool isOccupied = false;
+        public AManager occupiedBy;
     }
 }
