@@ -7848,6 +7848,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemType: 4
+  Name: 
   sprites:
   - {fileID: 5218281544321963075}
   - {fileID: 2128947988142854070}
@@ -8089,6 +8090,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
         type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
+    - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
+        type: 3}
       propertyPath: m_IsKinematic
       value: 1
       objectReference: {fileID: 0}
@@ -8205,6 +8211,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_UseGravity
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
         type: 3}
@@ -8327,6 +8338,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
         type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
+    - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
+        type: 3}
       propertyPath: m_IsKinematic
       value: 1
       objectReference: {fileID: 0}
@@ -8443,6 +8459,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_UseGravity
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
         type: 3}
@@ -8565,6 +8586,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
         type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
+    - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
+        type: 3}
       propertyPath: m_IsKinematic
       value: 1
       objectReference: {fileID: 0}
@@ -8677,6 +8703,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2092016267360990612}
     m_Modifications:
+    - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 112
+      objectReference: {fileID: 0}
     - target: {fileID: 1929713005622233115, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
         type: 3}
       propertyPath: m_Name
@@ -8755,6 +8786,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_UseGravity
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
         type: 3}
@@ -8874,6 +8910,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_UseGravity
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
+        type: 3}
+      propertyPath: m_Constraints
+      value: 112
       objectReference: {fileID: 0}
     - target: {fileID: 132089223690292413, guid: 9139c71a56c9ecc45b7c0b09fe4871fb,
         type: 3}

@@ -14,6 +14,7 @@ namespace Shreyas
             WoodCuttingMachineInteraction,
             BarrelInteraction,
             CustomerInteraction,
+            BrewStatationInteraction,
             // Add more types here
         }
 
@@ -69,6 +70,10 @@ namespace Shreyas
                         InteractWithCustomer();
                     break;
 
+                case InteractableType.BrewStatationInteraction:
+                    InteractWithBrewStatation();
+                    break;
+
                 default:
                     //Debug.LogWarning("No interaction defined for this type.");
                     break;
@@ -113,6 +118,11 @@ namespace Shreyas
         public void InteractWithCustomer()
         {
             gameObject.GetComponent<CustomerOrder>().GiveOrder();
+            firstPersonController.playerBusy = true;
+        }
+        public void InteractWithBrewStatation()
+        {
+            gameObject.GetComponent<BrewManager>().OpenBrewStation();
             firstPersonController.playerBusy = true;
         }
     }

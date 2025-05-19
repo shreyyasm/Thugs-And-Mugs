@@ -520,6 +520,47 @@ namespace Shreyas
             BarrelsModels.Remove(droppedItem);
             Debug.Log("Drop");
         }
+        public void DropItemByChoice(int index, Transform parent)
+        {
+            InventoryItem currentItem = inventory[index];
+            if (currentItem == null || currentItem.itemObject == null)
+                return;
+
+            GameObject droppedItem = currentItem.itemObject;
+
+            // Cache world scale before reparenting
+            Vector3 worldScale = droppedItem.transform.lossyScale;
+
+            // Set parent and maintain world position/rotation/scale
+            droppedItem.transform.SetParent(parent, true);
+
+            // Force exact local alignment
+            droppedItem.transform.localPosition = Vector3.zero;
+            droppedItem.transform.localRotation = Quaternion.Euler(-90,0,0);
+
+            // Correct scale relative to new parent
+            Vector3 parentScale = parent.lossyScale;
+            droppedItem.transform.localScale = new Vector3(
+                worldScale.x / parentScale.x,
+                worldScale.y / parentScale.y,
+                worldScale.z / parentScale.z
+            );
+
+            // Enable colliders and object
+            if (droppedItem.TryGetComponent(out Collider col))
+                col.enabled = true;
+
+            droppedItem.SetActive(true);
+
+            // Clear inventory slot
+            inventory[index] = null;
+            UpdateUI();
+            UpdateHands();
+            UpdateHighlight();
+            droppedItem.layer = 0;
+            BarrelsModels.Remove(droppedItem);
+            Debug.Log("Drop");
+        }
 
 
         public void ClearInventorySlot()
@@ -530,6 +571,7 @@ namespace Shreyas
             UpdateHands();
             UpdateHighlight();
         }
+      
         private void HandleScroll()
         {
             if (!inventoryEnabled) return;
