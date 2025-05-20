@@ -13,6 +13,7 @@ namespace Dhiraj
         public InteractCanvas[] AllInteractCanvas;
 
         private FirstPersonMovementInputSystem FirstPersonMovementInputSystem;
+        public bool isFightStarted;
         private void Awake()
         {
            AllInteractCanvas = Resources.FindObjectsOfTypeAll<InteractCanvas>();

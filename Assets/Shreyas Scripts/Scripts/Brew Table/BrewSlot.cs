@@ -25,6 +25,7 @@ namespace Shreyas
                     dropped.transform.localPosition = Vector3.zero;
                     InventoryManager.instance.DropItemByChoice(dropped.GetComponent<InventorySlot>().SlotNumber, BrewManager.Instance.mugHolder);
                     Debug.Log($"Item dropped in {slotType} slot.");
+                    BrewManager.Instance.Mug = dropped;
                     BrewManager.Instance.MugReady = true;
                     BrewManager.Instance.EnableMaking();
                     gameObject.SetActive(false);
@@ -42,6 +43,7 @@ namespace Shreyas
                     dropped.transform.localPosition = Vector3.zero;
                     InventoryManager.instance.DropItemByChoice(dropped.GetComponent<InventorySlot>().SlotNumber, BrewManager.Instance.drinkHolder);
                     Debug.Log($"Item dropped in {slotType} slot.");
+                    BrewManager.Instance.Drink = dropped;
                     BrewManager.Instance.DrinkReady = true;
                     BrewManager.Instance.EnableMaking();
                     gameObject.SetActive(false);
