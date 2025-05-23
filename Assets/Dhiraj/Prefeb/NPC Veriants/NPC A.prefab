@@ -5174,7 +5174,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 5698886698077886875}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.3
+  m_Radius: 0.45
   m_Speed: 1.5
   m_Acceleration: 2000
   avoidancePriority: 50
@@ -5228,6 +5228,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   aController: {fileID: 1956213722903470853}
   waypointBank: {fileID: 0}
+  npcSpawnManager: {fileID: 0}
   agent: {fileID: 7545800708673478670}
   thisCollider:
   - {fileID: 6412568279755767497}
@@ -5248,6 +5249,8 @@ MonoBehaviour:
   isDead: 0
   isActiveInCombat: 0
   isPlayer: 0
+  isServed: 0
+  playerInteracting: 0
   maxHP: 100
   currentHP: 100
   dealDamageAmount: 10

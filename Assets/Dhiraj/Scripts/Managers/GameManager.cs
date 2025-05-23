@@ -7,6 +7,7 @@ namespace Dhiraj
 {
     public class GameManager : Singleton<GameManager>
     {
+        public int level;
         public GameObject _PlayerObject;
         public SeatManager _SeatManager;
 
