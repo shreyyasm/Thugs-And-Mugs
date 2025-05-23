@@ -6,6 +6,7 @@ namespace Shreyas
     public class BrewManager : Singleton<BrewManager>
     {
         public GameObject BrewStationCamera;
+        public GameObject BrewStationMakingCamera;
         public GameObject BrewCanvas;
 
         [Header("Holders")]
@@ -20,6 +21,9 @@ namespace Shreyas
 
         public bool MugReady;
         public bool DrinkReady;
+
+        public GameObject Mug;
+        public GameObject Drink;
         public GameObject MakeButton;
         private void Awake()
         {
@@ -43,7 +47,11 @@ namespace Shreyas
           
         }
 
-       
+        public void  PourDrink()
+        {
+            BrewStationMakingCamera.SetActive(true);
+            BrewCanvas.SetActive(false);
+        }
         public bool IsOpen() => isStationOpen;
 
         public bool TryAddObject(GameObject obj)
