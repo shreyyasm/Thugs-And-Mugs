@@ -1427,8 +1427,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 25ddf55695db0d04fb59cd4b01adb740, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  level: 4
   _PlayerObject: {fileID: 0}
   _SeatManager: {fileID: 1266906281}
+  AllInteractCanvas: []
   isFightStarted: 0
 --- !u!4 &433212932 stripped
 Transform:
@@ -1490,8 +1492,7 @@ MonoBehaviour:
     waybank: {fileID: 702842020}
   npcPrefabs:
   - {fileID: 8599870556056613249, guid: 147563b66459d664184ef45622f85ae7, type: 3}
-  - {fileID: 8599870556056613249, guid: 02e8a93c61827a6438adfa635d054102, type: 3}
-  - {fileID: 8599870556056613249, guid: 05d3fd2190ab0794d8bd3fd72f8bf651, type: 3}
+  - {fileID: 8713948871025081843, guid: c84307f7577bc0f4098fcc18e832abe2, type: 3}
   spawnDelay: 5
   randomSpawnAfterCount: 3
   totalSpawnedCount: 0

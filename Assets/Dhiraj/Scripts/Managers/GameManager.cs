@@ -7,12 +7,15 @@ namespace Dhiraj
 {
     public class GameManager : Singleton<GameManager>
     {
+        public int level;
         public GameObject _PlayerObject;
         public SeatManager _SeatManager;
 
         public InteractCanvas[] AllInteractCanvas;
 
         private FirstPersonMovementInputSystem FirstPersonMovementInputSystem;
+
+        public bool isFightStarted;
         private void Awake()
         {
            AllInteractCanvas = Resources.FindObjectsOfTypeAll<InteractCanvas>();
