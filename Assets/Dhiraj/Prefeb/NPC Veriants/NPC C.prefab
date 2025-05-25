@@ -8608,6 +8608,7 @@ MonoBehaviour:
   isPlayer: 0
   isServed: 0
   playerInteracting: 0
+  npcType: 2
   maxHP: 100
   currentHP: 100
   dealDamageAmount: 10

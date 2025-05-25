@@ -7,8 +7,16 @@ using UnityEngine.UI;
 
 namespace Dhiraj
 {
+    public enum NPCType { 
+    Pushpa = 0,
+    Warrior = 1,
+    Outlaw = 2,
+    Prisonar = 3
+    }
+
     public class AManager : MonoBehaviour
-    {
+    {        
+        public NPCType npcType;
         #region State Initialize
         public ABase currentState;
         public AIdle aIdle;

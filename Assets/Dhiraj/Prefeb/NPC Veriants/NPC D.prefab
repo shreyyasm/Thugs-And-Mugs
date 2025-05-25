@@ -5266,6 +5266,7 @@ MonoBehaviour:
   isPlayer: 0
   isServed: 0
   playerInteracting: 0
+  npcType: 3
   maxHP: 100
   currentHP: 100
   dealDamageAmount: 10

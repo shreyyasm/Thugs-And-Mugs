@@ -5226,6 +5226,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9251e3ffe3b7f974f9fcc6e956c7b255, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  npcType: 0
   aController: {fileID: 1956213722903470853}
   waypointBank: {fileID: 0}
   npcSpawnManager: {fileID: 0}
