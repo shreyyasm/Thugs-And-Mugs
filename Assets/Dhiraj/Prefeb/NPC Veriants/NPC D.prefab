@@ -5241,6 +5241,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9251e3ffe3b7f974f9fcc6e956c7b255, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  npcType: 3
   aController: {fileID: 8346617165826252199}
   waypointBank: {fileID: 0}
   npcSpawnManager: {fileID: 0}
@@ -5255,6 +5256,7 @@ MonoBehaviour:
   bloodParticalSystem: {fileID: 5170193504606961969}
   stunnParticalSystem: {fileID: 2812122594597716993}
   impactPosition: {fileID: 2028367425790419842}
+  rb: {fileID: 7212197344611022395}
   canStartFight: 0
   isLog: 1
   GoReturn: 0
@@ -5266,12 +5268,11 @@ MonoBehaviour:
   isPlayer: 0
   isServed: 0
   playerInteracting: 0
-  npcType: 3
   maxHP: 100
   currentHP: 100
   dealDamageAmount: 10
   enemyTargets: []
-  forceRange: {x: 1.5, y: 1}
+  forceRange: {x: 3, y: 7}
   forceDuration: 0.5
   CurrentState: 
 --- !u!65 &5909745663950354891

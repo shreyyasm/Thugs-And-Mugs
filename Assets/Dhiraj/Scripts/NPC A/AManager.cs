@@ -11,7 +11,7 @@ namespace Dhiraj
     Pushpa = 0,
     Warrior = 1,
     Outlaw = 2,
-    Prisonar = 3
+    Prisonar = 3    
     }
 
     public class AManager : MonoBehaviour
@@ -46,6 +46,7 @@ namespace Dhiraj
         public ParticleSystem bloodParticalSystem;
         public ParticleSystem stunnParticalSystem;
         public Transform impactPosition;
+        public Rigidbody rb;
         #endregion
 
         #region State Flags
@@ -173,7 +174,7 @@ namespace Dhiraj
                 col.enabled = false;
 
             stunnParticalSystem.Play();
-
+            rb.isKinematic = true; // Disable physics interactions
             Debug.Log($"{name} NPC is dead");
         }
         public void Death()
@@ -202,93 +203,49 @@ namespace Dhiraj
         public void HitAnimation()
         {
             anim.SetTrigger("Hit");
-            StartCoroutine(ReenableControlAfterHit(0.3f));
-        }
-
-        private IEnumerator ReenableControlAfterHit(float delay)
-        {
-            aController.Disable();
-            yield return new WaitForSeconds(delay);
-            aController.Enable();
         }
 
         public void ApplyPushback(Vector3 direction, float force, float duration)
         {
-            if (!gameObject.activeInHierarchy || isPushBack || pushCooldownTimer > 0f) return;
+            if (!gameObject.activeInHierarchy || isPushBack || pushCooldownTimer > 0f)
+                return;
 
-            pushCooldownTimer = pushCooldownDuration;
-            StartCoroutine(HandlePushback(direction, force, duration));
             isPushBack = true;
-        }
+            pushCooldownTimer = pushCooldownDuration;
 
-        private IEnumerator HandlePushback(Vector3 direction, float force, float duration)
-        {
+            // Disable NavMeshAgent so physics takes over
             agent.enabled = false;
             aController.Disable();
 
-            float timer = 0f;
-            Vector3 startPos = transform.position;
-            Vector3 targetPos = startPos + direction.normalized * force;
-            float pushRadius = 0.5f;
-            LayerMask npcLayer = LayerMask.GetMask("NPC");
+            // Apply physics push
+           // rb.isKinematic = false; // ensure it's affected by physics
+            rb.AddForce(direction.normalized * force, ForceMode.Impulse);
 
-            while (timer < duration)
-            {
-                transform.position = Vector3.Lerp(startPos, targetPos, timer / duration);
-                timer += Time.deltaTime;
+            // Schedule re-enabling control
+            StartCoroutine(ResetAfterPush(duration));
+        }
 
-                Collider[] hits = Physics.OverlapSphere(transform.position, pushRadius, npcLayer);
-                foreach (var hit in hits)
-                {
-                    if (hit.transform == transform) continue;
+        private IEnumerator ResetAfterPush(float delay)
+        {
+            yield return new WaitForSeconds(delay);
 
-                    AManager other = hit.GetComponentInParent<AManager>();
-                    if (other != null && !other.isPushBack)
-                    {
-                        other.isPushBack = true;
-                        other.StartCoroutine(other.HandlePushback(-direction, force * 0.7f, duration * 0.9f));
-                    }
-                }
+            // Stop physics movement
+            rb.linearVelocity = Vector3.zero;
+            rb.angularVelocity = Vector3.zero;
+          
 
-                yield return null;
-            }
-
-            transform.position = targetPos;
-            yield return new WaitForSeconds(0.1f);
-
-            aController.Enable();
+            agent.enabled = true;
             isPushBack = false;
         }
 
-        private void OnTriggerEnter(Collider other)
+        private void OnCollisionEnter(Collision other)
         {
-            if (other.CompareTag("NPCHitBox"))
+            if (!other.collider.CompareTag("NPCHitBox")) return;
+            if (other.transform.CompareTag("NPCHitBox"))
             {
-                AManager otherManager = other.GetComponentInParent<AManager>();
+                Debug.Log($"{this.name} : Collision with NPCHitBox: {other.transform.name}");
+                AManager otherManager = other.transform.GetComponentInParent<AManager>();
                 bloodParticalSystem.Play();
-
-                if (otherManager != null && otherManager != this)
-                {
-                    CrowdControlManager.Instance.TryRegister(this);
-                    CrowdControlManager.Instance.TryRegister(otherManager);
-
-                    isActiveInCombat = true;
-                    otherManager.isActiveInCombat = true;
-
-                    if (!enemyTargets.Contains(otherManager))
-                    {
-                        enemyTargets.Add(otherManager);
-                        SortEnemyTargets();
-                    }
-
-                    ReceiveDamage(dealDamageAmount, otherManager);
-                    HitAnimation();
-                }
-            }
-
-            if (other.CompareTag("NPC"))
-            {
-                AManager otherManager = other.GetComponentInParent<AManager>();
 
                 if (otherManager != null && otherManager != this)
                 {
@@ -307,20 +264,51 @@ namespace Dhiraj
                     Vector3 pushDir = movementDirection.sqrMagnitude > 0.001f ? movementDirection : transform.forward;
                     float pushForce = Random.Range(forceRange.x, forceRange.y);
 
-                    otherManager.ApplyPushback(pushDir, pushForce, forceDuration);
+                    ReceiveDamage(dealDamageAmount, otherManager);
+                    HitAnimation();
+
+                    ApplyPushback(-pushDir, pushForce, forceDuration);
+
                 }
             }
-        }        
+
+            if (other.transform.CompareTag("Customer"))
+            {
+                Debug.Log($"{this.name} : Collision with NPC: {other.transform.name}");
+                AManager otherManager = other.transform.GetComponentInParent<AManager>();
+
+                if (otherManager != null && otherManager != this)
+                {
+                    CrowdControlManager.Instance.TryRegister(this);
+                    CrowdControlManager.Instance.TryRegister(otherManager);
+
+                    isActiveInCombat = true;
+                    otherManager.isActiveInCombat = true;
+
+                    if (!enemyTargets.Contains(otherManager))
+                    {
+                        enemyTargets.Add(otherManager);
+                        SortEnemyTargets();
+                    }
+
+                    Vector3 pushDir = movementDirection.sqrMagnitude > 0.001f ? movementDirection : transform.forward;
+                    float pushForce = Random.Range(forceRange.x, forceRange.y);
+
+                    ApplyPushback(-pushDir, pushForce, forceDuration);
+                }
+            }
+        }
+
 
         public void CombatStart()
         {
             foreach (var target in thisCollider)
             {
-                target.isTrigger = true;
+                //target.isTrigger = true;
             }
             foreach (var item in aController.weaponColliders)
             {
-                item.isTrigger = true;
+                //item.isTrigger = true;
             }
         }
     }

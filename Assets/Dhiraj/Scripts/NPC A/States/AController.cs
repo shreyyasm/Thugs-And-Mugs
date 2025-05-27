@@ -22,5 +22,10 @@ namespace Dhiraj
                 collider.enabled = false;
             }
         }
+
+        public void EnableOneCollider(int num)
+        {
+            weaponColliders[num].enabled = true;
+        }
     }
 }
