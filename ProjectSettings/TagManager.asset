@@ -29,6 +29,9 @@ TagManager:
   - FireOut
   - FrothyMug
   - ShinerSip
+  - NPC
+  - NPCHitBox
+  - BarrelContainer
   layers:
   - Default
   - TransparentFX
