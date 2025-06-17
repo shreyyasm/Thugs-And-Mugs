@@ -29,12 +29,10 @@ TagManager:
   - FireOut
   - FrothyMug
   - ShinerSip
-  - Hammer
-  - Sickle
-  - katana
-  - Shortgun
-  - Gun
-  - Knucles
+  - NPC
+  - NPCHitBox
+  - BarrelContainer
+  - Bullet
   layers:
   - Default
   - TransparentFX
@@ -47,10 +45,10 @@ TagManager:
   - LogSnapPosition
   - Table
   - HalfLog
-  - Mug
-  - Grabbable
-  - Ground
-  - Player Hands
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 

@@ -7852,6 +7852,7 @@ MonoBehaviour:
   sprites:
   - {fileID: 5218281544321963075}
   - {fileID: 2128947988142854070}
+  menuItemData: {fileID: 11400000, guid: 8cf1c1fc589a7c3459a570d8184de5fc, type: 2}
 --- !u!54 &8813324174595132174
 Rigidbody:
   m_ObjectHideFlags: 0

@@ -11,13 +11,15 @@ GameObject:
   - component: {fileID: 7747252044512889097}
   - component: {fileID: 3144629205122394459}
   - component: {fileID: 1472773403098665053}
+  - component: {fileID: -3823635448470272385}
+  - component: {fileID: 2086717339563545205}
   m_Layer: 0
   m_Name: SmallJerry
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7747252044512889097
 Transform:
   m_ObjectHideFlags: 0
@@ -73,8 +75,67 @@ MonoBehaviour:
   agent: {fileID: 3144629205122394459}
   anim: {fileID: 3323219175280979936}
   barrel: {fileID: 4973421509495243634}
+  requestedItems: []
+  barrels:
+  - {fileID: 8245919108999143131, guid: 16a9b28ae6aa95b47bfb7b7e06fcf6c4, type: 3}
+  - {fileID: 3062680446132224235, guid: c6420ffcb1ebd724389a71ef87844d36, type: 3}
+  - {fileID: 6410713109919940134, guid: 2091b72eeea8b6e4d90528ece0fbc0e1, type: 3}
+  - {fileID: 6893415749210690607, guid: c1ccec6be6ef9d14daa4c20b46f863f6, type: 3}
+  - {fileID: 3745584505336299285, guid: 9036e6d26c152644cbb0a6fadac7254d, type: 3}
+  - {fileID: 969533972539440740, guid: b02e18f8424f1a74aa02e053f5406bb1, type: 3}
+  - {fileID: 8766505976526501475, guid: ae32d4e8098fb1f4282c99ac9e839fdc, type: 3}
+  - {fileID: 4346490975437504248, guid: 650d3aeaf2efc7148921ca045d180840, type: 3}
+  - {fileID: 7779135058321956301, guid: 23defda08ee98e345ac7cc2dfa043ed8, type: 3}
   isWalkingWithBarrel: 0
   GoReturn: 0
+--- !u!65 &-3823635448470272385
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 42557945493563687}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 0.18068822, y: 0.30406457, z: 0.29846203}
+  m_Center: {x: 0, y: 0, z: 0}
+--- !u!54 &2086717339563545205
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 42557945493563687}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &5944184373508599380
 GameObject:
   m_ObjectHideFlags: 0
@@ -2017,6 +2078,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -0.000025304158
       objectReference: {fileID: 0}
+    - target: {fileID: -1383054009895265273, guid: cb04a37f955724841a764e678d79fc67,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 2304027f3b491ad429274510fac92d17, type: 2}
     - target: {fileID: -1361099795998360255, guid: cb04a37f955724841a764e678d79fc67,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -3999,6 +4065,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 180
       objectReference: {fileID: 0}
+    - target: {fileID: 7115550392699115393, guid: cb04a37f955724841a764e678d79fc67,
+        type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: 69e012f428defd344b9d1f690e8b0864, type: 2}
     - target: {fileID: 7221380573459505513, guid: cb04a37f955724841a764e678d79fc67,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

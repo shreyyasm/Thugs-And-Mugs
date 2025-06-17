@@ -1,3 +1,4 @@
+using Dhiraj;
 using UnityEngine;
 using static Shreyas.InventoryManager;
 namespace Shreyas
@@ -8,6 +9,7 @@ namespace Shreyas
         public string Name;
 
         public GameObject[] sprites;
+        public MenuItemData menuItemData; // Assign in Inspector
         public string GetTagForContents()
         {
             return itemType.ToString(); // Assumes the item tag matches the enum name

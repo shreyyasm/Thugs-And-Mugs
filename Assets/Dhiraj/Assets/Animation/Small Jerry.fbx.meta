@@ -245,11 +245,11 @@ ModelImporter:
       maskSource: {instanceID: 0}
       additiveReferencePoseFrame: 0
     - serializedVersion: 16
-      name: Walk With Barrel
+      name: Idle With Barrel
       takeName: rig|Walk With Barrel
       internalID: 8370253545961468691
-      firstFrame: 0
-      lastFrame: 30
+      firstFrame: 12.1
+      lastFrame: 12.800001
       wrapMode: 0
       orientationOffsetY: 0
       level: 0

@@ -9,6 +9,7 @@ namespace Dhiraj
         {
             _aManager = aManager;
         }
+        public float attackDistance = 1.1f;
 
         public override void StartState()
         {
@@ -17,6 +18,23 @@ namespace Dhiraj
             _aManager.anim.SetBool("CombatStance", true);
             attackTimer = 0;
             GameManager.Instance.isFightStarted = true;
+
+            switch (_aManager.npcType)
+            {
+                case NPCType.Pushpa:
+                    attackDistance = 1.1f;
+                    break;
+                case NPCType.Warrior:
+                    attackDistance = 1.1f;
+                    break;
+                case NPCType.Outlaw:
+                    attackDistance = 3f;
+                    break;
+                case NPCType.Prisonar:
+                    attackDistance = 1.5f;
+                    break;
+            }
+
         }
 
         public override void UpdateState()
@@ -34,12 +52,12 @@ namespace Dhiraj
 
             distanceFromTarget = Vector3.Distance(_aManager.transform.position, _aManager.enemyTarget.position);
 
-            if (distanceFromTarget > 1.1f)
+            if (distanceFromTarget > attackDistance)
             {
                 _aManager.ChangeState(_aManager.aChase);
                 
             }
-            else if(distanceFromTarget < 1.1f)
+            else if(distanceFromTarget < attackDistance)
             {
                 attackTimer += Time.deltaTime;
                 

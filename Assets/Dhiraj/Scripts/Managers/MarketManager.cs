@@ -30,8 +30,8 @@ namespace Dhiraj
         public TextMeshProUGUI TotalAmount;
 
         [Space(5)]
-        public List<ItemData> ItemList = new List<ItemData>();
-        public List<ItemData> CartItem = new List<ItemData>();
+        public List<CartItemData> ItemList = new List<CartItemData>();
+        public List<CartItemData> CartItem = new List<CartItemData>();
 
         private void Start()
         {
@@ -42,7 +42,7 @@ namespace Dhiraj
         {
             PopulateStore(ItemList, marketContent);
         }
-        public void PopulateStore(List<ItemData> values, Transform parent)
+        public void PopulateStore(List<CartItemData> values, Transform parent)
         {
             // Clear all existing children
             foreach (Transform child in parent)
@@ -53,14 +53,14 @@ namespace Dhiraj
             // Proceed to populate
             if (values.Count > 0)
             {
-                foreach (ItemData item in values)
+                foreach (CartItemData item in values)
                 {
                     Item newItem = Instantiate(marketItem, parent);
-                    newItem.currentData = item;
-                    newItem.priceText.text = "$<br>" + item.price.ToString();
-                    newItem.itemUI.sprite = item.icon;
-                    newItem.nameText.text = item.name;
-                    newItem.marketManager = this;                    
+                    newItem.item.currentData = item;
+                    newItem.item.priceText.text = "$<br>" + item.price.ToString();
+                    newItem.item.itemUI.sprite = item.icon;
+                    newItem.item.nameText.text = item.name;
+                    newItem.item.marketManager = this;                    
                     if (item.requirementLevel > level)
                     {                        
                         newItem.GetComponent<Button>().interactable = false;
@@ -72,7 +72,7 @@ namespace Dhiraj
         public void CalculatTotalAmount()
         {
             float totalAmount = 0;
-            foreach (ItemData item in CartItem)
+            foreach (CartItemData item in CartItem)
             {
                 totalAmount += item.price;
                 if(totalAmount < AmountIHave)
@@ -91,7 +91,15 @@ namespace Dhiraj
         {
             float targetAlpha = isEnable ? 1f : 0f;
             float duration = 0.1f; // Adjust transition duration as needed
-            LeanTween.alphaCanvas(marketPlace, targetAlpha, duration);           
+
+            // Start tween
+            LeanTween.alphaCanvas(marketPlace, targetAlpha, duration)
+                .setOnComplete(() =>
+                {
+                    marketPlace.blocksRaycasts = isEnable;
+                });
+
+            PopulateStore();
         }
 
         public void PlaceOrder()
@@ -102,6 +110,7 @@ namespace Dhiraj
             sJManager.agent.enabled = true;
             sJManager.gameObject.SetActive(true);
             sJManager.isWalkingWithBarrel = true;
+            sJManager.requestedItems = new List<CartItemData>(CartItem);
         }
 
     }

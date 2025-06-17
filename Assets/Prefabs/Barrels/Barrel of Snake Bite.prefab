@@ -7755,6 +7755,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemType: 3
+  Name: 
+  sprites: []
+  menuItemData: {fileID: 11400000, guid: ee9fbcedd8ebfcd45bd58231402fa400, type: 2}
 --- !u!54 &8851153963277801584
 Rigidbody:
   m_ObjectHideFlags: 0
