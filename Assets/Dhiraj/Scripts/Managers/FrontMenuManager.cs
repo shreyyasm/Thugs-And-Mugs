@@ -11,7 +11,7 @@ using static UnityEditor.Progress;
 
 namespace Dhiraj
 {
-    public class FrontMenuManager : MonoBehaviour
+    public class FrontMenuManager : Singleton<FrontMenuManager>
     {
         public UpdatePriceUI updatePriceUIData;
         public List<MenuItemData> ItemList = new List<MenuItemData>();

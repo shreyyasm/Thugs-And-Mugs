@@ -91,7 +91,14 @@ namespace Dhiraj
         {
             float targetAlpha = isEnable ? 1f : 0f;
             float duration = 0.1f; // Adjust transition duration as needed
-            LeanTween.alphaCanvas(marketPlace, targetAlpha, duration);
+
+            // Start tween
+            LeanTween.alphaCanvas(marketPlace, targetAlpha, duration)
+                .setOnComplete(() =>
+                {
+                    marketPlace.blocksRaycasts = isEnable;
+                });
+
             PopulateStore();
         }
 

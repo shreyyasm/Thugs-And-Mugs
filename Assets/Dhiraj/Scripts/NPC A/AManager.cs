@@ -1,3 +1,4 @@
+using Shreyas;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,6 +48,7 @@ namespace Dhiraj
         public ParticleSystem stunnParticalSystem;
         public Transform impactPosition;
         public Rigidbody rb;
+        public Shreyas.CustomerOrder customerOrder; 
         #endregion
 
         #region State Flags
@@ -90,8 +92,17 @@ namespace Dhiraj
         private const float pushCooldownDuration = 0.5f;
         #endregion
 
+        #region Economic Settings
+        [Header("Economic Settings")]
+        public List<MenuItemData> availableItemInMenu = new List<MenuItemData>();
+        public int balance = 0;        
+        public MenuItemData selectedItemData;        
+        #endregion
+
         private Vector3 lastPosition;
         private Vector3 movementDirection;
+
+        [Space(10)]
         public string CurrentState;
 
         private void Start() => Initiaized();
@@ -128,7 +139,57 @@ namespace Dhiraj
 
             currentState = aIdle;
             currentState.StartState();
+
+            if (customerOrder) customerOrder.menuItemData = selectedItemData = GetWeightedAvailableMenuItem();            
         }
+
+
+        public MenuItemData GetWeightedAvailableMenuItem()
+        {
+            FrontMenuManager frontMenuManager = FrontMenuManager.Instance;
+
+            List<MenuItemData> filteredList = new List<MenuItemData>();
+            List<float> weights = new List<float>();
+            float totalWeight = 0f;
+
+            foreach (var item in frontMenuManager.ItemList)
+            {
+                if (item.isAvailable && !item.isInMenu && item.price <= balance)
+                {
+                    filteredList.Add(item);
+
+                    // Inverse price weight: cheaper = higher weight
+                    float weight = 1f / Mathf.Max(item.price, 0.01f); // Avoid division by zero
+                    weights.Add(weight);
+                    totalWeight += weight;
+                }
+            }
+
+            if (filteredList.Count == 0)
+            {
+                Debug.LogWarning("No available items within balance.");
+                return null;
+            }
+
+            // Weighted random selection
+            float randomValue = Random.value * totalWeight;
+            for (int i = 0; i < weights.Count; i++)
+            {
+                if (randomValue < weights[i])
+                    return filteredList[i];
+
+                randomValue -= weights[i];
+            }
+
+            // Fallback (shouldn't hit)
+            return filteredList[filteredList.Count - 1];
+        }
+
+
+
+
+
+
 
         public void ChangeState(ABase newState)
         {
