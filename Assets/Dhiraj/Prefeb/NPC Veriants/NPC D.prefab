@@ -235,7 +235,7 @@ Transform:
   m_GameObject: {fileID: 4138519647629737222}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
@@ -5257,7 +5257,8 @@ MonoBehaviour:
   stunnParticalSystem: {fileID: 2812122594597716993}
   impactPosition: {fileID: 2028367425790419842}
   rb: {fileID: 7212197344611022395}
-  canStartFight: 0
+  customerOrder: {fileID: 0}
+  canStartFight: 1
   isLog: 1
   GoReturn: 0
   isLookAround: 0
@@ -5274,6 +5275,9 @@ MonoBehaviour:
   enemyTargets: []
   forceRange: {x: 3, y: 7}
   forceDuration: 0.5
+  availableItemInMenu: []
+  balance: 0
+  selectedItemData: {fileID: 0}
   CurrentState: 
 --- !u!65 &5909745663950354891
 BoxCollider:

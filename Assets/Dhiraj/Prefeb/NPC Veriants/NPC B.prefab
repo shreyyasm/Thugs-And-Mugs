@@ -16939,7 +16939,8 @@ MonoBehaviour:
   stunnParticalSystem: {fileID: 6446148843377281450}
   impactPosition: {fileID: 1374110759695107741}
   rb: {fileID: 2803672676534882485}
-  canStartFight: 0
+  customerOrder: {fileID: 0}
+  canStartFight: 1
   isLog: 1
   GoReturn: 0
   isLookAround: 0
@@ -16956,6 +16957,9 @@ MonoBehaviour:
   enemyTargets: []
   forceRange: {x: 2, y: 4}
   forceDuration: 0.5
+  availableItemInMenu: []
+  balance: 0
+  selectedItemData: {fileID: 0}
   CurrentState: 
 --- !u!65 &863950763877447254
 BoxCollider:

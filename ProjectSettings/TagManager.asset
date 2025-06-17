@@ -32,6 +32,7 @@ TagManager:
   - NPC
   - NPCHitBox
   - BarrelContainer
+  - Bullet
   layers:
   - Default
   - TransparentFX

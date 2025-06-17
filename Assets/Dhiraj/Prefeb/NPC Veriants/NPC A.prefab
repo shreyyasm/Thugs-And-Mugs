@@ -5954,7 +5954,7 @@ MonoBehaviour:
   impactPosition: {fileID: 6946174733187166098}
   rb: {fileID: 3496247045051040918}
   customerOrder: {fileID: 928120699460614592}
-  canStartFight: 0
+  canStartFight: 1
   isLog: 1
   GoReturn: 0
   isLookAround: 0
@@ -6575,7 +6575,7 @@ Transform:
   m_GameObject: {fileID: 8202702853557375505}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: -0.05, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:

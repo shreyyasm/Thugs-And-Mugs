@@ -109,6 +109,14 @@ namespace Dhiraj
 
         private void Update()
         {
+
+            /// Testing purpose
+            if (Input.GetKeyDown(KeyCode.L))
+            {
+                Debug.Log("Punch Animation Triggered");
+                anim.Play("Punch 0");
+            }
+
             currentState.UpdateState();
             CurrentState = currentState.ToString();
 
@@ -121,7 +129,7 @@ namespace Dhiraj
 
             
             movementDirection = (transform.position - lastPosition).normalized;
-            lastPosition = transform.position;
+            lastPosition = transform.position;           
         }
 
         public void Initiaized()
@@ -240,7 +248,7 @@ namespace Dhiraj
         }
         public void Death()
         {
-            DestroyImmediate(this.gameObject);
+            anim.Play("Death");
         }
         public void SortEnemyTargets() =>
             enemyTargets = enemyTargets.OrderBy(e => e.currentHP).ToList();
@@ -301,6 +309,13 @@ namespace Dhiraj
 
         private void OnCollisionEnter(Collision other)
         {
+
+            if (other.collider.CompareTag("Bullet"))
+            {
+                currentHP = 0; 
+            }
+
+
             if (!other.collider.CompareTag("NPCHitBox")) return;
             if (other.transform.CompareTag("NPCHitBox"))
             {
