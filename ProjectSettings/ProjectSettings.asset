@@ -817,23 +817,23 @@ PlayerSettings:
   webGLCloseOnQuit: 0
   webWasm2023: 0
   scriptingDefineSymbols:
-    Android: DOTWEEN
-    EmbeddedLinux: DOTWEEN
-    GameCoreScarlett: DOTWEEN
-    GameCoreXboxOne: DOTWEEN
-    LinuxHeadlessSimulation: DOTWEEN
-    Nintendo Switch: DOTWEEN
-    PS4: DOTWEEN
-    PS5: DOTWEEN
-    QNX: DOTWEEN
-    ReservedCFE: DOTWEEN
-    Standalone: STARTER_ASSETS_PACKAGES_CHECKED;DOTWEEN
-    VisionOS: DOTWEEN
-    WebGL: DOTWEEN
-    Windows Store Apps: DOTWEEN
-    XboxOne: DOTWEEN
-    iPhone: DOTWEEN
-    tvOS: DOTWEEN
+    Android: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    EmbeddedLinux: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    GameCoreScarlett: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    GameCoreXboxOne: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    LinuxHeadlessSimulation: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    Nintendo Switch: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    PS4: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    PS5: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    QNX: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    ReservedCFE: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    Standalone: STARTER_ASSETS_PACKAGES_CHECKED;DOTWEEN;URP_OUTLINE
+    VisionOS: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    WebGL: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    Windows Store Apps: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    XboxOne: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    iPhone: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
+    tvOS: DOTWEEN;URP_OUTLINE;EPO_DOTWEEN
   additionalCompilerArguments: {}
   platformArchitecture: {}
   scriptingBackend: {}

@@ -15,6 +15,7 @@ namespace Shreyas
             BarrelInteraction,
             CustomerInteraction,
             BrewStatationInteraction,
+            CraftItem
             // Add more types here
         }
 
@@ -26,6 +27,7 @@ namespace Shreyas
         public FirstPersonMovementInputSystem firstPersonController;
         public InventoryManager inventoryManager;
         public bool CanBeInteracted;
+        public bool E_Interaction;
         public bool isPickable;
         public string requiredItemTag;
 
@@ -72,6 +74,11 @@ namespace Shreyas
 
                 case InteractableType.BrewStatationInteraction:
                     InteractWithBrewStatation();
+                    break;
+
+                case InteractableType.CraftItem:
+                    if (selectedItem != null && selectedItem.itemTag == "Hammer")
+                        InteractWithCraftableItem();
                     break;
 
                 default:
@@ -122,8 +129,18 @@ namespace Shreyas
         }
         public void InteractWithBrewStatation()
         {
-            gameObject.GetComponent<BrewManager>().OpenBrewStation();
-            firstPersonController.playerBusy = true;
+            BrewManager brewManager = gameObject.GetComponent<BrewManager>();
+            if (brewManager.Drink == null && brewManager.Mug == null)
+            {
+                brewManager.OpenBrewStation();
+                firstPersonController.playerBusy = true;
+            }
+                
+        }
+        public void InteractWithCraftableItem()
+        {
+            GetComponent<CraftableItem>().AddWood();
+
         }
     }
 

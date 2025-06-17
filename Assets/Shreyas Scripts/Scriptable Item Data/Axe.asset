@@ -15,3 +15,4 @@ MonoBehaviour:
   itemName: Axe
   itemIcon: {fileID: 21300000, guid: 7223c43fde0be7f49b3d5660916bc6c3, type: 3}
   itemTag: Axe
+  MouseUse: 1

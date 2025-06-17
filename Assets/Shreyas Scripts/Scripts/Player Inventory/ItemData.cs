@@ -8,6 +8,7 @@ namespace Shreyas
         public string itemName;
         public Sprite itemIcon;
         public string itemTag;
+        public bool MouseUse;
     }
 }
 

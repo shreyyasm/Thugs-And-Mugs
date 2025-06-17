@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 using Dhiraj;
+using UnityEngine.Animations.Rigging;
 namespace Shreyas
 {
     public class BrewManager : Singleton<BrewManager>
@@ -25,6 +26,7 @@ namespace Shreyas
         public GameObject Mug;
         public GameObject Drink;
         public GameObject MakeButton;
+        public FirstPersonMovementInputSystem firstPersonMovementInputSystem;
         private void Awake()
         {
             Instance = this;
@@ -46,11 +48,54 @@ namespace Shreyas
 
           
         }
-
+        public Transform DrinkPourPosition;
+        public GameObject BrewSlotMug;
+        public GameObject BrewSlotDrink;
         public void  PourDrink()
         {
+            Drink.transform.SetParent(null);
             BrewStationMakingCamera.SetActive(true);
             BrewCanvas.SetActive(false);
+            Drink.GetComponent<PourDetector>().enabled = true;
+            Drink.GetComponent<BottleController>().enabled = true;
+            Drink.transform.position = DrinkPourPosition.position;
+            Drink.transform.rotation = DrinkPourPosition.rotation;
+            Mug.GetComponent<BoxCollider>().enabled = false;
+            Mug.GetComponent<MeshCollider>().enabled = true;
+
+            BrewSlotMug.SetActive(true);      
+            InventorySlot slot = BrewSlotMug.GetComponentInChildren<InventorySlot>();
+            if (slot != null)
+            {
+                Destroy(slot.gameObject);
+            }
+            DrinkReady = false;
+            MugReady = false;   
+            BrewSlotDrink.SetActive(true);
+            InventorySlot slot2 = BrewSlotDrink.GetComponentInChildren<InventorySlot>();
+            if (slot2 != null)
+            {
+                Destroy(slot2.gameObject);
+            }
+            MakeButton.SetActive(false);
+            Drink.layer = 0;
+        }
+
+        public void DrinkComplete()
+        {
+            Mug.transform.SetParent(null);
+            Drink.transform.SetParent(null);
+            BrewStationMakingCamera.SetActive(false);
+            BrewStationCamera.SetActive(false);
+            BrewCanvas.SetActive(false);
+            
+            Mug.GetComponent<BoxCollider>().enabled = true;
+            Mug.GetComponent<MeshCollider>().enabled = false;
+            Mug.layer = 6;
+            Drink = null;
+            Mug = null;
+            firstPersonMovementInputSystem.playerBusy = false;
+            
         }
         public bool IsOpen() => isStationOpen;
 
@@ -60,6 +105,7 @@ namespace Shreyas
             {
                 currentMug = obj;
                 PlaceObject(obj, mugHolder);
+               // Mug = obj;
                 Debug.Log("Mug placed.");
                 return true;
             }
@@ -67,6 +113,7 @@ namespace Shreyas
             {
                 currentDrink = obj;
                 PlaceObject(obj, drinkHolder);
+               // Drink = obj;
                 Debug.Log("Drink placed.");
                 return true;
             }

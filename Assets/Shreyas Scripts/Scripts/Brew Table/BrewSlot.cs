@@ -1,4 +1,5 @@
 using Shreyas;
+using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using static Shreyas.InventoryManager;
@@ -9,6 +10,7 @@ namespace Shreyas
     {
         public enum SlotType { Mug, Drink }
         public SlotType slotType;
+
 
         public void OnDrop(PointerEventData eventData)
         {
@@ -21,15 +23,20 @@ namespace Shreyas
                     return;
                 else
                 {
-                    dropped.transform.SetParent(transform);
-                    dropped.transform.localPosition = Vector3.zero;
-                    InventoryManager.instance.DropItemByChoice(dropped.GetComponent<InventorySlot>().SlotNumber, BrewManager.Instance.mugHolder);
-                    Debug.Log($"Item dropped in {slotType} slot.");
-                    BrewManager.Instance.Mug = dropped;
-                    BrewManager.Instance.MugReady = true;
-                    BrewManager.Instance.EnableMaking();
-                    gameObject.SetActive(false);
+                    InventoryManager.instance.SetTemp_GameObject(dropped.GetComponent<InventorySlot>().SlotNumber);
+                    if (!InventoryManager.instance.tempGameObject.GetComponent<Mug>().isFilled)
+                    {
+                        dropped.transform.SetParent(transform);
+                        dropped.transform.localPosition = Vector3.zero;
+                        InventoryManager.instance.DropItemByChoice(dropped.GetComponent<InventorySlot>().SlotNumber, BrewManager.Instance.mugHolder);
+                        Debug.Log($"Item dropped in {slotType} slot.");
+                        BrewManager.Instance.Mug = InventoryManager.instance.tempGameObject;
+                        BrewManager.Instance.MugReady = true;
+                        BrewManager.Instance.EnableMaking();
+                        gameObject.SetActive(false);
 
+
+                    }
 
                 }
             }
@@ -42,14 +49,18 @@ namespace Shreyas
                     dropped.transform.SetParent(transform);
                     dropped.transform.localPosition = Vector3.zero;
                     InventoryManager.instance.DropItemByChoice(dropped.GetComponent<InventorySlot>().SlotNumber, BrewManager.Instance.drinkHolder);
-                    Debug.Log($"Item dropped in {slotType} slot.");
-                    BrewManager.Instance.Drink = dropped;
+                    Debug.Log($"Item dropped in {slotType} slot.");                  
+                    BrewManager.Instance.Drink = InventoryManager.instance.tempGameObject;
                     BrewManager.Instance.DrinkReady = true;
                     BrewManager.Instance.EnableMaking();
                     gameObject.SetActive(false);
                 }
             }
 
+        }
+        public void ResetSlot()
+        {
+            gameObject.SetActive(true);
         }
     }
 }

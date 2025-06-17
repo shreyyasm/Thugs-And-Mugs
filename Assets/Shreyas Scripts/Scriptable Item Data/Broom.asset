@@ -15,3 +15,4 @@ MonoBehaviour:
   itemName: Broom
   itemIcon: {fileID: 21300000, guid: faa060704aafb56419ae30f3cc11c51a, type: 3}
   itemTag: Broom
+  MouseUse: 1

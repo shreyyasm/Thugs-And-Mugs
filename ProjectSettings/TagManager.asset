@@ -29,6 +29,12 @@ TagManager:
   - FireOut
   - FrothyMug
   - ShinerSip
+  - Hammer
+  - Sickle
+  - katana
+  - Shortgun
+  - Gun
+  - Knucles
   layers:
   - Default
   - TransparentFX
@@ -41,10 +47,10 @@ TagManager:
   - LogSnapPosition
   - Table
   - HalfLog
-  - 
-  - 
-  - 
-  - 
+  - Mug
+  - Grabbable
+  - Ground
+  - Player Hands
   - 
   - 
   - 

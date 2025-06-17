@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Shreyas;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Animations.Rigging;
 
@@ -12,25 +13,98 @@ public class PourDetector : MonoBehaviour
     private Stream currentStream;
     GameObject StreamPrefabSpawn;
 
-    public void Update()
+    public float pourRate = 0.2f; // Amount of fill added per second
+    public float maxRayDistance = 1.5f;
+    public LayerMask mugLayer; // Assign a layer for mugs only
+
+    private LineRenderer line;
+    private LiquidShaderController currentMug;
+    private bool isHittingMug;
+
+    private void Awake()
+    {
+        line = GetComponent<LineRenderer>();
+    }
+    public Renderer liquidRenderer;      // Assign the MeshRenderer or SkinnedMeshRenderer
+    public Color liquidColor = Color.cyan; // Desired color set from Inspector
+    void Start()
+    {
+        if (liquidRenderer != null)
+        {
+            // Set the _Color property on the material
+            liquidRenderer.material.SetColor("_Color", liquidColor);
+        }
+    }
+
+    private void Update()
+    {
+        Pouring();
+        
+        if(StreamPrefabSpawn != null && CaculatePourAngle() <= 1)
+        {
+            LineRenderer line = StreamPrefabSpawn.GetComponent<LineRenderer>();
+
+            if (line == null || line.positionCount < 2)
+                return;
+
+
+            // Get stream end position from LineRenderer
+            Vector3 start = line.GetPosition(0);
+            Vector3 end = line.GetPosition(1);
+            Vector3 direction = (end - start).normalized;
+
+            // Raycast to detect a mug
+            Ray ray = new Ray(start, direction);
+            RaycastHit hit;
+
+            if (Physics.Raycast(ray, out hit, maxRayDistance, mugLayer))
+            {
+                LiquidShaderController mug = hit.collider.GetComponent<LiquidShaderController>();
+                mug.baseColor = liquidColor;
+                mug.emissionColor = liquidColor;
+                if (mug != null)
+                {
+                    currentMug = mug;
+                    isHittingMug = true;
+
+                    mug.fillAmount = Mathf.Clamp01(mug.fillAmount + pourRate * Time.deltaTime);
+                }
+                if(mug.fillAmount == 1)
+                {
+                    mug.GetComponentInParent<Mug>().isFilled = true;
+                    BrewManager.Instance.DrinkComplete();
+                    Destroy(gameObject);
+                   
+                }
+            }
+            else
+            {
+                isHittingMug = false;
+                currentMug = null;
+            }
+        }
+        
+       
+    }
+
+    public void Pouring()
     {
         bool pourCheck = CaculatePourAngle() < pourThreshold;
-
-        if(isPouring != pourCheck)
+        if (isPouring != pourCheck)
         {
             isPouring = pourCheck;
 
-            if(isPouring)
+            if (isPouring)
             {
                 StartPour();
             }
             else
             {
-                EndPour();  
-            }    
+                EndPour();
+            }
         }
-        Debug.Log(CaculatePourAngle());
-        if(StreamPrefabSpawn != null  && CaculatePourAngle() > 0)
+        //Debug.Log(CaculatePourAngle());
+        if (StreamPrefabSpawn != null && CaculatePourAngle() > 0)
         {
             ///StreamPrefabSpawn.GetComponent<LineRenderer>().startWidth = 0;
             //StreamPrefabSpawn.GetComponent<LineRenderer>().endWidth = 0.025f;
@@ -62,12 +136,17 @@ public class PourDetector : MonoBehaviour
     }
     IEnumerator SmoothLineWidth(LineRenderer line, float targetStartWidth, float targetEndWidth, float duration)
     {
+        if (line == null) yield break;
+
         float elapsed = 0f;
         float initialStart = line.startWidth;
         float initialEnd = line.endWidth;
 
         while (elapsed < duration)
         {
+            // Exit if the line object has been destroyed
+            if (line == null) yield break;
+
             elapsed += Time.deltaTime;
             float t = elapsed / duration;
 
@@ -77,9 +156,13 @@ public class PourDetector : MonoBehaviour
             yield return null;
         }
 
-        line.startWidth = targetStartWidth;
-        line.endWidth = targetEndWidth;
+        if (line != null)
+        {
+            line.startWidth = targetStartWidth;
+            line.endWidth = targetEndWidth;
+        }
     }
+
     public void StartPour()
     {
         Debug.Log("Start");
@@ -93,6 +176,7 @@ public class PourDetector : MonoBehaviour
         currentStream.End();
         StreamPrefabSpawn = null;
         currentStream = null;
+        liquidRenderer = null;
     }
 
     private float CaculatePourAngle()
@@ -103,6 +187,8 @@ public class PourDetector : MonoBehaviour
     {
         GameObject streamObject = Instantiate(streamPrefab, origin.position,Quaternion.identity,transform);
         StreamPrefabSpawn = streamObject;
+        liquidRenderer = streamObject.GetComponent<LineRenderer>();
+        liquidRenderer.material.SetColor("_Color", liquidColor);
         return streamObject.GetComponent<Stream>();
     }
 }

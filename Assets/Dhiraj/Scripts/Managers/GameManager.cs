@@ -18,6 +18,7 @@ namespace Dhiraj
         {
            AllInteractCanvas = Resources.FindObjectsOfTypeAll<InteractCanvas>();
             FirstPersonMovementInputSystem = FindAnyObjectByType<FirstPersonMovementInputSystem>();
+            DisableMouseCursor();
         }
         private void Update()
         {
