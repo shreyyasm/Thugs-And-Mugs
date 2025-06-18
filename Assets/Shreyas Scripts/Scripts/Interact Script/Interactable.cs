@@ -124,6 +124,7 @@ namespace Shreyas
         }
         public void InteractWithCustomer()
         {
+            GameManager.Instance.EnableMouseCursor();
             gameObject.GetComponent<CustomerOrder>().GiveOrder();
             firstPersonController.playerBusy = true;
         }

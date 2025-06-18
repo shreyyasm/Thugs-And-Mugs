@@ -186,6 +186,13 @@ namespace Shreyas
                         animator.SetBool("CanUseAxe", false);
                         animator.SetBool("CanUseHammer", false);
 
+                        animator.SetBool("CanUseLighter", false);
+                        animator.SetBool("CanUseGun", false);
+                        animator.SetBool("CanUseShotgun", false);
+                        animator.SetBool("CanUseKatana", false);
+                        animator.SetBool("CanUseSickle", false);
+                        animator.SetBool("CanUseKnucles", false);
+
                         pickup.transform.SetParent(null);
                         pickup.transform.position = new Vector3(0, -0.3f, 1.5f);
                         PickupItem(pickup.itemData, pickup.gameObject);
