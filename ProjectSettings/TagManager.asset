@@ -33,6 +33,12 @@ TagManager:
   - NPCHitBox
   - BarrelContainer
   - Bullet
+  - Knucles
+  - Hammer
+  - Sickle
+  - Shortgun
+  - Gun
+  - Katana
   layers:
   - Default
   - TransparentFX
@@ -45,9 +51,9 @@ TagManager:
   - LogSnapPosition
   - Table
   - HalfLog
-  - 
-  - 
-  - 
+  - PlayerHands
+  - Grabbable
+  - Ground
   - 
   - 
   - 

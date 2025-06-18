@@ -182,16 +182,7 @@ namespace Shreyas
                         DisableBarrels();
 
                         animator.SetBool("Interact", true);
-                        animator.SetBool("CanUseBroom", false);
-                        animator.SetBool("CanUseAxe", false);
-                        animator.SetBool("CanUseHammer", false);
-
-                        animator.SetBool("CanUseLighter", false);
-                        animator.SetBool("CanUseGun", false);
-                        animator.SetBool("CanUseShotgun", false);
-                        animator.SetBool("CanUseKatana", false);
-                        animator.SetBool("CanUseSickle", false);
-                        animator.SetBool("CanUseKnucles", false);
+                        SetAnimatorStates();
 
                         pickup.transform.SetParent(null);
                         pickup.transform.position = new Vector3(0, -0.3f, 1.5f);
@@ -252,6 +243,7 @@ namespace Shreyas
 
         private bool axeAnimToggle = false;
         public GameObject puffparticle;
+        private int katanaAnimIndex = -1; // Start at -1 so first becomes 0
 
         public void InteractByInventoryItems()
         {
@@ -267,37 +259,106 @@ namespace Shreyas
                     {
                         case "Broom":
                             if (animator.GetBool("CanUseBroom"))
-                                animator.SetTrigger("IsUsingBroom");
-                            SetAnimatorStates(false, true, false, false, false,false);
+                                animator.SetTrigger("IsUsing");
+
+                            SetAnimatorStates("CanUseBroom");
+
+
                             break;
 
                         case "Axe":
                             if (animator.GetBool("CanUseAxe"))
                             {
-                                animator.SetTrigger(axeAnimToggle ? "AxeAnim2" : "AxeAnim1");
-                              
+                                // Alternate between 0 and 1 for the sub animation
+                                int index = axeAnimToggle ? 1 : 0;
+                                animator.SetInteger("AxeAnimIndex", index);
+
+                                // Trigger a shared "IsUsing" animation
+                                animator.SetTrigger("IsUsing");
+
+                                // Flip toggle
                                 axeAnimToggle = !axeAnimToggle;
                             }
+                            SetAnimatorStates("CanUseAxe");
                             break;
 
                         case "Lighter":
-                            SetAnimatorStates(false, false, true, false, false,false);
+                             SetAnimatorStates("CanUseLighter");
                             break;
 
                         case "Hammer":
                             if (animator.GetBool("CanUseHammer"))
-                                animator.SetTrigger("IsUsingHammer");
-                            SetAnimatorStates(false, false, false, false, false, true);
+                                animator.SetTrigger("IsUsing");
+                            SetAnimatorStates("CanUseHammer");
+                            break;
+
+                        case "Katana":
+                            if (animator.GetBool("CanUseKatana"))
+                            {
+                                // Cycle through 0 → 1 → 2 → 0 ...
+                                katanaAnimIndex = (katanaAnimIndex + 1) % 3;
+                                animator.SetInteger("KatanaAnimIndex", katanaAnimIndex);
+
+                                // Trigger the animation
+                                animator.SetTrigger("IsUsing");
+                            }
+
+                            SetAnimatorStates("CanUseKatana");
+                            break;
+
+                        case "Knucles":
+                            if (animator.GetBool("CanUseKnucles"))
+                            {
+                                // Alternate between 0 and 1 for the sub animation
+                                int index = axeAnimToggle ? 1 : 0;
+                                animator.SetInteger("KnuclesAnimIndex", index);
+
+                                // Trigger a shared "IsUsing" animation
+                                animator.SetTrigger("IsUsing");
+
+                                // Flip toggle
+                                axeAnimToggle = !axeAnimToggle;
+                            }
+                            SetAnimatorStates("CanUseKnucles");
+                            break;
+
+                        case "Sickle":
+                            if (animator.GetBool("CanUseSickle"))
+                            {
+                                // Alternate between 0 and 1 for the sub animation
+                                int index = axeAnimToggle ? 1 : 0;
+                                animator.SetInteger("SickleAnimIndex", index);
+
+                                // Trigger a shared "IsUsing" animation
+                                animator.SetTrigger("IsUsing");
+
+                                // Flip toggle
+                                axeAnimToggle = !axeAnimToggle;
+                            }
+                            SetAnimatorStates("CanUseSickle");
+                            break;
+
+                        case "Gun":
+                            if (animator.GetBool("CanUseGun"))
+                                animator.SetTrigger("IsUsing");
+                            SetAnimatorStates("CanUseGun");
+                            Debug.Log("worked");
+                            break;
+
+                        case "Shortgun":
+                            if (animator.GetBool("CanUseShortgun"))
+                                animator.SetTrigger("IsUsing");
+                            SetAnimatorStates("CanUseShortgun");
                             break;
 
                         default:
-                            animator.SetBool("IsUsingAxe", false);
+                            //animator.SetBool("IsUsing", false);
                             break;
                     }
                 }
                 else
                 {
-                    animator.SetBool("IsUsingAxe", false);
+                    //animator.SetBool("IsUsing", false);
                 }
 
                 if (wasKeyJustReleased)
@@ -393,36 +454,45 @@ namespace Shreyas
             }
 
         }
-        private void SetAnimatorStates(bool useAxe, bool useBroom, bool useLighter, bool useDrink, bool useBarrel, bool useHammer)
+        private void SetAnimatorStates(string activeState = null)
         {
-            animator.SetBool("CanUseAxe", useAxe);
-            animator.SetBool("CanUseBroom", useBroom);
-            animator.SetBool("CanUseLighter", useLighter);
-            animator.SetBool("UseDrink", useDrink);
-            animator.SetBool("UseBarrel", useBarrel);
-            animator.SetBool("CanUseHammer", useHammer);
+            string[] allStates = new string[]
+            {
+            "CanUseAxe",
+            "CanUseBroom",
+            "CanUseLighter",
+            "UseDrink",
+            "UseBarrel",
+            "CanUseHammer",
+            "CanUseGun",
+            "CanUseShortgun",
+            "CanUseKatana",
+            "CanUseSickle",
+            "CanUseKnucles"
+            };
+
+            foreach (string state in allStates)
+            {
+                bool shouldBeActive = !string.IsNullOrEmpty(activeState) && state == activeState;
+                animator.SetBool(state, shouldBeActive);
+            }
+            //animator.ResetTrigger("IsUsing");
+            
         }
+
+
 
         public void SetDrinkBlend(float value)
         {
-            animator.SetBool("UseDrink", true);
-            animator.ResetTrigger("IsUsingBroom");
-            animator.SetBool("CanUseAxe", false);
-            animator.ResetTrigger("AxeAnim1");
-            animator.ResetTrigger("AxeAnim2");
-            animator.SetBool("CanUseLighter", false);
-            animator.SetBool("CanUseBroom", false);
-            animator.SetBool("UseBarrel", false);
-            animator.SetBool("CanUseHammer", false);
-            animator.ResetTrigger("IsUsingHammer");
+            animator.ResetTrigger("IsUsing");
             animator.SetFloat("Drinks", value);
-
+            animator.SetBool("AlreadyHaveInHand", false);
         }
 
         private void EnableOutline(GameObject obj)
         {
             if (obj == null) return;
-            Outlinable outline = obj.GetComponent<Outlinable>();
+            Outlinable outline = obj.GetComponent<Outlinable>(); 
             if (outline != null)
             {
                 outline.enabled = true;
@@ -458,11 +528,12 @@ namespace Shreyas
 
             if (storedItem.CompareTag("Barrel"))
             {
+                //Debug.Log("tmkc");
                 storedItem.transform.SetParent(BarrelHolder);
                 storedItem.transform.localPosition = Vector3.zero;
                 storedItem.transform.localRotation = Quaternion.identity;
                 storedItem.SetActive(false);
-                storedItem.GetComponent<Outline>().enabled = false;
+                storedItem.GetComponent<Outlinable>().enabled = false;
                 storedItem.GetComponent<BoxCollider>().enabled = false;
                 BarrelsModels.Add(storedItem);
             }
@@ -681,13 +752,7 @@ namespace Shreyas
             // If there's no item in the selected slot, skip everything else
             if (inventory[currentIndex]?.data == null)
             {
-                animator.SetBool("CanUseHammer", false);
-                animator.SetBool("CanUseAxe", false);
-                animator.SetBool("CanUseBroom", false);
-                animator.SetBool("CanUseLighter", false);
-                animator.SetBool("UseDrink", false);
-                animator.SetBool("UseBarrel", false);
-
+                SetAnimatorStates();
                 return;
             }
 
@@ -711,85 +776,72 @@ namespace Shreyas
                                     LeanTween.delayedCall(0.1f, () => { animator.SetBool("UseBarrel", true); });
                                 }
                                 else
-                                    animator.SetBool("UseBarrel", true);
-
-
-
-                                animator.SetBool("CanUseAxe", false);
-                                animator.SetBool("CanUseBroom", false);
-                                animator.SetBool("CanUseLighter", false);
-                                animator.SetBool("UseDrink", false);
-                                animator.SetBool("CanUseHammer", false);
-
+                                    SetAnimatorStates("UseBarrel");
+                                animator.SetBool("AlreadyHaveInHand", false);
                                 break;
 
                             case "Broom":
-                                animator.SetBool("CanUseAxe", false);
-                                animator.SetBool("CanUseBroom", true);
-                                animator.SetBool("CanUseLighter", false);
-                                animator.SetBool("UseDrink", false);
-                                animator.SetBool("UseBarrel", false);
-                                animator.SetBool("CanUseHammer", false);
-
+                                SetAnimatorStates("CanUseBroom");
+                                animator.SetBool("AlreadyHaveInHand", false);
                                 break;
 
-                            case "Axe":
-                                animator.SetBool("CanUseAxe", true);
-                                animator.SetBool("CanUseBroom", false);
-                                animator.SetBool("CanUseLighter", false);
-                                animator.SetBool("UseDrink", false);
-                                animator.SetBool("UseBarrel", false);
-                                animator.SetBool("CanUseHammer", false);
-
+                            case "Axe":                              
+                                SetAnimatorStates("CanUseAxe");
+                                animator.SetBool("AlreadyHaveInHand", false);
                                 break;
 
-                            case ("Lighter"):
-                                animator.SetBool("CanUseAxe", false);
-                                animator.SetBool("CanUseBroom", false);
-                                animator.SetBool("CanUseLighter", true);
-                                animator.SetBool("UseDrink", false);
-                                animator.SetBool("UseBarrel", false);
-                                animator.SetBool("CanUseHammer", false);
-
+                            case ("Lighter"):        
+                                SetAnimatorStates("CanUseLighter");
+                                animator.SetBool("AlreadyHaveInHand", false);
                                 break;
 
                             case ("BlackBlaze"):
+                                SetAnimatorStates("UseDrink");
                                 SetDrinkBlend(1f);
                                 break;
 
                             case ("CactusBomb"):
+                                SetAnimatorStates("UseDrink");
                                 SetDrinkBlend(2f);
                                 break;
 
                             case ("DesertDraught"):
+                                SetAnimatorStates("UseDrink");
                                 SetDrinkBlend(3f);
                                 break;
 
                             case ("FireOut"):
+                                SetAnimatorStates("UseDrink");
                                 SetDrinkBlend(4f);
                                 break;
 
                             case ("FrothyMug"):
+                                SetAnimatorStates("UseDrink");
                                 SetDrinkBlend(5f);
                                 break;
 
                             case ("ShinerSip"):
+                                SetAnimatorStates("UseDrink");
                                 SetDrinkBlend(6f);
                                 break;
 
                             case ("SnakeBite"):
+                                SetAnimatorStates("UseDrink");
                                 SetDrinkBlend(7f);
                                 break;
 
                             case ("StraightShot"):
+                                SetAnimatorStates("UseDrink");
                                 SetDrinkBlend(8f);
                                 break;
-
+                                 
                             case ("WidowKiss"):
+                                SetAnimatorStates("UseDrink");
                                 SetDrinkBlend(9f);
                                 break;
 
                             case ("Mug"):
+                                SetAnimatorStates("UseDrink"); 
                                 SetDrinkBlend(10f);
 
                                 InventoryItem currentItem = inventory[currentIndex];
@@ -811,21 +863,54 @@ namespace Shreyas
 
 
                                 break;
-                            case ("Hammer"):
-                               
-                                animator.SetBool("CanUseAxe", false);
-                                animator.SetBool("CanUseBroom", false);
-                                animator.SetBool("CanUseLighter", false);
-                                animator.SetBool("UseDrink", false);
-                                animator.SetBool("UseBarrel", false);
-                                animator.SetBool("CanUseHammer", true);
 
+                            case ("Hammer"):                              
+                                SetAnimatorStates("CanUseHammer");
+                                animator.SetBool("AlreadyHaveInHand", false);
+                                break;
+
+                            case "Katana":
+                                if (!animator.GetBool("AlreadyHaveInHand"))
+                                {
+                                    LeanTween.delayedCall(1f, () =>
+                                    {
+                                        animator.SetBool("AlreadyHaveInHand", true);
+                                    });
+                                   
+                                }
+                                SetAnimatorStates("CanUseKatana");
+                                break;
+
+                            case "Knucles":                               
+                                SetAnimatorStates("CanUseKnucles");
+                                animator.SetBool("AlreadyHaveInHand", false);
+                                break;
+
+                            case "Sickle":                              
+                                SetAnimatorStates("CanUseSickle");
+                                animator.SetBool("AlreadyHaveInHand", false);
+                                break;
+
+                            case "Gun":
+                                if (!animator.GetBool("AlreadyHaveInHand"))
+                                {
+                                    LeanTween.delayedCall(1f, () =>
+                                    {
+                                        animator.SetBool("AlreadyHaveInHand", true);
+                                    });
+                                }
+                                SetAnimatorStates("CanUseGun");
+                                
+                                break;
+
+                            case "Shortgun":                             
+                                SetAnimatorStates("CanUseShortgun");
+                                animator.SetBool("AlreadyHaveInHand", false);
                                 break;
 
                             // Add more cases for new types
                             default:
-                                animator.SetBool("IsUsingAxe", false);
-
+                               
                                 break;
                         }
                     }
@@ -971,11 +1056,7 @@ namespace Shreyas
                 }
 
                 // Optional: disable animator states
-                animator.SetBool("CanUseAxe", false);
-                animator.SetBool("CanUseBroom", false);
-                animator.SetBool("CanUseLighter", false);
-                animator.SetBool("UseBarrel", false);
-                animator.SetBool("UseDrink", false);
+                SetAnimatorStates();
 
             }
             else
