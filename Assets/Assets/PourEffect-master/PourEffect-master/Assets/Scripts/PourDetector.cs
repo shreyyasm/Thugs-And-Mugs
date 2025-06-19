@@ -73,6 +73,7 @@ public class PourDetector : MonoBehaviour
                 {
                     mug.GetComponentInParent<Mug>().isFilled = true;
                     BrewManager.Instance.DrinkComplete();
+                    InventoryManager.instance.PlayerModelVisual.SetActive(true);
                     Destroy(gameObject);
                    
                 }

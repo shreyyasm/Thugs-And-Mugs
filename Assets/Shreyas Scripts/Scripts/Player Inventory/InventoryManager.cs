@@ -378,22 +378,7 @@ namespace Shreyas
                         {
                             LeanTween.delayedCall(0.25f, () => interactable.Interact(selectedItem));
                         }
-                        else if (interactable.interactableType == Interactable.InteractableType.BarrelInteraction)
-                        {
-                            interactable.Interact(selectedItem, currentItem.itemObject);
-
-                            Barrel currentBarrel = currentItem.itemObject.GetComponent<Barrel>();
-                            string currentBarrelName = currentBarrel.Name;
-
-                            for (int i = 0; i < BarrelsModels.Count; i++)
-                            {
-                                GameObject barrelObj = BarrelsModels[i];
-                                Animator barrelAnimator = barrelObj.GetComponent<Animator>();
-                                Barrel barrelData = barrelObj.GetComponent<Barrel>();
-
-                                barrelAnimator.SetBool("OpenBarrel", barrelData.Name == currentBarrelName);
-                            }
-                        }
+                        
                         else if (interactable.interactableType == Interactable.InteractableType.CraftItem)
                         {
                             if (PlayerStatics.Instance.Woods > 0)
@@ -435,7 +420,7 @@ namespace Shreyas
 
                     if (interactable != null && interactable.CanBeInteracted && interactable.E_Interaction)
                     {
-
+                       
                         interactable.Interact(selectedItem);
 
 
@@ -448,6 +433,23 @@ namespace Shreyas
                             SetInventoryEnabled(false);
                             animator.SetBool("InterectHold", true);
                             animator.SetBool("IsBlocking", false);
+                        }
+                        if(interactable.interactableType == Interactable.InteractableType.BarrelInteraction && currentItem.itemObject.GetComponent<Barrel>())
+                        {
+                           
+                            interactable.Interact(selectedItem, currentItem.itemObject);
+
+                            Barrel currentBarrel = currentItem.itemObject.GetComponent<Barrel>();
+                            string currentBarrelName = currentBarrel.Name;
+
+                            for (int i = 0; i < BarrelsModels.Count; i++)
+                            {
+                                GameObject barrelObj = BarrelsModels[i];
+                                Animator barrelAnimator = barrelObj.GetComponent<Animator>();
+                                Barrel barrelData = barrelObj.GetComponent<Barrel>();
+
+                                barrelAnimator.SetBool("OpenBarrel", barrelData.Name == currentBarrelName);
+                            }
                         }
                     }
                 }
@@ -528,7 +530,12 @@ namespace Shreyas
 
             if (storedItem.CompareTag("Barrel"))
             {
-                //Debug.Log("tmkc");
+
+                foreach (Transform i in storedItem.GetComponentsInChildren<Transform>())
+                {
+                    i.gameObject.layer = 11;
+                }
+                   
                 storedItem.transform.SetParent(BarrelHolder);
                 storedItem.transform.localPosition = Vector3.zero;
                 storedItem.transform.localRotation = Quaternion.identity;
@@ -536,8 +543,9 @@ namespace Shreyas
                 storedItem.GetComponent<Outlinable>().enabled = false;
                 storedItem.GetComponent<BoxCollider>().enabled = false;
                 BarrelsModels.Add(storedItem);
+                
             }
-            if (storedItem.CompareTag("Mug"))
+            else if (storedItem.CompareTag("Mug"))
             {
                 if (storedItem.GetComponent<Mug>().isFilled)
                 {
@@ -611,6 +619,14 @@ namespace Shreyas
                 }
 
             }
+            if (droppedItem.CompareTag("Barrel"))
+            {
+                foreach (Transform i in droppedItem.GetComponentsInChildren<Transform>())
+                {
+                    i.gameObject.layer = 6;
+                }
+            }
+              
             // Cache world position/rotation/scale
             Vector3 worldPos = droppedItem.transform.position;
             Quaternion worldRot = droppedItem.transform.rotation;

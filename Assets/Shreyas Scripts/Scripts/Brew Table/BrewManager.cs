@@ -27,6 +27,8 @@ namespace Shreyas
         public GameObject Drink;
         public GameObject MakeButton;
         public FirstPersonMovementInputSystem firstPersonMovementInputSystem;
+
+        public bool pouring;
         private void Awake()
         {
             Instance = this;
@@ -78,6 +80,7 @@ namespace Shreyas
                 Destroy(slot2.gameObject);
             }
             MakeButton.SetActive(false);
+            pouring = true;
             Drink.layer = 0;
         }
 
@@ -91,11 +94,15 @@ namespace Shreyas
             
             Mug.GetComponent<BoxCollider>().enabled = true;
             Mug.GetComponent<MeshCollider>().enabled = false;
+            Mug.GetComponent<Rigidbody>().isKinematic = false;
+            Mug.GetComponent<Rigidbody>().useGravity = true;
             Mug.layer = 6;
             Drink = null;
             Mug = null;
             firstPersonMovementInputSystem.playerBusy = false;
-            
+            gameObject.layer = 12;
+            pouring = false;
+
         }
         public bool IsOpen() => isStationOpen;
 

@@ -98,6 +98,7 @@ namespace Shreyas
                         bottle.GetComponent<BoxCollider>().isTrigger = false;
                         bottle.GetComponent<Rigidbody>().isKinematic = false;
                         bottle.GetComponent<Rigidbody>().useGravity = true;
+                        bottle.gameObject.layer = 6;
                     });
 
 

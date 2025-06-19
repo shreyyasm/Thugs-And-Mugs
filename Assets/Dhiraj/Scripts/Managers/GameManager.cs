@@ -23,7 +23,7 @@ namespace Dhiraj
         }
         private void Update()
         {
-            if (Input.GetKeyDown(KeyCode.Escape))
+            if (Input.GetKeyDown(KeyCode.Escape) && !BrewManager.Instance.pouring)
             {
                 foreach (InteractCanvas i in AllInteractCanvas)
                 {
@@ -35,6 +35,7 @@ namespace Dhiraj
                 FirstPersonMovementInputSystem.playerBusy = false;
                 GameManager.Instance.DisableMouseCursor();
                 FirstPersonMovementInputSystem.inventoryManager.SetInventoryCanvas(true);
+                FirstPersonMovementInputSystem.inventoryManager.PlayerModelVisual.SetActive(true);
             }
         }
         public void CutSceneStatus(bool isTrue)

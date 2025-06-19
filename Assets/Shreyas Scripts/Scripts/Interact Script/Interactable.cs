@@ -131,11 +131,11 @@ namespace Shreyas
         public void InteractWithBrewStatation()
         {
             BrewManager brewManager = gameObject.GetComponent<BrewManager>();
-            if (brewManager.Drink == null && brewManager.Mug == null)
-            {
+           
                 brewManager.OpenBrewStation();
                 firstPersonController.playerBusy = true;
-            }
+                inventoryManager.PlayerModelVisual.SetActive(false);
+            
                 
         }
         public void InteractWithCraftableItem()

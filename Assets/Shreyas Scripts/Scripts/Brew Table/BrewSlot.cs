@@ -33,6 +33,7 @@ namespace Shreyas
                         BrewManager.Instance.Mug = InventoryManager.instance.tempGameObject;
                         BrewManager.Instance.MugReady = true;
                         BrewManager.Instance.EnableMaking();
+                        BrewManager.Instance.gameObject.layer = 6;
                         gameObject.SetActive(false);
 
 
@@ -53,6 +54,7 @@ namespace Shreyas
                     BrewManager.Instance.Drink = InventoryManager.instance.tempGameObject;
                     BrewManager.Instance.DrinkReady = true;
                     BrewManager.Instance.EnableMaking();
+                    BrewManager.Instance.gameObject.layer = 6;
                     gameObject.SetActive(false);
                 }
             }
