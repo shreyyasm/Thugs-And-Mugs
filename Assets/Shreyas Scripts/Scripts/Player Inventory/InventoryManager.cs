@@ -75,6 +75,7 @@ namespace Shreyas
             UpdateHands();
         }
         RaycastHit hitGrab;
+        public bool gunInHand;
 
         void Update()
         {
@@ -108,6 +109,15 @@ namespace Shreyas
                 }
             }
             AcessBuildMenu();
+
+            if(gunInHand)
+            {
+                if(Input.GetKeyDown(KeyCode.R))
+                {
+                    animator.SetTrigger("GunReload");
+                 
+                }
+            }
 
         }
         [SerializeField] private LayerMask interactLayerMask;
@@ -351,6 +361,29 @@ namespace Shreyas
                             SetAnimatorStates("CanUseShortgun");
                             break;
 
+                        case "Bat":
+                            if (animator.GetBool("CanUseBat"))
+                                animator.SetTrigger("IsUsing");
+                            SetAnimatorStates("CanUseBat");
+                            break;
+
+                        case "Knife":
+                            if (animator.GetBool("CanUseKnife"))
+                            {
+                                // Alternate between 0 and 1 for the sub animation
+                                int index = axeAnimToggle ? 1 : 0;
+                                animator.SetInteger("KnifeAnimIndex", index);
+
+                                // Trigger a shared "IsUsing" animation
+                                animator.SetTrigger("IsUsing");
+
+                                // Flip toggle
+                                axeAnimToggle = !axeAnimToggle;
+                            }
+                            SetAnimatorStates("CanUseKnife");
+                            break;
+
+
                         default:
                             //animator.SetBool("IsUsing", false);
                             break;
@@ -470,7 +503,9 @@ namespace Shreyas
             "CanUseShortgun",
             "CanUseKatana",
             "CanUseSickle",
-            "CanUseKnucles"
+            "CanUseKnucles",
+            "CanUseBat",
+            "CanUseKnife"
             };
 
             foreach (string state in allStates)
@@ -488,7 +523,6 @@ namespace Shreyas
         {
             animator.ResetTrigger("IsUsing");
             animator.SetFloat("Drinks", value);
-            animator.SetBool("AlreadyHaveInHand", false);
         }
 
         private void EnableOutline(GameObject obj)
@@ -762,6 +796,7 @@ namespace Shreyas
             {
                 if (handModels[i] != null)
                     handModels[i].SetActive(false);
+                gunInHand = false;
 
             }
 
@@ -775,15 +810,18 @@ namespace Shreyas
             string tag = inventory[currentIndex].data.itemTag;
             for (int i = 0; i < handModels.Length; i++)
             {
+               
+
                 if (handModels[i] != null)
                 {
                     if (handModels[i].CompareTag(tag))
                     {
-
+                       
                         handModels[i].SetActive(true);
 
                         switch (tag)
                         {
+                            
                             case ("Barrel"):
 
                                 if (animator.GetBool("UseBarrel"))
@@ -793,27 +831,27 @@ namespace Shreyas
                                 }
                                 else
                                     SetAnimatorStates("UseBarrel");
-                                animator.SetBool("AlreadyHaveInHand", false);
+                                
                                 break;
 
                             case "Broom":
                                 SetAnimatorStates("CanUseBroom");
-                                animator.SetBool("AlreadyHaveInHand", false);
+                                
                                 break;
 
                             case "Axe":                              
                                 SetAnimatorStates("CanUseAxe");
-                                animator.SetBool("AlreadyHaveInHand", false);
+                               
                                 break;
 
                             case ("Lighter"):        
                                 SetAnimatorStates("CanUseLighter");
-                                animator.SetBool("AlreadyHaveInHand", false);
+                               
                                 break;
 
                             case ("BlackBlaze"):
                                 SetAnimatorStates("UseDrink");
-                                SetDrinkBlend(1f);
+                              
                                 break;
 
                             case ("CactusBomb"):
@@ -882,46 +920,43 @@ namespace Shreyas
 
                             case ("Hammer"):                              
                                 SetAnimatorStates("CanUseHammer");
-                                animator.SetBool("AlreadyHaveInHand", false);
+                               
                                 break;
 
-                            case "Katana":
-                                if (!animator.GetBool("AlreadyHaveInHand"))
-                                {
-                                    LeanTween.delayedCall(1f, () =>
-                                    {
-                                        animator.SetBool("AlreadyHaveInHand", true);
-                                    });
-                                   
-                                }
+                            case "Katana":                               
                                 SetAnimatorStates("CanUseKatana");
                                 break;
 
                             case "Knucles":                               
                                 SetAnimatorStates("CanUseKnucles");
-                                animator.SetBool("AlreadyHaveInHand", false);
+                               
                                 break;
 
                             case "Sickle":                              
                                 SetAnimatorStates("CanUseSickle");
-                                animator.SetBool("AlreadyHaveInHand", false);
+                                
                                 break;
 
-                            case "Gun":
-                                if (!animator.GetBool("AlreadyHaveInHand"))
-                                {
-                                    LeanTween.delayedCall(1f, () =>
-                                    {
-                                        animator.SetBool("AlreadyHaveInHand", true);
-                                    });
-                                }
+                            case "Gun":                              
+                                gunInHand = true;
                                 SetAnimatorStates("CanUseGun");
                                 
                                 break;
 
                             case "Shortgun":                             
                                 SetAnimatorStates("CanUseShortgun");
-                                animator.SetBool("AlreadyHaveInHand", false);
+                               
+                                gunInHand = true;
+                                break;
+
+                            case "Bat":
+                                SetAnimatorStates("CanUseBat");
+                               
+                                break;
+
+                            case "Knife":
+                                SetAnimatorStates("CanUseKnife");
+                               
                                 break;
 
                             // Add more cases for new types

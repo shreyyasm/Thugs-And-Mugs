@@ -39,6 +39,8 @@ TagManager:
   - Shortgun
   - Gun
   - Katana
+  - Bat
+  - Knife
   layers:
   - Default
   - TransparentFX
