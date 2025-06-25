@@ -9,6 +9,10 @@ namespace Shreyas
         public Sprite itemIcon;
         public string itemTag;
         public bool MouseUse;
+        public bool isGun;
+        public int TotalBullets;
+        public int CurrentBullets;
+        public int magSize;
     }
 }
 

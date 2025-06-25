@@ -16,3 +16,7 @@ MonoBehaviour:
   itemIcon: {fileID: 21300000, guid: 7223c43fde0be7f49b3d5660916bc6c3, type: 3}
   itemTag: Gun
   MouseUse: 1
+  isGun: 1
+  TotalBullets: 60
+  CurrentBullets: 6
+  magSize: 6

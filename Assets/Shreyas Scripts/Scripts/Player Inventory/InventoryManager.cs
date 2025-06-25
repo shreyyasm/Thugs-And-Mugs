@@ -8,6 +8,7 @@ using System.Collections;
 using System;
 using Dhiraj;
 using EPOOutline;
+using TreeEditor;
 
 namespace Shreyas
 {
@@ -71,6 +72,7 @@ namespace Shreyas
         }
         private void Start()
         {
+            perlin = virtualCam.GetCinemachineComponent<Cinemachine.CinemachineBasicMultiChannelPerlin>();
             UpdateUI();
             UpdateHands();
         }
@@ -112,10 +114,10 @@ namespace Shreyas
 
             if(gunInHand)
             {
-                if(Input.GetKeyDown(KeyCode.R))
+                if(Input.GetKeyDown(KeyCode.R) && !isReloading)
                 {
-                    animator.SetTrigger("GunReload");
-                 
+                    
+                    StartCoroutine(Reload(0.4f));
                 }
             }
 
@@ -349,15 +351,29 @@ namespace Shreyas
                             break;
 
                         case "Gun":
-                            if (animator.GetBool("CanUseGun"))
-                                animator.SetTrigger("IsUsing");
+                           
                             SetAnimatorStates("CanUseGun");
-                            Debug.Log("worked");
+                            if (currentAmmo > 0 && !isReloading && Time.time >= nextTimeToFire && currentAmmo > 0)
+                            {
+                                nextTimeToFire = Time.time + 0.4f;
+                                if (animator.GetBool("CanUseGun"))
+                                    animator.SetTrigger("IsUsing");
+                                Shoot();
+                            }
+                          
                             break;
 
                         case "Shortgun":
-                            if (animator.GetBool("CanUseShortgun"))
-                                animator.SetTrigger("IsUsing");
+                           
+
+                            if (currentAmmo > 0 && !isReloading && Time.time >= nextTimeToFire && currentAmmo > 0)
+                            {
+                                nextTimeToFire = Time.time + 0.6f;
+                                if (animator.GetBool("CanUseShortgun"))
+                                    animator.SetTrigger("IsUsing");
+                                Shoot();
+                            }
+                        
                             SetAnimatorStates("CanUseShortgun");
                             break;
 
@@ -797,7 +813,7 @@ namespace Shreyas
                 if (handModels[i] != null)
                     handModels[i].SetActive(false);
                 gunInHand = false;
-
+                AmmoInfoText.enabled = false;
             }
 
             // If there's no item in the selected slot, skip everything else
@@ -940,13 +956,36 @@ namespace Shreyas
                             case "Gun":                              
                                 gunInHand = true;
                                 SetAnimatorStates("CanUseGun");
-                                
+                                currentGun = GunType.Revolver;
+                                maxAmmo = inventory[currentIndex].data.TotalBullets;
+                                currentAmmo = inventory[currentIndex].data.CurrentBullets;
+                                FirePoint = firePointGun;
+                                AmmoInfoText.enabled = true;
+
+                                originalCamPosition = playerCamera.transform.localPosition;
+                                UpdateAmmoUI();
+                                if (currentAmmo <= 0 && !isReloading)
+                                {
+                                    StartCoroutine(Reload(0.9f));
+                                }
+
                                 break;
 
                             case "Shortgun":                             
                                 SetAnimatorStates("CanUseShortgun");
-                               
                                 gunInHand = true;
+                                currentGun = GunType.Shotgun;
+                                maxAmmo = inventory[currentIndex].data.TotalBullets;
+                                currentAmmo = inventory[currentIndex].data.CurrentBullets;
+                                FirePoint = firePointShortGun;
+                                AmmoInfoText.enabled = true;
+
+                                originalCamPosition = playerCamera.transform.localPosition;
+                                UpdateAmmoUI();
+                                if (currentAmmo <= 0 && !isReloading)
+                                {
+                                    StartCoroutine(Reload(0.9f));
+                                }
                                 break;
 
                             case "Bat":
@@ -1487,8 +1526,171 @@ namespace Shreyas
 
         }
 
+        //Gun Logic
 
-     
+        public enum GunType { Revolver, Shotgun }
+
+        [Header("Gun Components")]
+        public GunType currentGun = GunType.Revolver;
+
+        public Transform FirePoint;
+        public Transform firePointShortGun;
+        public Transform firePointGun;
+        public GameObject bulletPrefab;
+        public float bulletSpeed = 50f;
+        public int maxAmmo = 6;
+        public float reloadTime = 2f;
+        public TextMeshProUGUI ammoText;
+
+        [Header("Shotgun Settings")]
+        public int pellets = 8;
+        public float spreadAngle = 7f;
+
+        [Header("Recoil")]
+        public float recoilKickback = 2f;
+        public float recoilRecoverSpeed = 5f;
+
+        public int currentAmmo;
+        private bool isReloading = false;
+        private Vector3 originalCamPosition;
+
+        public TextMeshProUGUI AmmoInfoText;
+        private float nextTimeToFire = 0f;
+
+
+        public GameObject muzzleFlash;
+      
+        void Shoot()
+        {
+            currentAmmo--;
+            inventory[currentIndex].data.CurrentBullets = currentAmmo;
+           
+
+            UpdateAmmoUI();
+
+            Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // center of screen
+            Vector3 targetPoint;
+
+            if (Physics.Raycast(ray, out RaycastHit hit))
+            {
+                targetPoint = hit.point;
+            }
+            else
+            {
+                targetPoint = ray.GetPoint(100f); // shoot forward if nothing hit
+            }
+
+            Vector3 direction = (targetPoint - FirePoint.position).normalized;
+
+            if (currentGun == GunType.Revolver)
+            {
+                direction.Normalize();
+                FireBullet(direction);
+                Instantiate(muzzleFlash, FirePoint.position, Quaternion.LookRotation(direction));
+                SFXManager.Instance.PlaySFX("GunFire");
+               
+               
+            }
+            else if (currentGun == GunType.Shotgun)
+            {
+                 SFXManager.Instance.PlaySFX("ShortgunFire");
+               
+                
+                Instantiate(muzzleFlash, FirePoint.position, Quaternion.LookRotation(direction));
+                for (int i = 0; i < pellets; i++)
+                {
+                    Vector3 spreadDir = direction;
+                    spreadDir += UnityEngine.Random.insideUnitSphere * Mathf.Tan(spreadAngle * Mathf.Deg2Rad);
+                    spreadDir.Normalize();
+                    FireBullet(spreadDir);
+                }
+            }
+
+            ApplyRecoil();
+            if (currentAmmo <= 0 && !isReloading)
+            {
+                StartCoroutine(Reload(0.9f));
+            }
+
+        }
+        void FireBullet(Vector3 direction)
+        {
+            GameObject bullet = Instantiate(bulletPrefab, FirePoint.position, Quaternion.LookRotation(direction));
+            
+            Rigidbody rb = bullet.GetComponent<Rigidbody>();
+            if (rb != null)
+            {
+                rb.linearVelocity = direction * bulletSpeed;
+            }
+
+            Debug.DrawRay(FirePoint.position, direction * 100f, Color.yellow, 1f);
+        }
+
+
+        void ApplyRecoil()
+        {
+            StopAllCoroutines();
+            LeanTween.delayedCall(0.1f, () =>
+            {
+                StartCoroutine(RecoilCoroutine());
+            });
+          
+        }
+        public Cinemachine.CinemachineVirtualCamera virtualCam;
+        private Cinemachine.CinemachineBasicMultiChannelPerlin perlin;
+
+       
+        IEnumerator RecoilCoroutine()
+        {
+            float timer = 0f;
+            float duration = 0.2f;
+            float intensity = 1.7f;
+
+            perlin.m_AmplitudeGain = intensity;
+
+            while (timer < duration)
+            {
+                timer += Time.deltaTime;
+                yield return null;
+            }
+
+            perlin.m_AmplitudeGain = 0f;
+        }
+
+        IEnumerator Reload(float time)
+        {
+            animator.SetTrigger("GunReload");
+
+            isReloading = true;
+            yield return new WaitForSeconds(time);
+            if (inventory[currentIndex] != null && inventory[currentIndex].data.isGun)
+            {
+                if (inventory[currentIndex].data.name == "Gun")
+                    SFXManager.Instance.PlaySFX("GunReload");
+
+                if (inventory[currentIndex].data.name == "Shortgun")
+                    SFXManager.Instance.PlaySFX("ShortgunReload");
+            }
+               
+
+            yield return new WaitForSeconds(reloadTime - 1);
+            if(inventory[currentIndex] != null && inventory[currentIndex].data.isGun)
+            {
+                currentAmmo = inventory[currentIndex].data.magSize;
+                inventory[currentIndex].data.CurrentBullets = inventory[currentIndex].data.magSize;
+            }
+               
+            UpdateAmmoUI();
+            isReloading = false;
+        }
+
+        void UpdateAmmoUI()
+        {
+            if (ammoText)
+            {
+                ammoText.text = $"{currentAmmo}/{maxAmmo}";
+            }
+        }
 
     }
 }

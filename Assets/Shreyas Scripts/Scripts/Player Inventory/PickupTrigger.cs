@@ -5,6 +5,7 @@ namespace Shreyas
     {
         public ItemData itemData;
         public bool isPickable;
+     
         
     }
 

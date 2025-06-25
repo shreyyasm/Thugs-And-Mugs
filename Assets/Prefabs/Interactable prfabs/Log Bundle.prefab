@@ -104,7 +104,7 @@ MonoBehaviour:
   firstPersonController: {fileID: 0}
   inventoryManager: {fileID: 0}
   CanBeInteracted: 1
-  E_Interaction: 0
+  E_Interaction: 1
   isPickable: 1
   requiredItemTag: 
 --- !u!114 &1555341911824598223
