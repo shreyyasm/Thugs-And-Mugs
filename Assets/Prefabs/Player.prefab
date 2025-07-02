@@ -1634,7 +1634,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2249764929229233564}
   - component: {fileID: 5675932210502100185}
-  - component: {fileID: 2190016624019544344}
+  - component: {fileID: 3011736714617646058}
   m_Layer: 11
   m_Name: PlayerHand
   m_TagString: Untagged
@@ -1681,7 +1681,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &2190016624019544344
+--- !u!114 &3011736714617646058
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3420,7 +3420,7 @@ GameObject:
   - component: {fileID: 6928261573848253115}
   - component: {fileID: 8187778691721458371}
   - component: {fileID: 3582892117615895656}
-  - component: {fileID: 4535410127071709247}
+  - component: {fileID: 142497871650420260}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -3612,7 +3612,7 @@ MonoBehaviour:
   muzzleFlash: {fileID: 1384440898969059051, guid: 2aabb5f7a704f86469dafa4af8d74dc8,
     type: 3}
   virtualCam: {fileID: 5426615674763843808}
---- !u!114 &4535410127071709247
+--- !u!114 &142497871650420260
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3627,7 +3627,7 @@ MonoBehaviour:
   taskPrefab: {fileID: 8085867031305221445, guid: 6df0c6a29919b144b8dba064ce6fc40e,
     type: 3}
   sideTaskParent: {fileID: 724670806619366972}
-  realSecondsPerGameMinute: 13
+  realSecondsPerGameMinute: 12
 --- !u!1 &3253070617109095239
 GameObject:
   m_ObjectHideFlags: 0

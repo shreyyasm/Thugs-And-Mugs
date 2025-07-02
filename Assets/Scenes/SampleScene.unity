@@ -15913,7 +15913,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: Frothy Mug - Bottle (2)
       objectReference: {fileID: 0}
-    - target: {fileID: 6326282555924304787, guid: 9e27e8eb14c7d4741a39f9dda41f1e04,
+    - target: {fileID: 6065178074932408627, guid: 9e27e8eb14c7d4741a39f9dda41f1e04,
         type: 3}
       propertyPath: mainCamera
       value: 
@@ -20753,6 +20753,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 515472340476713049, guid: 9e27e8eb14c7d4741a39f9dda41f1e04,
+        type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 330585545}
     - target: {fileID: 1290829726218709863, guid: 9e27e8eb14c7d4741a39f9dda41f1e04,
         type: 3}
       propertyPath: m_LocalPosition.x

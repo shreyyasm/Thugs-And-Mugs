@@ -23,7 +23,8 @@ GameObject:
   - component: {fileID: 8126346083438693917}
   - component: {fileID: 3824715899542363584}
   - component: {fileID: 7756772686440451110}
-  - component: {fileID: 6326282555924304787}
+  - component: {fileID: 515472340476713049}
+  - component: {fileID: 6065178074932408627}
   m_Layer: 6
   m_Name: Frothy Mug - Bottle
   m_TagString: FrothyMug
@@ -377,7 +378,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 034bc47afcbf5e141a58d5c20b7808e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &6326282555924304787
+--- !u!114 &515472340476713049
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -390,7 +391,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   followSpeed: 15
-  fixedYPosition: 2
+  fixedYPosition: 1
+  rotationSpeed: 100
+  mainCamera: {fileID: 0}
+--- !u!114 &6065178074932408627
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2096214403673927709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2a432736ee8587142a28db9537bde5ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  followSpeed: 15
+  fixedYPosition: 1
   rotationSpeed: 100
   mainCamera: {fileID: 0}
 --- !u!1 &3008854485578300756
