@@ -14,8 +14,10 @@ GameObject:
   - component: {fileID: 2915390506464285786}
   - component: {fileID: 2183321357016830224}
   - component: {fileID: 6886938501246088952}
+  - component: {fileID: 8799080555599776395}
+  - component: {fileID: 7840137161237815924}
   m_Layer: 15
-  m_Name: Bullet
+  m_Name: Gun Bullet
   m_TagString: Bullet
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -151,3 +153,39 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   impactEffectPrefab: {fileID: 100002, guid: a126efaab245dc54583bd0ed8cc8db78, type: 3}
   destroyDelay: 3
+--- !u!114 &8799080555599776395
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4562142549208130217}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7ed18e5b61c0065488175ae08df9657f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  weaponType: 0
+  weaponDamage: 100
+  knockbackForce: 300
+--- !u!135 &7840137161237815924
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4562142549208130217}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}

@@ -6027,6 +6027,7 @@ MonoBehaviour:
   firstPersonController: {fileID: 0}
   inventoryManager: {fileID: 0}
   CanBeInteracted: 0
+  E_Interaction: 0
   isPickable: 0
   requiredItemTag: 
 --- !u!114 &928120699460614592
@@ -8155,6 +8156,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0.0009515685
+      objectReference: {fileID: 0}
+    - target: {fileID: -2641625403831627192, guid: d1ec7c256997cb343b2a54ab5fd0f95d,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -2567520279359157630, guid: d1ec7c256997cb343b2a54ab5fd0f95d,
         type: 3}
@@ -12214,8 +12220,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49d1d93ae4a3df347922ed77d5bf17ec, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mainBody: {fileID: 0}
   weaponColliders:
   - {fileID: 2984383321810652769}
+  bullet: {fileID: 0}
+  _bulletSpwanPoint: {fileID: 0}
+  bulletForce: 1000
 --- !u!4 &5600234655924863816 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 922745563125386632, guid: d1ec7c256997cb343b2a54ab5fd0f95d,

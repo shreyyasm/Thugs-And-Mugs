@@ -241,6 +241,7 @@ namespace Shreyas
             if (obj != lastOutlinedObject)
             {
                 DisableOutline(lastOutlinedObject);
+                
                 EnableOutline(obj);
                 lastOutlinedObject = obj;
             }
@@ -256,7 +257,7 @@ namespace Shreyas
         private bool axeAnimToggle = false;
         public GameObject puffparticle;
         private int katanaAnimIndex = -1; // Start at -1 so first becomes 0
-
+        public bool usingWeapon;
         public void InteractByInventoryItems()
         {
           
@@ -291,6 +292,9 @@ namespace Shreyas
                                 // Flip toggle
                                 axeAnimToggle = !axeAnimToggle;
                             }
+                            usingWeapon = true;
+                            LeanTween.delayedCall(0.5f, () =>{ usingWeapon = false; });
+
                             SetAnimatorStates("CanUseAxe");
                             break;
 
@@ -314,7 +318,8 @@ namespace Shreyas
                                 // Trigger the animation
                                 animator.SetTrigger("IsUsing");
                             }
-
+                            usingWeapon = true;
+                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
                             SetAnimatorStates("CanUseKatana");
                             break;
 
@@ -331,6 +336,8 @@ namespace Shreyas
                                 // Flip toggle
                                 axeAnimToggle = !axeAnimToggle;
                             }
+                            usingWeapon = true;
+                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
                             SetAnimatorStates("CanUseKnucles");
                             break;
 
@@ -347,6 +354,8 @@ namespace Shreyas
                                 // Flip toggle
                                 axeAnimToggle = !axeAnimToggle;
                             }
+                            usingWeapon = true;
+                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
                             SetAnimatorStates("CanUseSickle");
                             break;
 
@@ -360,6 +369,7 @@ namespace Shreyas
                                     animator.SetTrigger("IsUsing");
                                 Shoot();
                             }
+
                           
                             break;
 
@@ -381,6 +391,8 @@ namespace Shreyas
                             if (animator.GetBool("CanUseBat"))
                                 animator.SetTrigger("IsUsing");
                             SetAnimatorStates("CanUseBat");
+                            usingWeapon = true;
+                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
                             break;
 
                         case "Knife":
@@ -396,6 +408,8 @@ namespace Shreyas
                                 // Flip toggle
                                 axeAnimToggle = !axeAnimToggle;
                             }
+                            usingWeapon = true;
+                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
                             SetAnimatorStates("CanUseKnife");
                             break;
 
@@ -544,21 +558,35 @@ namespace Shreyas
         private void EnableOutline(GameObject obj)
         {
             if (obj == null) return;
-            Outlinable outline = obj.GetComponent<Outlinable>(); 
-            if (outline != null)
+            if (obj.CompareTag("Customer") && obj != null)
             {
-                outline.enabled = true;
+                Outlinable outline = obj.transform.root.gameObject.GetComponent<Outlinable>();
+                if (outline != null)
+                {
+                    outline.enabled = true;
+                }
             }
+            else
+            {
+                Outlinable outline = obj.GetComponent<Outlinable>();
+                if (outline != null)
+                {
+                    outline.enabled = true;
+                }
+            }
+            
         }
 
         private void DisableOutline(GameObject obj)
         {
             if (obj == null) return;
-            Outlinable outline = obj.GetComponent<Outlinable>();
+
+            Outlinable outline = obj.transform.root.gameObject.GetComponent<Outlinable>();
             if (outline != null)
             {
                 outline.enabled = false;
             }
+
         }
 
 
@@ -803,6 +831,7 @@ namespace Shreyas
 
         }
         [SerializeField] Animator animator;
+       
         public void UpdateHands()
         {
             if (!inventoryEnabled) return;
@@ -1110,7 +1139,7 @@ namespace Shreyas
                 pitch -= 360f;
 
             // Invert the pitch logic for height adjustment (when you look up, it goes up, when you look down, it goes down)
-            float heightAdjustment = Mathf.Clamp(-pitch / 10f, 1f, 10f);  // Inverted, so looking up increases the height
+            float heightAdjustment = Mathf.Clamp(-pitch / 10f, 0f, 8f);  // Inverted, so looking up increases the height
 
             // Apply the height adjustment based on camera's pitch
             targetPos.y += heightAdjustment;
@@ -1123,11 +1152,21 @@ namespace Shreyas
             Vector3 lookDirection = flatForward;
             if (lookDirection != Vector3.zero)
             {
-                heldObject.transform.rotation = Quaternion.Slerp(
-               heldObject.transform.rotation,
-               Quaternion.LookRotation(lookDirection),
-               Time.deltaTime * 10f
-           );
+                if(heldObject.CompareTag("Customer"))
+                {
+                    heldObject.transform.rotation = Quaternion.Slerp(
+                    heldObject.transform.rotation,
+                    Quaternion.LookRotation(-lookDirection),
+                    Time.deltaTime * 10f);
+                }
+                else
+                {
+                    heldObject.transform.rotation = Quaternion.Slerp(
+                   heldObject.transform.rotation,
+                   Quaternion.LookRotation(lookDirection),
+                   Time.deltaTime * 10f);
+                }
+              
             }
 
         }
@@ -1587,13 +1626,13 @@ namespace Shreyas
                 direction.Normalize();
                 FireBullet(direction);
                 Instantiate(muzzleFlash, FirePoint.position, Quaternion.LookRotation(direction));
-                SFXManager.Instance.PlaySFX("GunFire");
+                SFXManager.Instance.PlaySFX("GunFire",0.5f);
                
                
             }
             else if (currentGun == GunType.Shotgun)
             {
-                 SFXManager.Instance.PlaySFX("ShortgunFire");
+                 SFXManager.Instance.PlaySFX("ShortgunFire", 0.5f);
                
                 
                 Instantiate(muzzleFlash, FirePoint.position, Quaternion.LookRotation(direction));
@@ -1666,10 +1705,10 @@ namespace Shreyas
             if (inventory[currentIndex] != null && inventory[currentIndex].data.isGun)
             {
                 if (inventory[currentIndex].data.name == "Gun")
-                    SFXManager.Instance.PlaySFX("GunReload");
+                    SFXManager.Instance.PlaySFX("GunReload", 0.5f);
 
                 if (inventory[currentIndex].data.name == "Shortgun")
-                    SFXManager.Instance.PlaySFX("ShortgunReload");
+                    SFXManager.Instance.PlaySFX("ShortgunReload", 0.5f);
             }
                
 

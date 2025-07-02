@@ -306,15 +306,65 @@ namespace Dhiraj
             agent.enabled = true;
             isPushBack = false;
         }
+        public GameObject ragdoll;
+        public GameObject ragollRig;
+        public GameObject mainNPCVisual;
+        public void DealDamage(int damage, GameObject other = null, float pushForce = 100f)
+        {
+            anim.SetTrigger("Hit");  
+            currentHP -= damage;
+            if(currentHP > 0)
+            {
+                Rigidbody rb = ragollRig.GetComponent<Rigidbody>();
+                if (rb != null && !rb.isKinematic)
+                {
+                    // Calculate push direction away from bullet
+                    Vector3 pushDirection = transform.position - other.transform.position;
+                    pushDirection.y = 0; // Flatten to horizontal direction
+                    pushDirection.Normalize();
 
+                    // Add slight upward force
+                    Vector3 finalForce = pushDirection + Vector3.up * 0.2f;
+                    finalForce.Normalize();
+
+
+                    rb.AddForce(finalForce * pushForce, ForceMode.Impulse);
+
+
+                    
+                }
+            }
+            if(currentHP <= 0 )
+            {
+                ragdoll.SetActive(true);
+                mainNPCVisual.SetActive(false);
+                ragdoll.transform.SetParent(null);
+               
+
+                Rigidbody rb = ragollRig.GetComponent<Rigidbody>();
+                if (rb != null && !rb.isKinematic)
+                {
+                    // Calculate push direction away from bullet
+                    Vector3 pushDirection = transform.position - other.transform.position;
+                    pushDirection.y = 0; // Flatten to horizontal direction
+                    pushDirection.Normalize();
+
+                    // Add slight upward force
+                    Vector3 finalForce = pushDirection + Vector3.up * 0.2f;
+                    finalForce.Normalize();
+
+                   
+                    rb.AddForce(finalForce * pushForce, ForceMode.Impulse);
+
+
+                    Destroy(gameObject);
+                }
+            }
+   
+        }
         private void OnCollisionEnter(Collision other)
         {
-
-            if (other.collider.CompareTag("Bullet"))
-            {
-                currentHP = 0; 
-            }
-
+            
 
             if (!other.collider.CompareTag("NPCHitBox")) return;
             if (other.transform.CompareTag("NPCHitBox"))
