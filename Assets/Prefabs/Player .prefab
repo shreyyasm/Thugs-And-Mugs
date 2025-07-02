@@ -3627,7 +3627,7 @@ MonoBehaviour:
   taskPrefab: {fileID: 8085867031305221445, guid: 6df0c6a29919b144b8dba064ce6fc40e,
     type: 3}
   sideTaskParent: {fileID: 724670806619366972}
-  realSecondsPerGameMinute: 12
+  realSecondsPerGameMinute: 13
 --- !u!1 &3253070617109095239
 GameObject:
   m_ObjectHideFlags: 0
