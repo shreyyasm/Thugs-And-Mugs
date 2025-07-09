@@ -41,6 +41,8 @@ TagManager:
   - Katana
   - Bat
   - Knife
+  - FloorConcrete
+  - FloorWood
   layers:
   - Default
   - TransparentFX

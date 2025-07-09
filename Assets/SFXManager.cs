@@ -1,50 +1,63 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class SFXManager :  MonoBehaviour
+public class SFXManager : MonoBehaviour
 {
     public static SFXManager Instance;
+
     [System.Serializable]
     public class SFXEntry
     {
-        public string clipName; // e.g., "knife", "gun", "reload"
-        public AudioClip clip;
+        public string name; // e.g., "Walk", "Jump"
+        public List<AudioClip> clips = new(); // supports multiple variations
+    }
+
+    [System.Serializable]
+    public class SFXCategory
+    {
+        public string categoryName; // e.g., "Player", "Enemy"
+        public List<SFXEntry> sounds = new();
     }
 
     public AudioSource audioSource;
-    public List<SFXEntry> soundClips;
+    public List<SFXCategory> categories = new();
 
-    private Dictionary<string, AudioClip> clipDict;
+    private Dictionary<string, List<AudioClip>> clipDict;
 
-    void Awake()
+    private void Awake()
     {
         if (Instance != this)
-        {
-           Instance = this;
-        }
-        clipDict = new Dictionary<string, AudioClip>();
-        foreach (var entry in soundClips)
-        {
-            if (!clipDict.ContainsKey(entry.clipName))
-                clipDict.Add(entry.clipName, entry.clip);
-        }
+            Instance = this;
 
+        clipDict = new Dictionary<string, List<AudioClip>>();
+
+        foreach (var category in categories)
+        {
+            foreach (var entry in category.sounds)
+            {
+                string key = $"{category.categoryName}/{entry.name}";
+                if (!clipDict.ContainsKey(key))
+                    clipDict[key] = new List<AudioClip>();
+
+                clipDict[key].AddRange(entry.clips);
+            }
+        }
     }
 
     /// <summary>
-    /// Call this from anywhere: SFXManager.Instance.PlaySFX("knife");
+    /// Play sound by full name, e.g. "Player/Jump"
     /// </summary>
-    public void PlaySFX(string name, float volume = 1f)
+    public void PlaySFX(string fullName, float volume = 1f)
     {
-        if (clipDict == null)
+        if (clipDict == null || clipDict.Count == 0)
         {
             Debug.LogError("SFXManager: clipDict is not initialized.");
             return;
         }
 
-        if (!clipDict.TryGetValue(name, out AudioClip clip) || clip == null)
+        if (!clipDict.TryGetValue(fullName, out var clips) || clips.Count == 0)
         {
-            Debug.LogWarning($"SFXManager: No AudioClip found for key '{name}'.");
+            Debug.LogWarning($"SFXManager: No clips found for key '{fullName}'.");
             return;
         }
 
@@ -54,7 +67,8 @@ public class SFXManager :  MonoBehaviour
             return;
         }
 
-        audioSource.PlayOneShot(clip, Mathf.Clamp01(volume));
+        AudioClip clip = clips[Random.Range(0, clips.Count)];
+        if (clip != null)
+            audioSource.PlayOneShot(clip, Mathf.Clamp01(volume));
     }
-
 }

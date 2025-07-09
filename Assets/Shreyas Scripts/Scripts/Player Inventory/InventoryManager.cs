@@ -831,7 +831,7 @@ namespace Shreyas
 
         }
         [SerializeField] Animator animator;
-       
+        public bool holdingSomething;
         public void UpdateHands()
         {
             if (!inventoryEnabled) return;
@@ -849,8 +849,11 @@ namespace Shreyas
             if (inventory[currentIndex]?.data == null)
             {
                 SetAnimatorStates();
+                holdingSomething = false;
                 return;
             }
+            else
+                holdingSomething = true;
 
             string tag = inventory[currentIndex].data.itemTag;
             for (int i = 0; i < handModels.Length; i++)

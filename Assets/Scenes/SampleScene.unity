@@ -2083,12 +2083,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 034bc47afcbf5e141a58d5c20b7808e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &112143294 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 4048040878109771475, guid: ba43cbb2a778d104bbd4db28bdd4280d,
-    type: 3}
-  m_PrefabInstance: {fileID: 5851546726815043204}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &119887385
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3805,7 +3799,7 @@ Transform:
   m_GameObject: {fileID: 330585543}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1.48, z: -0.01}
+  m_LocalPosition: {x: 0, y: 1.5, z: -0.01}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -3877,7 +3871,7 @@ MonoBehaviour:
   m_BlendUpdateMethod: 1
   m_DefaultBlend:
     m_Style: 1
-    m_Time: 0.6
+    m_Time: 0.3
     m_CustomCurve:
       serializedVersion: 2
       m_Curve: []
@@ -4779,9 +4773,9 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.01
+  near clip plane: 0.1
   far clip plane: 1000
-  field of view: 60.000004
+  field of view: 65
   orthographic: 0
   orthographic size: 5
   m_Depth: -1
@@ -7855,7 +7849,7 @@ GameObject:
   - component: {fileID: 650935629}
   m_Layer: 13
   m_Name: Ground
-  m_TagString: Ground
+  m_TagString: FloorConcrete
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -9406,6 +9400,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 762201713}
   m_CullTransparentMesh: 1
+--- !u!114 &763195546 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5426615674763843808, guid: 34ab2fee377653b49a320558941980d9,
+    type: 3}
+  m_PrefabInstance: {fileID: 4267950507990824382}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45e653bab7fb20e499bda25e1b646fea, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &777235700
 MonoBehaviour:
   m_ObjectHideFlags: 2
@@ -11797,15 +11803,58 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   audioSource: {fileID: 924093656}
-  soundClips:
-  - clipName: GunFire
-    clip: {fileID: 8300000, guid: 8837ac98edb95604681a33a113fe1cf3, type: 3}
-  - clipName: GunReload
-    clip: {fileID: 8300000, guid: 4dd6b0d4d4eb4c44d8cad1f161d85866, type: 3}
-  - clipName: ShortgunFire
-    clip: {fileID: 8300000, guid: 0a648dc24acc37c44b82a51ccae64aae, type: 3}
-  - clipName: ShortgunReload
-    clip: {fileID: 8300000, guid: 88df98690696ac54c9d41cce483db6ff, type: 3}
+  categories:
+  - categoryName: Player
+    sounds:
+    - name: FootstepWood
+      clips:
+      - {fileID: 8300000, guid: 8e001351cd7065543a068386cde4c960, type: 3}
+      - {fileID: 8300000, guid: c41fb169b2991c247a5466e00faa6639, type: 3}
+      - {fileID: 8300000, guid: 76c66b3ae15685a45a334b0628d1edd1, type: 3}
+      - {fileID: 8300000, guid: cb9aa4db4b3a12147bf2fe3d88fee270, type: 3}
+      - {fileID: 8300000, guid: 2e832dbb2c7c9ba4e97fd3005fe850b7, type: 3}
+      - {fileID: 8300000, guid: 3af6e561e364a274aa306461461c386b, type: 3}
+      - {fileID: 8300000, guid: 30668cf6c5cbfef478b0812fc59eb646, type: 3}
+      - {fileID: 8300000, guid: eea9624d96ae191439615ca598fe01fa, type: 3}
+      - {fileID: 8300000, guid: a45bdfd5056ed1d4d8f667cc2498ca12, type: 3}
+      - {fileID: 8300000, guid: ec4bd5988d7de0c41ab2d9959705dd8b, type: 3}
+    - name: FootstepConcrete
+      clips:
+      - {fileID: 8300000, guid: b993df4a93c1d304ab19d8b2eb88c9a5, type: 3}
+      - {fileID: 8300000, guid: 5c9bdbce37b06a24fa6ea793bcfd1907, type: 3}
+      - {fileID: 8300000, guid: 0909de896e9029541b92ae05fe15e4b6, type: 3}
+      - {fileID: 8300000, guid: 6ad0cf00f050bee41a2dee098475dc78, type: 3}
+      - {fileID: 8300000, guid: 7ca5a9710db4327439c9f8cb8204615e, type: 3}
+      - {fileID: 8300000, guid: 14ae706fef2303e4cb71112dbd5d250b, type: 3}
+      - {fileID: 8300000, guid: b995bc1775ea83b4b8f861763e9a1424, type: 3}
+      - {fileID: 8300000, guid: d15f7338d693f0343843a6b9096d27f6, type: 3}
+    - name: JumpStartConcrete
+      clips:
+      - {fileID: 8300000, guid: f42760acdd77d6c459020ab0f9db4f30, type: 3}
+      - {fileID: 8300000, guid: db2281b9de1863f409d62f9edf69c6cf, type: 3}
+    - name: JumpEndConcrete
+      clips:
+      - {fileID: 8300000, guid: 304f2bf2228cba94e91cd22803e54bcf, type: 3}
+      - {fileID: 8300000, guid: c86476186f357d44eb470d68a2986520, type: 3}
+      - {fileID: 8300000, guid: f65b8caedf0c89b4c9f6ea1408f5e362, type: 3}
+    - name: JumpStartWood
+      clips:
+      - {fileID: 8300000, guid: 7d22997c3222c124d91d351ddc1c6ee4, type: 3}
+      - {fileID: 8300000, guid: fcbaf164018fc614a9729400cf40f9de, type: 3}
+    - name: JumpEndWood
+      clips:
+      - {fileID: 8300000, guid: 623ad07c146cedd4db6b902fd1612618, type: 3}
+      - {fileID: 8300000, guid: bb5ec83ccc5c69f43b31f100278bff91, type: 3}
+    - name: Crouch
+      clips:
+      - {fileID: 8300000, guid: 3925a471dbfcdf84f8056ac67bfb5511, type: 3}
+    - name: PunchThrow
+      clips:
+      - {fileID: 8300000, guid: 71a7ddf9b6ee84d47ac2d54e429e88ec, type: 3}
+      - {fileID: 8300000, guid: fe8edfcf5838d0849986b28b96d10da0, type: 3}
+      - {fileID: 8300000, guid: 62f555b34c226e04dbf517c52acf22ff, type: 3}
+      - {fileID: 8300000, guid: 41db2013e0de3fc48882394374a62727, type: 3}
+      - {fileID: 8300000, guid: ae5ef913d6903114bacb61951f158a43, type: 3}
 --- !u!82 &924093656
 AudioSource:
   m_ObjectHideFlags: 0
@@ -28890,6 +28939,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 034bc47afcbf5e141a58d5c20b7808e4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &2116285919
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2116285921}
+  - component: {fileID: 2116285920}
+  m_Layer: 0
+  m_Name: Player Post processing
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2116285920
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116285919}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 172515602e62fb746b5d573b38a5fe58, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IsGlobal: 1
+  priority: 0
+  blendDistance: 0
+  weight: 1
+  sharedProfile: {fileID: 11400000, guid: 6fb9fd65bd0ff3b42afb1e394f99aab2, type: 2}
+--- !u!4 &2116285921
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2116285919}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2116466393
 GameObject:
   m_ObjectHideFlags: 3
@@ -52107,6 +52205,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1013597213427919551, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: m_Lens.FieldOfView
+      value: 65
+      objectReference: {fileID: 0}
     - target: {fileID: 2155787827299583602, guid: 34ab2fee377653b49a320558941980d9,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -52126,6 +52229,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2249764929229233564, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0.9
       objectReference: {fileID: 0}
     - target: {fileID: 2283098664416285240, guid: 34ab2fee377653b49a320558941980d9,
         type: 3}
@@ -52207,6 +52315,11 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5930021720839041426, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: mouseSensitivity
+      value: 40
+      objectReference: {fileID: 0}
     - target: {fileID: 6450638315526510851, guid: 34ab2fee377653b49a320558941980d9,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -52246,6 +52359,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchoredPosition.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6718657162399267070, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6873897942905282633, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: mouseSensitivity
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 7344523085498459539, guid: 34ab2fee377653b49a320558941980d9,
         type: 3}
@@ -52255,7 +52378,7 @@ PrefabInstance:
     - target: {fileID: 7344523085498459539, guid: 34ab2fee377653b49a320558941980d9,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 7344523085498459539, guid: 34ab2fee377653b49a320558941980d9,
         type: 3}
@@ -52299,9 +52422,59 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
         type: 3}
-      propertyPath: WoodCutCamera
+      propertyPath: volume
       value: 
-      objectReference: {fileID: 112143294}
+      objectReference: {fileID: 2116285920}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: runSpeed
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: virtualCam
+      value: 
+      objectReference: {fileID: 763195546}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: runAmplitude
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: runFrequency
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: runStepInterval
+      value: 0.28
+      objectReference: {fileID: 0}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: RunVirtualCamera
+      value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: walkStepInterval
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: bobTransitionSpeed
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: crouchStepInterval
+      value: 0.45
+      objectReference: {fileID: 0}
+    - target: {fileID: 8187778691721458371, guid: 34ab2fee377653b49a320558941980d9,
+        type: 3}
+      propertyPath: PlayerPostProcessing
+      value: 
+      objectReference: {fileID: 2116285919}
     - target: {fileID: 8983335914978036436, guid: 34ab2fee377653b49a320558941980d9,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -52323,7 +52496,8 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedGameObjects:
+    - {fileID: 6718657162399267070, guid: 34ab2fee377653b49a320558941980d9, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 34ab2fee377653b49a320558941980d9, type: 3}
@@ -78192,6 +78366,7 @@ SceneRoots:
   m_Roots:
   - {fileID: 410087041}
   - {fileID: 832575519}
+  - {fileID: 2116285921}
   - {fileID: 90845416}
   - {fileID: 1331226424}
   - {fileID: 650935632}
