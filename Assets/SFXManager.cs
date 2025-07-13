@@ -47,7 +47,7 @@ public class SFXManager : MonoBehaviour
     /// <summary>
     /// Play sound by full name, e.g. "Player/Jump"
     /// </summary>
-    public void PlaySFX(string fullName, float volume = 1f)
+    public void PlaySFX(string fullName, float volume = 1f, float steroPlane = 0f)
     {
         if (clipDict == null || clipDict.Count == 0)
         {
@@ -66,7 +66,7 @@ public class SFXManager : MonoBehaviour
             Debug.LogError("SFXManager: AudioSource is not assigned.");
             return;
         }
-
+        audioSource.panStereo = steroPlane; 
         AudioClip clip = clips[Random.Range(0, clips.Count)];
         if (clip != null)
             audioSource.PlayOneShot(clip, Mathf.Clamp01(volume));

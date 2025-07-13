@@ -167,7 +167,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   weaponType: 0
   weaponDamage: 100
-  knockbackForce: 300
+  knockbackForce: 150
+  bloodVFX: {fileID: 0}
+  inventoryManager: {fileID: 0}
 --- !u!135 &7840137161237815924
 SphereCollider:
   m_ObjectHideFlags: 0

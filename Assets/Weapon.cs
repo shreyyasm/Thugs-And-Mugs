@@ -16,7 +16,8 @@ public class Weapon : MonoBehaviour
        sickle,
        katana,
        bat,
-       knife
+       knife,
+       bareHands
         // Add more types here
     }
 
@@ -31,40 +32,51 @@ public class Weapon : MonoBehaviour
     bool hit;
     private void Awake()
     {
-         if(weaponType != WeaponType.gun || weaponType != WeaponType.Shortgun)
-            inventoryManager = FindAnyObjectByType<InventoryManager>();
+        inventoryManager = FindAnyObjectByType<InventoryManager>();
     }
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Customer") && other.gameObject.GetComponent<AManager>())
+        if (other.gameObject.CompareTag("Customer"))
         {
             Vector3 hitPoint = other.ClosestPoint(transform.position);
-            if (!hit && inventoryManager.usingWeapon)
+            if (!hit && inventoryManager.usingWeaponDuration)
             {
                 switch (weaponType)
-                {                   
+                {
+                    case WeaponType.bareHands:
+                        HitTarget(other);
+                        SFXManager.Instance.PlaySFX("Inventory/BarehandHit", 0.7f);
+                        break;
+
                     case WeaponType.axe:
                         HitTarget(other);
+                        SFXManager.Instance.PlaySFX("Inventory/AxeHit", 0.7f);
                         break;
 
                     case WeaponType.knucles:
                         HitTarget(other);
+                        SFXManager.Instance.PlaySFX("Inventory/KnucleHit", 0.7f);
+                       
                         break;
 
                     case WeaponType.sickle:
                         HitTarget(other);
+                        SFXManager.Instance.PlaySFX("Inventory/SickleHit", 1f);
                         break;
 
                     case WeaponType.katana:
                         HitTarget(other);
+                        SFXManager.Instance.PlaySFX("Inventory/KatanaHit", 0.7f);
                         break;
 
                     case WeaponType.bat:
                         HitTarget(other);
+                        SFXManager.Instance.PlaySFX("Inventory/BatHit",1f);
                         break;
 
                     case WeaponType.knife:
                         HitTarget(other);
+                        SFXManager.Instance.PlaySFX("Inventory/KnifeHit", 0.7f);
                         break;
                 }
             }
@@ -89,28 +101,32 @@ public class Weapon : MonoBehaviour
 
 
     }
+
     public void HitTarget(Collider other)
     {
         float pushForce = 3f;
         float upwardForce = 1f;
+
         // Apply knockback to the object we hit (must have Rigidbody)
         Rigidbody hitRb = other.attachedRigidbody;
         if (hitRb != null && !hitRb.isKinematic)
         {
-            Vector3 direction = (other.transform.position - transform.position).normalized;
-            direction.y += upwardForce; // Add slight upward arc
-            direction.Normalize();
+            // Knockback direction is directly away from the player
+            Vector3 knockbackDir = inventoryManager.transform.forward;
+            knockbackDir.y += upwardForce; // Add upward arc
+            knockbackDir.Normalize();
 
-            hitRb.AddForce(direction * pushForce, ForceMode.Impulse);
+            //hitRb.AddForce(knockbackDir * pushForce, ForceMode.Impulse);
         }
 
-        other.gameObject.GetComponent<AManager>().DealDamage(weaponDamage, gameObject, knockbackForce);
-        //Instantiate(bloodVFX, hitPoint, Quaternion.identity);
+        other.gameObject.GetComponent<AManager>()?.DealDamage(weaponDamage, gameObject, knockbackForce, transform);
+        if (other.transform.root.GetComponent<Ragdoll>())
+            other.transform.root.GetComponent<Ragdoll>().DealDamage();
+
+
         hit = true;
+        inventoryManager.usingWeaponDuration = false;
         LeanTween.delayedCall(0.5f, () => { hit = false; });
-
-        
-
-        
     }
+
 }

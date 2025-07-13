@@ -9,6 +9,7 @@ using System;
 using Dhiraj;
 using EPOOutline;
 using TreeEditor;
+using DG.Tweening;
 
 namespace Shreyas
 {
@@ -31,6 +32,7 @@ namespace Shreyas
 
         private InventoryItem[] inventory = new InventoryItem[8];
         public int currentIndex = 0;
+        public int totalItemInInventory = 0;
 
         public TextMeshProUGUI InteractSign;
         public FirstPersonMovementInputSystem firstPersonMovementInput;
@@ -72,12 +74,23 @@ namespace Shreyas
         }
         private void Start()
         {
-            perlin = virtualCam.GetCinemachineComponent<Cinemachine.CinemachineBasicMultiChannelPerlin>();
+            if (cameraSwayTransform != null)
+            {
+                defaultSwayPosition = cameraSwayTransform.localPosition;
+                swayTargetPosition = defaultSwayPosition;
+
+            }
             UpdateUI();
             UpdateHands();
         }
+
+
+
         RaycastHit hitGrab;
         public bool gunInHand;
+
+        public float weaponUseInterval;
+        public bool weaponUsing;
 
         void Update()
         {
@@ -120,6 +133,37 @@ namespace Shreyas
                     StartCoroutine(Reload(0.4f));
                 }
             }
+            if(weaponUseInterval > 0)
+            {
+                weaponUseInterval -= Time.deltaTime;
+                weaponUsing = true;
+
+            }
+            else
+            {
+                weaponUsing = false;
+            }
+            if (cameraSwayTransform == null) return;
+
+            // Smoothly move toward the target sway position
+            cameraSwayTransform.localPosition = Vector3.SmoothDamp(
+                cameraSwayTransform.localPosition,
+                swayTargetPosition,
+                ref swayVelocity,
+                swaySmoothTime
+            );
+
+           
+            float distanceSq = (cameraSwayTransform.localPosition - swayTargetPosition).sqrMagnitude;
+
+            // Allow return when we're reasonably close (threshold scaled to sway amount)
+            float returnThreshold = swayAmount * swayAmount * 0.5f; // e.g. 0.2 * 0.2 * 0.5 = 0.02
+
+            if (distanceSq < returnThreshold && swayTargetPosition != defaultSwayPosition)
+            {
+                swayTargetPosition = defaultSwayPosition;
+            }
+
 
         }
         [SerializeField] private LayerMask interactLayerMask;
@@ -128,6 +172,10 @@ namespace Shreyas
 
         private bool isSignVisible = false;
         private GameObject lastOutlinedObject = null;
+        public GameObject VirtualCamera;
+        public Animator ErrorAnim;
+        public GameObject ErrorText;
+
         private void HandleInteractionRaycast()
         {
             if (!inventoryEnabled)
@@ -187,20 +235,35 @@ namespace Shreyas
 
                     if (inputInteract)
                     {
-                        GameObject currentHand = handModels[currentIndex];
-                        if (currentHand != null)
-                            currentHand.SetActive(false);
+                        if(totalItemInInventory < 8)
+                        {
+                            GameObject currentHand = handModels[currentIndex];
+                            if (currentHand != null)
+                                currentHand.SetActive(false);
 
-                        DisableBarrels();
+                            DisableBarrels();
 
-                        animator.SetBool("Interact", true);
-                        SetAnimatorStates();
+                            animator.SetBool("Interact", true);
+                            SetAnimatorStates();
 
-                        pickup.transform.SetParent(null);
-                        pickup.transform.position = new Vector3(0, -0.3f, 1.5f);
-                        PickupItem(pickup.itemData, pickup.gameObject);
+                            pickup.transform.SetParent(null);
+                            pickup.transform.position = new Vector3(0, -0.3f, 1.5f);
+                            PickupItem(pickup.itemData, pickup.gameObject);
 
-                        LeanTween.delayedCall(0.05f, UpdateHands);
+                            LeanTween.delayedCall(0.4f, () => { UpdateHands(); });
+                        }
+                        else
+                        {
+                            //error
+                            VirtualCamera.GetComponent<SimpleCameraLookInputSystem>().TriggerHeadNod();
+                            ErrorText.SetActive(true);
+                            ErrorText.GetComponent<TextMeshProUGUI>().text = "Inventory Full";
+                            SFXManager.Instance.PlaySFX("Player/Can'tDo", 1);
+
+                            LeanTween.delayedCall(1f, () => { ErrorAnim.SetTrigger("Fade"); });
+                            LeanTween.delayedCall(1.5f, () => { ErrorText.SetActive(false); ErrorAnim.ResetTrigger("Fade"); });
+                        }
+                       
                     }
                    
 
@@ -257,7 +320,9 @@ namespace Shreyas
         private bool axeAnimToggle = false;
         public GameObject puffparticle;
         private int katanaAnimIndex = -1; // Start at -1 so first becomes 0
-        public bool usingWeapon;
+        public bool usingWeaponDuration;
+
+        public ParticleSystem shine;
         public void InteractByInventoryItems()
         {
           
@@ -282,20 +347,47 @@ namespace Shreyas
                         case "Axe":
                             if (animator.GetBool("CanUseAxe"))
                             {
-                                // Alternate between 0 and 1 for the sub animation
-                                int index = axeAnimToggle ? 1 : 0;
-                                animator.SetInteger("AxeAnimIndex", index);
+                                if (!weaponUsing)
+                                {
+                                    // Alternate between 0 and 1 for the sub animation
+                                    int index = axeAnimToggle ? 1 : 0;
+                                    animator.SetInteger("AxeAnimIndex", index);
 
-                                // Trigger a shared "IsUsing" animation
-                                animator.SetTrigger("IsUsing");
+                                    // Trigger a shared "IsUsing" animation
+                                    animator.SetTrigger("IsUsing");
 
-                                // Flip toggle
-                                axeAnimToggle = !axeAnimToggle;
+                                    // Flip toggle
+                                    axeAnimToggle = !axeAnimToggle;
+
+                                    TrailRenderer trail = handModels[0].GetComponentInChildren<TrailRenderer>();
+                                    if (index == 0)
+                                    {
+                                        LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, 0.6f); });
+                                        LeanTween.delayedCall(0.12f, () => { if (trail != null) trail.enabled = true; usingWeaponDuration = true; });
+                                        LeanTween.delayedCall(0.1f, () => { TriggerMeleeSway(false); });
+
+                                    }
+
+                                    else if (index == 1)
+                                    {
+                                        LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, -0.6f); });
+                                        LeanTween.delayedCall(0.12f, () => { if (trail != null) trail.enabled = true; usingWeaponDuration = true; });
+                                        LeanTween.delayedCall(0.1f, () => { TriggerMeleeSway(true ); }); 
+
+                                    }
+
+                                    weaponUseInterval += 0.8f;
+                                   
+
+                                    LeanTween.delayedCall(0.3f, () => { if (trail != null) trail.enabled = false; });
+
+                                    LeanTween.delayedCall(0.5f, () => { usingWeaponDuration = false; });
+
+                                    SetAnimatorStates("CanUseAxe");
+                                }
+                                    
                             }
-                            usingWeapon = true;
-                            LeanTween.delayedCall(0.5f, () =>{ usingWeapon = false; });
-
-                            SetAnimatorStates("CanUseAxe");
+                           
                             break;
 
                         case "Lighter":
@@ -304,59 +396,169 @@ namespace Shreyas
 
                         case "Hammer":
                             if (animator.GetBool("CanUseHammer"))
-                                animator.SetTrigger("IsUsing");
-                            SetAnimatorStates("CanUseHammer");
+                            {
+                                if (!weaponUsing)
+                                {
+                                    animator.SetTrigger("IsUsing");
+
+                                    TrailRenderer trail = handModels[14].GetComponentInChildren<TrailRenderer>();
+                                   
+                                    LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, 0.6f); });
+                                    LeanTween.delayedCall(0.14f, () => { if (trail != null) trail.enabled = true; });
+
+
+                                    weaponUseInterval += 0.7f;
+                                    usingWeaponDuration = true;
+
+                                    LeanTween.delayedCall(0.3f, () => { if (trail != null) trail.enabled = false; });
+
+                                    LeanTween.delayedCall(0.5f, () => { usingWeaponDuration = false; });
+
+
+                                    SetAnimatorStates("CanUseHammer");
+                                }
+                            }
+                                
+                                   
                             break;
 
                         case "Katana":
                             if (animator.GetBool("CanUseKatana"))
                             {
-                                // Cycle through 0 → 1 → 2 → 0 ...
-                                katanaAnimIndex = (katanaAnimIndex + 1) % 3;
-                                animator.SetInteger("KatanaAnimIndex", katanaAnimIndex);
+                              
+                                if(!weaponUsing)
+                                {
+                                    // Cycle through 0 → 1 → 2 → 0 ...
+                                    katanaAnimIndex = (katanaAnimIndex + 1) % 3;
+                                    animator.SetInteger("KatanaAnimIndex", katanaAnimIndex);
 
-                                // Trigger the animation
-                                animator.SetTrigger("IsUsing");
+                                    // Trigger the animation
+                                    animator.SetTrigger("IsUsing");
+                                   
+                                    TrailRenderer trail = handModels[20].GetComponentInChildren<TrailRenderer>();
+                                    if (katanaAnimIndex == 0)
+                                    {
+                                        LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, 0.6f);});
+                                        LeanTween.delayedCall(0.1f, () => { if(trail != null) trail.enabled = true; usingWeaponDuration = true; });
+                                        LeanTween.delayedCall(0.16f, () => { TriggerMeleeSway(false); });
+                                    }
+
+                                    else if (katanaAnimIndex == 1)
+                                    {
+                                        LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, -0.6f); });
+                                        LeanTween.delayedCall(0.1f, () => { if (trail != null) trail.enabled = true; usingWeaponDuration = true;});
+                                        LeanTween.delayedCall(0.14f, () => { TriggerMeleeSway(true); });
+                                    }
+
+
+                                    else if (katanaAnimIndex == 2)
+                                    {
+                                        LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, 0f); usingWeaponDuration = true; TriggerMeleeSway(false,true); });
+                                    }
+
+                                    weaponUseInterval += 1f;
+                                   
+
+                                    LeanTween.delayedCall(0.35f, () => { if (trail != null) trail.enabled = false; });
+
+                                    LeanTween.delayedCall(0.5f, () => { usingWeaponDuration = false; });
+                                    SetAnimatorStates("CanUseKatana");
+                                }
+                               
+                              
                             }
-                            usingWeapon = true;
-                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
-                            SetAnimatorStates("CanUseKatana");
+                            
                             break;
 
                         case "Knucles":
                             if (animator.GetBool("CanUseKnucles"))
                             {
-                                // Alternate between 0 and 1 for the sub animation
-                                int index = axeAnimToggle ? 1 : 0;
-                                animator.SetInteger("KnuclesAnimIndex", index);
+                                if (!weaponUsing)
+                                {
+                                    // Alternate between 0 and 1 for the sub animation
+                                    int index = axeAnimToggle ? 1 : 0;
+                                    animator.SetInteger("KnuclesAnimIndex", index);
 
-                                // Trigger a shared "IsUsing" animation
-                                animator.SetTrigger("IsUsing");
+                                    // Trigger a shared "IsUsing" animation
+                                    animator.SetTrigger("IsUsing");
 
-                                // Flip toggle
-                                axeAnimToggle = !axeAnimToggle;
+                                    // Flip toggle
+                                    axeAnimToggle = !axeAnimToggle;
+                                    TrailRenderer trail = null;
+
+                                  
+                                    if (index == 0)
+                                    {
+                                        trail = handModels[22].GetComponentInChildren<TrailRenderer>();
+                                       SFXManager.Instance.PlaySFX($"Player/PunchThrow", 0.6f, -0.5f);
+                                        LeanTween.delayedCall(0.1f, () => { TriggerMeleeSway(false); });
+                                        if (trail != null) trail.enabled = true; usingWeaponDuration = true;
+
+                                    }
+
+                                    else if (index == 1)
+                                    {
+                                        trail = handModels[15].GetComponentInChildren<TrailRenderer>();
+                                       SFXManager.Instance.PlaySFX($"Player/PunchThrow", 0.6f, 0.5f);
+                                        LeanTween.delayedCall(0.1f, () => { TriggerMeleeSway(true); });
+                                        if (trail != null) trail.enabled = true; usingWeaponDuration = true;
+
+                                    }
+
+                                    weaponUseInterval += 0.8f;
+                                   
+
+                                    LeanTween.delayedCall(0.2f, () => { if (trail != null) trail.enabled = false; });
+
+                                    LeanTween.delayedCall(0.03f, () => { usingWeaponDuration = false; });
+                                    SetAnimatorStates("CanUseKnucles");
+                                   
+                                }
+                                    
                             }
-                            usingWeapon = true;
-                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
-                            SetAnimatorStates("CanUseKnucles");
                             break;
 
                         case "Sickle":
                             if (animator.GetBool("CanUseSickle"))
                             {
-                                // Alternate between 0 and 1 for the sub animation
-                                int index = axeAnimToggle ? 1 : 0;
-                                animator.SetInteger("SickleAnimIndex", index);
+                                if (!weaponUsing)
+                                {
+                                    // Alternate between 0 and 1 for the sub animation
+                                    int index = axeAnimToggle ? 1 : 0;
+                                    animator.SetInteger("SickleAnimIndex", index);
 
-                                // Trigger a shared "IsUsing" animation
-                                animator.SetTrigger("IsUsing");
+                                    // Trigger a shared "IsUsing" animation
+                                    animator.SetTrigger("IsUsing");
 
-                                // Flip toggle
-                                axeAnimToggle = !axeAnimToggle;
+                                    // Flip toggle
+                                    axeAnimToggle = !axeAnimToggle;
+
+                                    TrailRenderer trail = handModels[21].GetComponentInChildren<TrailRenderer>();
+                                    if (index == 0)
+                                    {
+                                        LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, 0.6f); });
+                                        LeanTween.delayedCall(0.1f, () => { if (trail != null) trail.enabled = true; });
+                                        LeanTween.delayedCall(0.16f, () => { TriggerMeleeSway(true); });
+                                    }
+
+                                    else if (index == 1)
+                                    {
+                                        LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, -0.6f); });
+                                        LeanTween.delayedCall(0.1f, () => { if (trail != null) trail.enabled = true; });
+                                        LeanTween.delayedCall(0.16f, () => { TriggerMeleeSway(true); });
+                                    }
+
+                                    weaponUseInterval += 0.8f;
+                                    usingWeaponDuration = true;
+
+                                    LeanTween.delayedCall(0.4f, () => { if (trail != null) trail.enabled = false; });
+
+                                    LeanTween.delayedCall(0.5f, () => { usingWeaponDuration = false; });
+                                    SetAnimatorStates("CanUseSickle");
+                                }
+                                    
                             }
-                            usingWeapon = true;
-                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
-                            SetAnimatorStates("CanUseSickle");
+                           
                             break;
 
                         case "Gun":
@@ -389,28 +591,76 @@ namespace Shreyas
 
                         case "Bat":
                             if (animator.GetBool("CanUseBat"))
-                                animator.SetTrigger("IsUsing");
-                            SetAnimatorStates("CanUseBat");
-                            usingWeapon = true;
-                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
+                            {
+                                if (!weaponUsing)
+                                {
+                                    animator.SetTrigger("IsUsing");
+                                    SetAnimatorStates("CanUseBat");
+
+
+                                    TrailRenderer trail = handModels[24].GetComponentInChildren<TrailRenderer>();
+
+                                    LeanTween.delayedCall(0.16f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, 0.6f); });
+                                    LeanTween.delayedCall(0.2f, () => { if (trail != null) trail.enabled = true; usingWeaponDuration = true;
+                                    });
+                                    LeanTween.delayedCall(0.15f, () => { TriggerMeleeSway(true); });
+                                    weaponUseInterval += 0.9f;
+                                   
+                                    LeanTween.delayedCall(0.38f, () => { if (trail != null) trail.enabled = false; });
+
+                                    LeanTween.delayedCall(0.5f, () => { usingWeaponDuration = false; });
+                                }
+
+                            }
+
+                             
                             break;
 
                         case "Knife":
                             if (animator.GetBool("CanUseKnife"))
                             {
-                                // Alternate between 0 and 1 for the sub animation
-                                int index = axeAnimToggle ? 1 : 0;
-                                animator.SetInteger("KnifeAnimIndex", index);
+                                if (!weaponUsing)
+                                {
+                                    // Alternate between 0 and 1 for the sub animation
+                                    int index = axeAnimToggle ? 1 : 0;
+                                    animator.SetInteger("KnifeAnimIndex", index);
 
-                                // Trigger a shared "IsUsing" animation
-                                animator.SetTrigger("IsUsing");
+                                    // Trigger a shared "IsUsing" animation
+                                    animator.SetTrigger("IsUsing");
 
-                                // Flip toggle
-                                axeAnimToggle = !axeAnimToggle;
+                                    // Flip toggle
+                                    axeAnimToggle = !axeAnimToggle;
+
+                                    TrailRenderer trail = handModels[25].GetComponentInChildren<TrailRenderer>();
+                                    if (index == 0)
+                                    {
+                                        LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, 0.6f); });
+                                        LeanTween.delayedCall(0.1f, () => { TriggerMeleeSway(true); });
+                                        LeanTween.delayedCall(0.1f, () => { if (trail != null) trail.enabled = true; usingWeaponDuration = true; });
+
+                                    }
+
+                                    else if (index == 1)
+                                    {
+                                        LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, -0.6f); });
+                                        LeanTween.delayedCall(0.1f, () => { TriggerMeleeSway(false); });
+                                        if (trail != null) 
+                                            trail.enabled = true; 
+                                        usingWeaponDuration = true;
+
+                                    }
+
+                                    weaponUseInterval += 0.7f;
+                                    
+
+                                    LeanTween.delayedCall(0.28f, () => { if (trail != null) trail.enabled = false; });
+
+                                    LeanTween.delayedCall(0.5f, () => { usingWeaponDuration = false; });
+                                    SetAnimatorStates("CanUseKnife");
+                                }
+                                    
                             }
-                            usingWeapon = true;
-                            LeanTween.delayedCall(0.5f, () => { usingWeapon = false; });
-                            SetAnimatorStates("CanUseKnife");
+                          
                             break;
 
 
@@ -519,6 +769,39 @@ namespace Shreyas
             }
 
         }
+
+        [SerializeField] private Transform cameraSwayTransform;
+        [SerializeField] private float swayAmount = 0.1f;
+        [SerializeField] private float swayY = 1f;
+        [SerializeField] private float swaySmoothTime = 0.1f;
+
+        private Vector3 defaultSwayPosition;
+        private Vector3 swayTargetPosition;
+        private Vector3 swayVelocity;
+
+        public void TriggerMeleeSway(bool isLeftStrike, bool middle = false)
+        {
+            if (cameraSwayTransform == null) return;
+
+            float direction = isLeftStrike ? -1f : 1f;
+            if(!middle)
+            {
+                swayTargetPosition = defaultSwayPosition + new Vector3(
+              direction * swayAmount,
+              swayAmount * swayY, // vertical sway
+              0f);
+            }
+            else
+            {
+                swayTargetPosition = defaultSwayPosition + new Vector3(
+            0,
+            swayAmount * swayY, // vertical sway
+            0f);
+            }
+          
+        }
+
+
         private void SetAnimatorStates(string activeState = null)
         {
             string[] allStates = new string[]
@@ -544,7 +827,7 @@ namespace Shreyas
                 animator.SetBool(state, shouldBeActive);
             }
             //animator.ResetTrigger("IsUsing");
-            
+           
         }
 
 
@@ -582,11 +865,16 @@ namespace Shreyas
             if (obj == null) return;
 
             Outlinable outline = obj.transform.root.gameObject.GetComponent<Outlinable>();
+            Outlinable outlineIn = obj.GetComponent<Outlinable>();
             if (outline != null)
             {
                 outline.enabled = false;
             }
-
+            if (outlineIn != null)
+            {
+               
+                outlineIn.enabled = false;
+            }
         }
 
 
@@ -642,6 +930,9 @@ namespace Shreyas
 
             inventory[index] = new InventoryItem { data = itemData, itemObject = storedItem };
             //Destroy(itemInWorld);
+            totalItemInInventory++;
+            SFXManager.Instance.PlaySFX("Player/Pickup", 0.2f);
+           
             UpdateUI();
 
         }
@@ -738,6 +1029,8 @@ namespace Shreyas
 
             // Clear the slot
             inventory[currentIndex] = null;
+            if(totalItemInInventory > 0) 
+                totalItemInInventory--;
             UpdateUI();
             UpdateHands();
             UpdateHighlight();
@@ -827,11 +1120,13 @@ namespace Shreyas
             if (currentIndex != previousIndex)
             {
                 UpdateHands();  // Only call when index actually changes
+                SFXManager.Instance.PlaySFX("Inventory/InventorySelect", 0.1f);
             }
 
         }
         [SerializeField] Animator animator;
         public bool holdingSomething;
+        public TextMeshProUGUI selectedItemName;
         public void UpdateHands()
         {
             if (!inventoryEnabled) return;
@@ -842,7 +1137,7 @@ namespace Shreyas
                 if (handModels[i] != null)
                     handModels[i].SetActive(false);
                 gunInHand = false;
-                AmmoInfoText.enabled = false;
+              
             }
 
             // If there's no item in the selected slot, skip everything else
@@ -850,12 +1145,14 @@ namespace Shreyas
             {
                 SetAnimatorStates();
                 holdingSomething = false;
+                selectedItemName.text =  null;
                 return;
             }
             else
                 holdingSomething = true;
 
             string tag = inventory[currentIndex].data.itemTag;
+            selectedItemName.text = inventory[currentIndex].data.itemName;
             for (int i = 0; i < handModels.Length; i++)
             {
                
@@ -894,6 +1191,8 @@ namespace Shreyas
 
                             case ("Lighter"):        
                                 SetAnimatorStates("CanUseLighter");
+                                LeanTween.delayedCall(0.05f, () => { SFXManager.Instance.PlaySFX("Inventory/LighterOpen", 0.6f,0.45f); });
+                             
                                
                                 break;
 
@@ -973,6 +1272,10 @@ namespace Shreyas
 
                             case "Katana":                               
                                 SetAnimatorStates("CanUseKatana");
+                                LeanTween.delayedCall(0.05f, () => { SFXManager.Instance.PlaySFX("Inventory/KatanaOut", 0.2f); });
+                                LeanTween.delayedCall(0.1f, () => { shine.Play(); });
+
+
                                 break;
 
                             case "Knucles":                               
@@ -992,8 +1295,7 @@ namespace Shreyas
                                 maxAmmo = inventory[currentIndex].data.TotalBullets;
                                 currentAmmo = inventory[currentIndex].data.CurrentBullets;
                                 FirePoint = firePointGun;
-                                AmmoInfoText.enabled = true;
-
+                                LeanTween.delayedCall(0.05f, () => { SFXManager.Instance.PlaySFX("Firearm/GunOut", 0.35f); });
                                 originalCamPosition = playerCamera.transform.localPosition;
                                 UpdateAmmoUI();
                                 if (currentAmmo <= 0 && !isReloading)
@@ -1010,7 +1312,6 @@ namespace Shreyas
                                 maxAmmo = inventory[currentIndex].data.TotalBullets;
                                 currentAmmo = inventory[currentIndex].data.CurrentBullets;
                                 FirePoint = firePointShortGun;
-                                AmmoInfoText.enabled = true;
 
                                 originalCamPosition = playerCamera.transform.localPosition;
                                 UpdateAmmoUI();
@@ -1052,12 +1353,13 @@ namespace Shreyas
                     uiSlots[i].ClearSlot();
             }
         }
-
+       
         private void UpdateHighlight()
         {
             for (int i = 0; i < uiSlots.Count; i++)
             {
                 uiSlots[i].highlight.SetActive(i == currentIndex);
+                
             }
         }
         private bool pickedItem = false;
@@ -1103,6 +1405,8 @@ namespace Shreyas
             }
             pickedItem = true;
             justPickedUp = true; // Mark that we JUST picked up something
+
+
         }
 
         public void DropObject()
@@ -1121,6 +1425,7 @@ namespace Shreyas
             heldRB = null;
             pickedItem = false;
         }
+        [SerializeField] private LayerMask wallLayerMask;
 
         void MoveHeldObject()
         {
@@ -1142,37 +1447,39 @@ namespace Shreyas
                 pitch -= 360f;
 
             // Invert the pitch logic for height adjustment (when you look up, it goes up, when you look down, it goes down)
-            float heightAdjustment = Mathf.Clamp(-pitch / 10f, 0f, 8f);  // Inverted, so looking up increases the height
-
-            // Apply the height adjustment based on camera's pitch
+            float heightAdjustment = Mathf.Clamp(-pitch / 10f, 0f, 8f);
             targetPos.y += heightAdjustment;
 
+            // Compute movement direction
+            Vector3 moveDirection = targetPos - heldObject.transform.position;
+            float moveDistance = moveDirection.magnitude;
+
+            // Check if the move path would collide with a wall
+            if (Physics.Raycast(heldObject.transform.position, moveDirection.normalized, out RaycastHit hitInfo, moveDistance, wallLayerMask))
+            {
+                // Call your custom method here
+                DropObject();
+                InventoryManager.instance.SetInventoryEnabled(true);  // to re-enable
+                animator.SetBool("InterectHold", false);
+                return; // Stop movement if wall hit
+            }
+
             // Move the object smoothly toward the target position
-            Vector3 direction = (targetPos - heldObject.transform.position);
-            heldRB.MovePosition(heldObject.transform.position + direction * pickupMoveSpeed * Time.deltaTime); // Use MovePosition for smooth movement
+            heldRB.MovePosition(heldObject.transform.position + moveDirection * pickupMoveSpeed * Time.deltaTime);
 
             // Rotate object to always face the camera
             Vector3 lookDirection = flatForward;
             if (lookDirection != Vector3.zero)
             {
-                if(heldObject.CompareTag("Customer"))
-                {
-                    heldObject.transform.rotation = Quaternion.Slerp(
+                Quaternion targetRot = Quaternion.LookRotation(heldObject.CompareTag("Customer") ? -lookDirection : lookDirection);
+                heldObject.transform.rotation = Quaternion.Slerp(
                     heldObject.transform.rotation,
-                    Quaternion.LookRotation(-lookDirection),
-                    Time.deltaTime * 10f);
-                }
-                else
-                {
-                    heldObject.transform.rotation = Quaternion.Slerp(
-                   heldObject.transform.rotation,
-                   Quaternion.LookRotation(lookDirection),
-                   Time.deltaTime * 10f);
-                }
-              
+                    targetRot,
+                    Time.deltaTime * 10f
+                );
             }
-
         }
+
 
         public void SetInventoryEnabled(bool enabled)
         {
@@ -1582,8 +1889,7 @@ namespace Shreyas
         public float bulletSpeed = 50f;
         public int maxAmmo = 6;
         public float reloadTime = 2f;
-        public TextMeshProUGUI ammoText;
-
+        
         [Header("Shotgun Settings")]
         public int pellets = 8;
         public float spreadAngle = 7f;
@@ -1596,7 +1902,6 @@ namespace Shreyas
         private bool isReloading = false;
         private Vector3 originalCamPosition;
 
-        public TextMeshProUGUI AmmoInfoText;
         private float nextTimeToFire = 0f;
 
 
@@ -1607,7 +1912,6 @@ namespace Shreyas
             currentAmmo--;
             inventory[currentIndex].data.CurrentBullets = currentAmmo;
            
-
             UpdateAmmoUI();
 
             Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0)); // center of screen
@@ -1629,13 +1933,15 @@ namespace Shreyas
                 direction.Normalize();
                 FireBullet(direction);
                 Instantiate(muzzleFlash, FirePoint.position, Quaternion.LookRotation(direction));
-                SFXManager.Instance.PlaySFX("GunFire",0.5f);
-               
-               
+                SFXManager.Instance.PlaySFX("Firearm/GunFire", 0.5f);
+
+
+
+
             }
             else if (currentGun == GunType.Shotgun)
             {
-                 SFXManager.Instance.PlaySFX("ShortgunFire", 0.5f);
+                 SFXManager.Instance.PlaySFX("Firearm/ShortgunFire", 0.5f);
                
                 
                 Instantiate(muzzleFlash, FirePoint.position, Quaternion.LookRotation(direction));
@@ -1648,7 +1954,9 @@ namespace Shreyas
                 }
             }
 
-            ApplyRecoil();
+            //ApplyRecoil();
+            firstPersonMovementInput.TriggerGunBob(1.6f, 1f, 0.2f); // Example values
+
             if (currentAmmo <= 0 && !isReloading)
             {
                 StartCoroutine(Reload(0.9f));
@@ -1669,36 +1977,8 @@ namespace Shreyas
         }
 
 
-        void ApplyRecoil()
-        {
-            StopAllCoroutines();
-            LeanTween.delayedCall(0.1f, () =>
-            {
-                StartCoroutine(RecoilCoroutine());
-            });
-          
-        }
-        public Cinemachine.CinemachineVirtualCamera virtualCam;
-        private Cinemachine.CinemachineBasicMultiChannelPerlin perlin;
-
-       
-        IEnumerator RecoilCoroutine()
-        {
-            float timer = 0f;
-            float duration = 0.2f;
-            float intensity = 1.7f;
-
-            perlin.m_AmplitudeGain = intensity;
-
-            while (timer < duration)
-            {
-                timer += Time.deltaTime;
-                yield return null;
-            }
-
-            perlin.m_AmplitudeGain = 0f;
-        }
-
+      
+     
         IEnumerator Reload(float time)
         {
             animator.SetTrigger("GunReload");
@@ -1708,17 +1988,20 @@ namespace Shreyas
             if (inventory[currentIndex] != null && inventory[currentIndex].data.isGun)
             {
                 if (inventory[currentIndex].data.name == "Gun")
-                    SFXManager.Instance.PlaySFX("GunReload", 0.5f);
+                    SFXManager.Instance.PlaySFX("Firearm/GunReload", 0.4f);
 
                 if (inventory[currentIndex].data.name == "Shortgun")
-                    SFXManager.Instance.PlaySFX("ShortgunReload", 0.5f);
+                    SFXManager.Instance.PlaySFX("Firearm/ShortgunReload", 0.4f);
             }
                
 
             yield return new WaitForSeconds(reloadTime - 1);
             if(inventory[currentIndex] != null && inventory[currentIndex].data.isGun)
             {
+                
+                inventory[currentIndex].data.TotalBullets -= inventory[currentIndex].data.magSize - currentAmmo;
                 currentAmmo = inventory[currentIndex].data.magSize;
+                maxAmmo = inventory[currentIndex].data.TotalBullets;
                 inventory[currentIndex].data.CurrentBullets = inventory[currentIndex].data.magSize;
             }
                
@@ -1728,9 +2011,9 @@ namespace Shreyas
 
         void UpdateAmmoUI()
         {
-            if (ammoText)
+            if (selectedItemName)
             {
-                ammoText.text = $"{currentAmmo}/{maxAmmo}";
+                selectedItemName.text = $"{inventory[currentIndex].data.itemName} {currentAmmo}/{maxAmmo}";
             }
         }
 

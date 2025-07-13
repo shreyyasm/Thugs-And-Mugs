@@ -44,7 +44,8 @@ namespace Dhiraj
         public GameObject mug;
         public Image fillImage;
         public CanvasGroup sliderGroup;
-        public ParticleSystem bloodParticalSystem;
+        //public ParticleSystem bloodParticalSystem;
+        public GameObject bloodPrefab;
         public ParticleSystem stunnParticalSystem;
         public Transform impactPosition;
         public Rigidbody rb;
@@ -309,7 +310,7 @@ namespace Dhiraj
         public GameObject ragdoll;
         public GameObject ragollRig;
         public GameObject mainNPCVisual;
-        public void DealDamage(int damage, GameObject other = null, float pushForce = 100f)
+        public void DealDamage(int damage, GameObject other = null, float pushForce = 100f, Transform pos = null)
         {
             anim.SetTrigger("Hit");  
             currentHP -= damage;
@@ -327,8 +328,8 @@ namespace Dhiraj
                     Vector3 finalForce = pushDirection + Vector3.up * 0.2f;
                     finalForce.Normalize();
 
-
-                    rb.AddForce(finalForce * pushForce, ForceMode.Impulse);
+                    Instantiate(bloodPrefab,transform.position + new Vector3(0, 1.2f,0), Quaternion.identity);
+                    //rb.AddForce(finalForce * pushForce, ForceMode.Impulse);
 
 
                     
@@ -339,8 +340,8 @@ namespace Dhiraj
                 ragdoll.SetActive(true);
                 mainNPCVisual.SetActive(false);
                 ragdoll.transform.SetParent(null);
-               
 
+                
                 Rigidbody rb = ragollRig.GetComponent<Rigidbody>();
                 if (rb != null && !rb.isKinematic)
                 {
@@ -356,7 +357,7 @@ namespace Dhiraj
                    
                     rb.AddForce(finalForce * pushForce, ForceMode.Impulse);
 
-
+                    Instantiate(bloodPrefab, transform.position + new Vector3(0, 1.2f, 0), Quaternion.identity);
                     Destroy(gameObject);
                 }
             }
@@ -371,7 +372,7 @@ namespace Dhiraj
             {
                 Debug.Log($"{this.name} : Collision with NPCHitBox: {other.transform.name}");
                 AManager otherManager = other.transform.GetComponentInParent<AManager>();
-                bloodParticalSystem.Play();
+                //bloodParticalSystem.Play();
 
                 if (otherManager != null && otherManager != this)
                 {

@@ -1,5 +1,6 @@
 ﻿using Cinemachine;
 using Dhiraj;
+using System;
 using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
@@ -77,7 +78,7 @@ namespace Shreyas
                 if (CanRun())
                 {
                     inputRun = true;
-                    ChangeFOV(70f, 0.2f);
+                    ChangeFOV(70f, 0.3f);
 
                 }
             };
@@ -85,7 +86,7 @@ namespace Shreyas
             inputActions.Player.Run.canceled += _ =>
             {
                 inputRun = false;
-                ChangeFOV(60f, 0.2f);
+                ChangeFOV(60f, 0.3f);
 
             };
 
@@ -153,7 +154,7 @@ namespace Shreyas
             if (!CanRun())
             {
                 inputRun = false;
-                ChangeFOV(60f, 0.2f);
+                ChangeFOV(60f, 0.3f);
 
             }
 
@@ -270,18 +271,31 @@ namespace Shreyas
 
         private void HandleBlocking()
         {
-            if (inputDefence)
+            if (!inventoryManager.holdingSomething)
             {
-                if (!isBlocking)
+                if (inputDefence)
                 {
-                    isBlocking = true;
-                    animator.SetBool("IsBlocking", true);
-                    animator.SetBool("InterectHold", false);
+                    if (!isBlocking)
+                    {
+                        isBlocking = true;
+                        animator.SetBool("IsBlocking", true);
+                        animator.SetBool("InterectHold", false);
 
-                    inventoryManager.SetInventoryEnabled(false);
-                    inventoryManager.DropObject();
-                    inventoryManager.HideInteractSign();
-                    inventoryManager.ClearLastOutlined();
+                        inventoryManager.SetInventoryEnabled(false);
+                        inventoryManager.DropObject();
+                        inventoryManager.HideInteractSign();
+                        inventoryManager.ClearLastOutlined();
+                    }
+                }
+                else if (wasKeyJustReleased)
+                {
+                    if (isBlocking)
+                    {
+                        isBlocking = false;
+                        animator.SetBool("IsBlocking", false);
+                        inventoryManager.SetInventoryEnabled(true);
+                    }
+                    wasKeyJustReleased = false;
                 }
             }
             else if (wasKeyJustReleased)
@@ -295,30 +309,47 @@ namespace Shreyas
                 wasKeyJustReleased = false;
             }
         }
-
+        public BoxCollider Fist1;
+        public BoxCollider Fist2;
         public void Punch()
         {
-            if(!inventoryManager.holdingSomething)
+            if(!inventoryManager.holdingSomething && !isBlocking)
             {
                 if (playerBusy || !canPunch || restrictMovement) return;
 
-                animator.SetBool("IsPunching", true);
-
-                if (punchAnimToggle)
+                if (!inventoryManager.weaponUsing)
                 {
-                    animator.SetTrigger("Punch1");
-                    animator.ResetTrigger("Punch2");
-                    SFXManager.Instance.PlaySFX($"Player/PunchThrow", 0.6f);
-                }
-                else
-                {
-                    animator.SetTrigger("Punch2");
-                    animator.ResetTrigger("Punch1");
-                    SFXManager.Instance.PlaySFX($"Player/PunchThrow", 0.6f);
-                }
+                    animator.SetBool("IsPunching", true);
 
-                punchAnimToggle = !punchAnimToggle;
-                StartCoroutine(PunchCooldown());
+                    if (punchAnimToggle)
+                    {
+                        Fist1.enabled = true;
+                        animator.SetTrigger("Punch1");
+                        animator.ResetTrigger("Punch2");
+                        SFXManager.Instance.PlaySFX($"Player/PunchThrow", 1f, 0.5f);
+
+                        LeanTween.delayedCall(0.1f, () => { inventoryManager.TriggerMeleeSway(false); });
+                        inventoryManager.usingWeaponDuration = true;
+                    }
+                    else
+                    {
+                        Fist2.enabled = true;
+                        animator.SetTrigger("Punch2");
+                        animator.ResetTrigger("Punch1");
+                        SFXManager.Instance.PlaySFX($"Player/PunchThrow", 1f, -0.5f);
+
+                        LeanTween.delayedCall(0.1f, () => { inventoryManager.TriggerMeleeSway(true); });
+                        inventoryManager.usingWeaponDuration = true;
+                    }
+
+                    inventoryManager.weaponUseInterval += 0.8f;
+
+                    LeanTween.delayedCall(0.05f, () => { inventoryManager.usingWeaponDuration = false; Fist2.enabled = false; Fist1.enabled = false; });
+
+                    punchAnimToggle = !punchAnimToggle;
+                    StartCoroutine(PunchCooldown());
+                }
+                    
             }
             
         }
@@ -394,11 +425,34 @@ namespace Shreyas
         public float runAmplitude = 1f;
         public float runFrequency = 2f;
         public float bobTransitionSpeed = 4f;
+        private bool isGunBobActive = false;
+        private float gunBobTimer = 0f;
+        private float gunBobDuration = 0.2f; // Time gun bob stays active
+
+        public void TriggerGunBob(float amplitude, float frequency, float duration = 0.2f)
+        {
+            isGunBobActive = true;
+            gunBobTimer = duration;
+            perlin.m_AmplitudeGain = amplitude;
+            perlin.m_FrequencyGain = frequency;
+        }
+
         private void UpdateHeadBob()
         {
             if (perlin == null) return;
 
-            // Only apply headbob when running and grounded
+            // Count down gun bob timer
+            if (isGunBobActive)
+            {
+                gunBobTimer -= Time.deltaTime;
+                if (gunBobTimer <= 0f)
+                {
+                    isGunBobActive = false;
+                }
+                return; // Don't apply head bob while gun bob is active
+            }
+
+            // Only apply head bob when running and grounded
             bool isRunning = inputRun && CanRun() && controller.isGrounded;
 
             float targetAmplitude = isRunning ? runAmplitude : 0f;
@@ -407,6 +461,7 @@ namespace Shreyas
             perlin.m_AmplitudeGain = Mathf.Lerp(perlin.m_AmplitudeGain, targetAmplitude, Time.deltaTime * bobTransitionSpeed);
             perlin.m_FrequencyGain = Mathf.Lerp(perlin.m_FrequencyGain, targetFrequency, Time.deltaTime * bobTransitionSpeed);
         }
+
 
     }
 }
