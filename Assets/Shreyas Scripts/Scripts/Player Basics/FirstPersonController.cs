@@ -242,7 +242,7 @@ namespace Shreyas
                 controller.center = new Vector3(0, crouchHeight / 2f, 0);
 
                 // For vignette fade-in
-                ChangeVignetteSmooth(0.4f, 0.3f);
+                ChangeVignetteSmooth(0.4f, 0.25f);
 
                 SFXManager.Instance.PlaySFX("Player/Crouch", 0.5f);
             }
@@ -251,7 +251,7 @@ namespace Shreyas
                 controller.height = standingHeight;
                 controller.center = new Vector3(0, standingHeight / 2f, 0);
                 // For vignette fade-out
-                ChangeVignetteSmooth(0f, 0.3f);
+                ChangeVignetteSmooth(0f, 0.25f);
                 SFXManager.Instance.PlaySFX("Player/Crouch", 0.5f);
 
             }

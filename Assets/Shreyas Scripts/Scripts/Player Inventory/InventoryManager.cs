@@ -10,6 +10,7 @@ using Dhiraj;
 using EPOOutline;
 using TreeEditor;
 using DG.Tweening;
+using UnityEngine.EventSystems;
 
 namespace Shreyas
 {
@@ -111,7 +112,7 @@ namespace Shreyas
             UpdateHighlight();
             HandleInteractionRaycast();
             InteractByInventoryItems();
-            HandlePickup();
+           
 
             if (isHoldingObject)
             {
@@ -165,6 +166,10 @@ namespace Shreyas
             }
 
 
+        }
+        private void FixedUpdate()
+        {
+            HandlePickup();
         }
         [SerializeField] private LayerMask interactLayerMask;
         [SerializeField] private float interactDistance = 3f;
@@ -401,18 +406,18 @@ namespace Shreyas
                                 {
                                     animator.SetTrigger("IsUsing");
 
-                                    TrailRenderer trail = handModels[14].GetComponentInChildren<TrailRenderer>();
+                                    //TrailRenderer trail = handModels[14].GetComponentInChildren<TrailRenderer>();
                                    
-                                    LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, 0.6f); });
-                                    LeanTween.delayedCall(0.14f, () => { if (trail != null) trail.enabled = true; });
+                                    //LeanTween.delayedCall(0.14f, () => { SFXManager.Instance.PlaySFX("Inventory/Slash", 0.7f, 0.6f); });
+                                    //LeanTween.delayedCall(0.14f, () => { if (trail != null) trail.enabled = true; });
 
 
-                                    weaponUseInterval += 0.7f;
-                                    usingWeaponDuration = true;
+                                    //weaponUseInterval += 0.7f;
+                                    //usingWeaponDuration = true;
 
-                                    LeanTween.delayedCall(0.3f, () => { if (trail != null) trail.enabled = false; });
+                                    //LeanTween.delayedCall(0.3f, () => { if (trail != null) trail.enabled = false; });
 
-                                    LeanTween.delayedCall(0.5f, () => { usingWeaponDuration = false; });
+                                    //LeanTween.delayedCall(0.5f, () => { usingWeaponDuration = false; });
 
 
                                     SetAnimatorStates("CanUseHammer");
@@ -1427,35 +1432,35 @@ namespace Shreyas
         }
         [SerializeField] private LayerMask wallLayerMask;
 
+        private Vector3 smoothedTargetPosition;
+
         void MoveHeldObject()
         {
-            if (heldRB == null) return;
-
-            // Get flat forward direction (ignore vertical tilt)
+            // Flat forward
             Vector3 flatForward = playerCamera.transform.forward;
-            flatForward.y = 0;
+            flatForward.y = 0f;
             flatForward.Normalize();
 
-            // Base target position in front of camera
+            // Target position
             Vector3 targetPos = playerCamera.transform.position + flatForward * hoverDistance;
 
-            // Get the pitch (X rotation) of the camera
+           
+            // Pitch for height adjustment
             float pitch = playerCamera.transform.localEulerAngles.x;
-
-            // Normalize pitch to a -90 to 90 range
-            if (pitch > 180f)
-                pitch -= 360f;
-
-            // Invert the pitch logic for height adjustment (when you look up, it goes up, when you look down, it goes down)
+            if (pitch > 180f) pitch -= 360f;
             float heightAdjustment = Mathf.Clamp(-pitch / 10f, 0f, 8f);
             targetPos.y += heightAdjustment;
 
-            // Compute movement direction
-            Vector3 moveDirection = targetPos - heldObject.transform.position;
-            float moveDistance = moveDirection.magnitude;
+            // Smooth the target position (for stable motion)
+            float smoothSpeed = 20f;
+            smoothedTargetPosition = Vector3.Lerp(smoothedTargetPosition, targetPos, Time.fixedDeltaTime * smoothSpeed);
+
+            // Move with smoothing
+            Vector3 direction = smoothedTargetPosition - heldObject.transform.position;
+            float moveDistance = direction.magnitude;
 
             // Check if the move path would collide with a wall
-            if (Physics.Raycast(heldObject.transform.position, moveDirection.normalized, out RaycastHit hitInfo, moveDistance, wallLayerMask))
+            if (Physics.Raycast(heldObject.transform.position, direction.normalized, out RaycastHit hitInfo, moveDistance, wallLayerMask))
             {
                 // Call your custom method here
                 DropObject();
@@ -1464,20 +1469,33 @@ namespace Shreyas
                 return; // Stop movement if wall hit
             }
 
-            // Move the object smoothly toward the target position
-            heldRB.MovePosition(heldObject.transform.position + moveDirection * pickupMoveSpeed * Time.deltaTime);
+            //// Rotate object to always face the camera
+            //Vector3 lookDirection = flatForward;
+            //if (lookDirection != Vector3.zero)
+            //{
+            //    Quaternion targetRot = Quaternion.LookRotation(
+            //        heldObject.CompareTag("Customer") ? -lookDirection : lookDirection);
 
-            // Rotate object to always face the camera
-            Vector3 lookDirection = flatForward;
-            if (lookDirection != Vector3.zero)
+            //    heldObject.transform.rotation = Quaternion.Slerp(
+            //        heldObject.transform.rotation,
+            //        targetRot,
+            //        Time.fixedDeltaTime * 10f // ✅ Fix here
+            //    );
+            //}
+
+
+            if (moveDistance < 0.01f)
             {
-                Quaternion targetRot = Quaternion.LookRotation(heldObject.CompareTag("Customer") ? -lookDirection : lookDirection);
-                heldObject.transform.rotation = Quaternion.Slerp(
-                    heldObject.transform.rotation,
-                    targetRot,
-                    Time.deltaTime * 10f
-                );
+                heldRB.linearVelocity = Vector3.zero;
+                return;
             }
+
+            Vector3 step = direction.normalized * pickupMoveSpeed * Time.fixedDeltaTime;
+
+            if (step.magnitude > moveDistance)
+                step = direction;
+
+            heldRB.MovePosition(heldObject.transform.position + step);
         }
 
 

@@ -29,7 +29,7 @@ public class Weapon : MonoBehaviour
     public GameObject bloodVFX;
     public InventoryManager inventoryManager;
 
-    bool hit;
+    public bool hit;
     private void Awake()
     {
         inventoryManager = FindAnyObjectByType<InventoryManager>();
@@ -80,23 +80,7 @@ public class Weapon : MonoBehaviour
                         break;
                 }
             }
-            if (!hit)
-            {
-                switch (weaponType)
-                {
-                    case WeaponType.gun:
-                        HitTarget(other);
-
-                        break;
-
-                    case WeaponType.Shortgun:
-                        HitTarget(other);
-                        break;
-
-                }
-            }
-
-
+  
         }
 
 

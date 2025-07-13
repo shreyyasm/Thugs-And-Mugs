@@ -25,6 +25,8 @@ public class Bullet : MonoBehaviour
             impact.transform.SetParent(collision.transform);
         }
 
+        if(!GetComponent<Weapon>().hit)
+            GetComponent<Weapon>().HitTarget(collision.collider);
 
         // Optional: disable visuals and physics
         var renderer = GetComponent<MeshRenderer>();
@@ -38,4 +40,5 @@ public class Bullet : MonoBehaviour
 
         Destroy(gameObject, destroyDelay);
     }
+   
 }

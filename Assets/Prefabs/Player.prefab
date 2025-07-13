@@ -586,6 +586,7 @@ MonoBehaviour:
   knockbackForce: 50
   bloodVFX: {fileID: 0}
   inventoryManager: {fileID: 0}
+  hit: 0
 --- !u!1 &528058757870060260
 GameObject:
   m_ObjectHideFlags: 0
@@ -2529,6 +2530,7 @@ MonoBehaviour:
   knockbackForce: 50
   bloodVFX: {fileID: 0}
   inventoryManager: {fileID: 0}
+  hit: 0
 --- !u!65 &5063115467497308947
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2934,7 +2936,7 @@ Transform:
   m_GameObject: {fileID: 2161175238636861677}
   serializedVersion: 2
   m_LocalRotation: {x: 0.8077772, y: -0.18006007, z: 0.43699154, w: 0.35229635}
-  m_LocalPosition: {x: -0.0016682856, y: -0.0065187654, z: -0.026908059}
+  m_LocalPosition: {x: -0.001248, y: -0.006241, z: -0.027192}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3472,6 +3474,7 @@ MonoBehaviour:
   knockbackForce: 150
   bloodVFX: {fileID: 0}
   inventoryManager: {fileID: 0}
+  hit: 0
 --- !u!1 &2657491931903984427
 GameObject:
   m_ObjectHideFlags: 0
@@ -4195,7 +4198,7 @@ MonoBehaviour:
   crouchHeight: 1
   standingHeight: 2
   crouchSpeed: 2.5
-  crouchCamY: 0.8
+  crouchCamY: -1
   standCamY: 1.5
   cameraMoveSpeed: 5
   playerCamera: {fileID: 8640711127637031750}
@@ -4272,7 +4275,7 @@ MonoBehaviour:
   InteractSign: {fileID: 7742238974796333997}
   firstPersonMovementInput: {fileID: 8187778691721458371}
   heldObject: {fileID: 0}
-  pickupMoveSpeed: 35
+  pickupMoveSpeed: 5
   hoverDistance: 3
   throwForce: 100
   inputDrop: 1
@@ -4334,7 +4337,7 @@ MonoBehaviour:
   firePointGun: {fileID: 1405629823259227645}
   bulletPrefab: {fileID: 4562142549208130217, guid: 56a6ad16ebd017849a9aac33b729d4c4,
     type: 3}
-  bulletSpeed: 70
+  bulletSpeed: 100
   maxAmmo: 6
   reloadTime: 2.4
   pellets: 8
@@ -6084,6 +6087,7 @@ MonoBehaviour:
   knockbackForce: 100
   bloodVFX: {fileID: 0}
   inventoryManager: {fileID: 0}
+  hit: 0
 --- !u!1 &4538292239571842057
 GameObject:
   m_ObjectHideFlags: 0
@@ -6414,6 +6418,7 @@ MonoBehaviour:
   knockbackForce: 200
   bloodVFX: {fileID: 0}
   inventoryManager: {fileID: 0}
+  hit: 0
 --- !u!1 &4744306074291032701
 GameObject:
   m_ObjectHideFlags: 0
@@ -6572,6 +6577,7 @@ MonoBehaviour:
   knockbackForce: 100
   bloodVFX: {fileID: 0}
   inventoryManager: {fileID: 0}
+  hit: 0
 --- !u!1 &4754110378820787711
 GameObject:
   m_ObjectHideFlags: 0
@@ -7823,6 +7829,7 @@ MonoBehaviour:
   knockbackForce: 100
   bloodVFX: {fileID: 0}
   inventoryManager: {fileID: 0}
+  hit: 0
 --- !u!65 &831735653533228882
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9322,6 +9329,7 @@ MonoBehaviour:
   knockbackForce: 100
   bloodVFX: {fileID: 0}
   inventoryManager: {fileID: 0}
+  hit: 0
 --- !u!1 &6956940374141310667
 GameObject:
   m_ObjectHideFlags: 0
@@ -9512,6 +9520,7 @@ MonoBehaviour:
   knockbackForce: 200
   bloodVFX: {fileID: 0}
   inventoryManager: {fileID: 0}
+  hit: 0
 --- !u!1 &7054177261875903691
 GameObject:
   m_ObjectHideFlags: 0
@@ -9983,7 +9992,6 @@ GameObject:
   - component: {fileID: 590562190648907135}
   - component: {fileID: 328425749878284049}
   - component: {fileID: 1749783785688374318}
-  - component: {fileID: 2781138827185340020}
   m_Layer: 11
   m_Name: Hammer
   m_TagString: Hammer
@@ -10081,23 +10089,6 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.0694169, y: 1.9917681, z: 0.59573066}
   m_Center: {x: 0.0020614262, y: 0.002852708, z: 0.0017770831}
---- !u!114 &2781138827185340020
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7641314510419376096}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7ed18e5b61c0065488175ae08df9657f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  weaponType: 0
-  weaponDamage: 0
-  knockbackForce: 0
-  bloodVFX: {fileID: 0}
-  inventoryManager: {fileID: 0}
 --- !u!1 &7890863627404360321
 GameObject:
   m_ObjectHideFlags: 0
